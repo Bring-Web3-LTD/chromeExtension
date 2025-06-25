@@ -83,6 +83,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    environment: ${{ github.event.inputs.target_environment || (github.ref_name == 'sandbox' && 'sandbox' || 'production') }}
     defaults:
       run:
         working-directory: iframe-frontend
@@ -118,15 +119,9 @@ jobs:
           echo "Branch: ${{ github.ref_name }}"
           echo "Target environment: $ENV"
           
-          if [ "$ENV" = "sandbox" ]; then
-            S3_BUCKET="${{ secrets.S3_BUCKET_SANDBOX }}"
-            CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID_SANDBOX }}"
-            echo "Using sandbox environment"
-          else
-            S3_BUCKET="${{ secrets.S3_BUCKET_PROD }}"
-            CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID_PROD }}"
-            echo "Using production environment"
-          fi
+          S3_BUCKET="${{ secrets.S3_BUCKET }}"
+          CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID }}"
+          echo "Using $ENV environment"
           
           echo "S3 Bucket: $S3_BUCKET"
           echo "CloudFront ID: $CLOUDFRONT_ID"
@@ -158,8 +153,30 @@ jobs:
             BASE_PATH="/${LATEST_VERSION}/"
           fi
           
+          # Determine environment for Vite variables
+          ENV="${{ github.event.inputs.target_environment || (github.ref_name == 'sandbox' && 'sandbox' || 'production') }}"
+          echo "Building for environment: $ENV"
           echo "Building with base path: $BASE_PATH"
-          VITE_BASE_PATH="$BASE_PATH" yarn build
+          
+          # Set environment-specific variables from GitHub Environment secrets
+          export VITE_API_URL="${{ secrets.VITE_API_URL }}"
+          export VITE_API_KEY="${{ secrets.VITE_API_KEY }}"
+          export VITE_GA_MEASUREMENT_ID="${{ secrets.VITE_GA_MEASUREMENT_ID }}"
+          export VITE_APP_ENV="$ENV"
+          if [ "$ENV" = "sandbox" ]; then
+            export VITE_DEBUG_MODE="true"
+          else
+            export VITE_DEBUG_MODE="false"
+          fi
+          
+          # Common variables for all environments
+          export VITE_BASE_PATH="$BASE_PATH"
+          export VITE_APP_VERSION="${{ github.sha }}"
+          export VITE_BUILD_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          export VITE_BRANCH_NAME="${{ github.ref_name }}"
+          export VITE_TEST_ID="${{ secrets.VITE_TEST_ID }}"
+          
+          yarn build
         env:
           NODE_ENV: production
       

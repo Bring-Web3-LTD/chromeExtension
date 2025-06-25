@@ -265,23 +265,22 @@ jobs:
           
           echo "Available versions: $VERSIONS"
           
-          # Get current ETag for the key (needed for if-match)
-          ETAG=$(aws cloudfront-keyvaluestore get-key \
+          # Get current ETag from the KeyValueStore description
+          ETAG=$(aws cloudfront-keyvaluestore describe-key-value-store \
             --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
-            --key "$KVS_KEY" \
             --query 'ETag' --output text 2>/dev/null || echo "")
           
-          if [ -n "$ETAG" ]; then
-            echo "Updating existing key with ETag: $ETAG"
-            # Update existing key
+          if [ -n "$ETAG" ] && [ "$ETAG" != "None" ]; then
+            echo "Updating KeyValueStore with ETag: $ETAG"
+            # Update with current ETag
             aws cloudfront-keyvaluestore put-key \
               --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
               --key "$KVS_KEY" \
               --value "$VERSIONS" \
               --if-match "$ETAG"
           else
-            echo "Creating new key (key doesn't exist)"
-            # Create new key (no if-match needed for new keys)
+            echo "No ETag found or KeyValueStore doesn't exist"
+            # Try without if-match (for new KeyValueStore or if describe fails)
             aws cloudfront-keyvaluestore put-key \
               --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
               --key "$KVS_KEY" \

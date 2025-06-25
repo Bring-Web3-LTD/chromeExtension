@@ -60,9 +60,11 @@ jobs:
             # If version is 0.0.0 (changeset placeholder), get the latest git tag
             if [ "$SDK_VERSION" = "0.0.0" ]; then
               echo "Package version is 0.0.0 (changeset placeholder), using latest git tag"
-              LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
+              # Get the latest tag by sorting all tags by version number
+              LATEST_TAG=$(git tag -l | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1 || echo "v1.0.0")
               # Remove 'v' prefix if present
               LATEST_TAG=${LATEST_TAG#v}
+              echo "Found latest tag: v${LATEST_TAG}"
               echo "version=v${LATEST_TAG}" >> $GITHUB_OUTPUT
             else
               echo "version=v${SDK_VERSION}" >> $GITHUB_OUTPUT

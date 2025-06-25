@@ -265,11 +265,28 @@ jobs:
           
           echo "Available versions: $VERSIONS"
           
-          # Update the KeyValueStore (replace YOUR_KVS_ID with actual ID)
-          aws cloudfront-keyvaluestore put-key \
+          # Get current ETag for the key (needed for if-match)
+          ETAG=$(aws cloudfront-keyvaluestore get-key \
             --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
             --key "$KVS_KEY" \
-            --value "$VERSIONS"
+            --query 'ETag' --output text 2>/dev/null || echo "")
+          
+          if [ -n "$ETAG" ]; then
+            echo "Updating existing key with ETag: $ETAG"
+            # Update existing key
+            aws cloudfront-keyvaluestore put-key \
+              --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
+              --key "$KVS_KEY" \
+              --value "$VERSIONS" \
+              --if-match "$ETAG"
+          else
+            echo "Creating new key (key doesn't exist)"
+            # Create new key (no if-match needed for new keys)
+            aws cloudfront-keyvaluestore put-key \
+              --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
+              --key "$KVS_KEY" \
+              --value "$VERSIONS"
+          fi
           
           echo "✅ Updated KeyValueStore key '$KVS_KEY' with versions: $VERSIONS"
       

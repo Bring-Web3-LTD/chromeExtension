@@ -246,6 +246,33 @@ jobs:
           
           echo "✅ CloudFront invalidation created for /${TARGET_VERSION}/*"
       
+      - name: Update CloudFront KeyValueStore
+        run: |
+          S3_BUCKET="${{ steps.config.outputs.s3-bucket }}"
+          
+          # Determine environment key name
+          ENV="${{ github.event.inputs.target_environment || (github.ref_name == 'sandbox' && 'sandbox' || 'production') }}"
+          if [ "$ENV" = "sandbox" ]; then
+            KVS_KEY="sandbox"
+          else
+            KVS_KEY="prod"
+          fi
+          
+          echo "Updating KeyValueStore for environment: $KVS_KEY"
+          
+          # Get all version directories from S3 and format as comma-separated list
+          VERSIONS=$(aws s3 ls "s3://${S3_BUCKET}/" | grep -E 'v[0-9]+\.[0-9]+\.[0-9]+' | awk '{print $2}' | sed 's/\///' | sed 's/^v//' | sort -V | tr '\n' ',' | sed 's/,$//')
+          
+          echo "Available versions: $VERSIONS"
+          
+          # Update the KeyValueStore (replace YOUR_KVS_ID with actual ID)
+          aws cloudfront-keyvaluestore put-key \
+            --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
+            --key "$KVS_KEY" \
+            --value "$VERSIONS"
+          
+          echo "✅ Updated KeyValueStore key '$KVS_KEY' with versions: $VERSIONS"
+      
       - name: Deployment Summary
         run: |
           echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY

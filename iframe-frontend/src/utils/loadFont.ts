@@ -16,7 +16,7 @@ const loadFont = async (fontUrl: string | null, fontFamily: string | null) => {
   const style = document.createElement('style');
   style.textContent = `
       * {
-        font-family: ${fontFamily || DEFAULT_FONT_FAMILY};
+        font-family: ${decodeURIComponent(fontFamily || DEFAULT_FONT_FAMILY)};
       }
     `;
   document.head.appendChild(style);

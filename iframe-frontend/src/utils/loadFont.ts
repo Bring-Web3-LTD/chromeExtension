@@ -3,7 +3,7 @@ const DEFAULT_FONT_FAMILY = "'Poppins', sans-serif"
 
 const loadFont = async (fontUrl: string | null, fontFamily: string | null) => {
   const link = document.createElement('link');
-  link.href = fontUrl || DEFAULT_FONT_URL;
+  link.href = decodeURIComponent(fontUrl || DEFAULT_FONT_URL);
   link.rel = 'stylesheet';
   document.head.appendChild(link);
 

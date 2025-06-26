@@ -16,13 +16,22 @@
     "default_title": "Test Extension",
     "default_popup": "popup.html"
   },
-  "permissions": ["storage", "tabs"],
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
   "content_scripts": [
     {
       "run_at": "document_start",
-      "matches": ["<all_urls>"],
-      "js": ["contentScript.js"]
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "contentScript.js"
+      ]
     }
   ],
-  "host_permissions": ["https://*.bringweb3.io/*"]
+  "host_permissions": [
+    "https://*.bringweb3.io/*"
+  ]
 }

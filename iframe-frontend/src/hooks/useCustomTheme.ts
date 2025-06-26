@@ -20,6 +20,8 @@ const useCustomTheme = (): ThemeParamsResult => {
     const [done, setDone] = useState(false)
 
     useEffect(() => {
+        console.log(theme);
+
         // Apply custom theme
         Object.entries(theme).map(([key, value]) => {
             if (themeNames[key]) {

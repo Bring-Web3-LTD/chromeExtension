@@ -302,5 +302,5 @@ bringInitContentScript({
     theme: 'dark',
     text: 'lower',
     switchWallet: false,
-    darkTheme: argentTheme
+    darkTheme
 });

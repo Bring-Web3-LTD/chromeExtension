@@ -20,12 +20,10 @@ const useCustomTheme = (): ThemeParamsResult => {
     const [done, setDone] = useState(false)
 
     useEffect(() => {
-        console.log(theme);
-
         // Apply custom theme
         Object.entries(theme).map(([key, value]) => {
             if (themeNames[key]) {
-                document.documentElement.style.setProperty(themeNames[key], decodeURIComponent(value))
+                document.documentElement.style.setProperty(themeNames[key], value)
             }
         })
         setDone(true)

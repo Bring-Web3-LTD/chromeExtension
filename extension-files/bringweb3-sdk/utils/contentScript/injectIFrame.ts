@@ -24,7 +24,7 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
     const customStyles = theme ? `&${getQueryParams({ query: theme, prefix: 't' })}` : ''
     const iframe = document.createElement('iframe');
     iframe.id = iframeId;
-    iframe.src = `${iframeHost}?${params}${customStyles}`;
+    iframe.src = encodeURI(`${iframeHost}?${params}${customStyles}`);
     const sandbox = "allow-scripts allow-same-origin"
     iframe.setAttribute('sandbox', sandbox)
     // iframe.setAttribute('sandbox', "allow-popups allow-scripts allow-same-origin allow-top-navigation-by-user-activation")

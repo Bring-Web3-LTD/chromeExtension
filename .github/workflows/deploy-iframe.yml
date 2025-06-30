@@ -35,10 +35,29 @@ jobs:
     outputs:
       deployment-mode: ${{ steps.mode.outputs.mode }}
       target-version: ${{ steps.version.outputs.version }}
+      skip-auto-deployment: ${{ steps.commit-check.outputs.skip }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      
+      - name: Check commit message for new version flag
+        id: commit-check
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+            echo "Commit message: $COMMIT_MESSAGE"
+            if [[ "$COMMIT_MESSAGE" == *"iframe-new-version"* ]]; then
+              echo "Found 'iframe-new-version' in commit message - skipping auto-deployment"
+              echo "skip=true" >> $GITHUB_OUTPUT
+            else
+              echo "No 'iframe-new-version' flag found - proceeding with auto-deployment"
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Manual dispatch - never skip
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
       
       - name: Determine deployment mode
         id: mode
@@ -79,6 +98,7 @@ jobs:
 
   build-and-deploy:
     needs: determine-deployment
+    if: needs.determine-deployment.outputs.skip-auto-deployment != 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -318,3 +338,20 @@ jobs:
           fi
           echo "- **S3 Bucket**: ${{ needs.determine-deployment.outputs.s3-bucket }}" >> $GITHUB_STEP_SUMMARY
           echo "- **CloudFront**: Invalidation triggered" >> $GITHUB_STEP_SUMMARY
+
+  deployment-skipped:
+    needs: determine-deployment
+    if: needs.determine-deployment.outputs.skip-auto-deployment == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Skipped Summary
+        run: |
+          echo "## ⏭️ Deployment Skipped" >> $GITHUB_STEP_SUMMARY
+          echo "Auto-deployment was skipped because commit message contains 'iframe-new-version'" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To deploy manually:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to Actions → Deploy Iframe Frontend" >> $GITHUB_STEP_SUMMARY
+          echo "2. Click 'Run workflow'" >> $GITHUB_STEP_SUMMARY
+          echo "3. Select 'new_version' mode for new version or 'override' to update existing" >> $GITHUB_STEP_SUMMARY

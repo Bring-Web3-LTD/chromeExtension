@@ -23,7 +23,13 @@ const useCustomTheme = (): ThemeParamsResult => {
         // Apply custom theme
         Object.entries(theme).map(([key, value]) => {
             if (themeNames[key]) {
-                document.documentElement.style.setProperty(themeNames[key], decodeURIComponent(value))
+                let val = ''
+                try {
+                    val = decodeURIComponent(value)
+                } catch (error) {
+                    val = value
+                }
+                document.documentElement.style.setProperty(themeNames[key], val)
             }
         })
         setDone(true)

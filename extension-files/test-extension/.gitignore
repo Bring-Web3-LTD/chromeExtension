@@ -9,5 +9,7 @@
 
 npm-debug.log*
 
+size-plugin.json
+
 # env files
 .env

@@ -139,8 +139,14 @@ jobs:
           echo "Branch: ${{ github.ref_name }}"
           echo "Target environment: $ENV"
           
-          S3_BUCKET="${{ secrets.S3_BUCKET }}"
-          CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID }}"
+          # Use environment-specific secrets
+          if [ "$ENV" = "sandbox" ]; then
+            S3_BUCKET="${{ secrets.S3_BUCKET_SANDBOX }}"
+            CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID_SANDBOX }}"
+          else
+            S3_BUCKET="${{ secrets.S3_BUCKET_PROD }}"
+            CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID_PROD }}"
+          fi
           echo "Using $ENV environment"
           
           echo "S3 Bucket: $S3_BUCKET"
@@ -302,16 +308,23 @@ jobs:
           
           echo "Available versions: $VERSIONS"
           
+          # Determine environment-specific KVS ARN
+          if [ "$ENV" = "sandbox" ]; then
+            KVS_ARN="${{ secrets.CLOUDFRONT_KVS_ARN_SANDBOX }}"
+          else
+            KVS_ARN="${{ secrets.CLOUDFRONT_KVS_ARN_PROD }}"
+          fi
+          
           # Get current ETag from the KeyValueStore description
           ETAG=$(aws cloudfront-keyvaluestore describe-key-value-store \
-            --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
+            --kvs-arn "$KVS_ARN" \
             --query 'ETag' --output text 2>/dev/null || echo "")
           
           if [ -n "$ETAG" ] && [ "$ETAG" != "None" ]; then
             echo "Updating KeyValueStore with ETag: $ETAG"
             # Update with current ETag
             aws cloudfront-keyvaluestore put-key \
-              --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
+              --kvs-arn "$KVS_ARN" \
               --key "$KVS_KEY" \
               --value "$VERSIONS" \
               --if-match "$ETAG"
@@ -319,7 +332,7 @@ jobs:
             echo "No ETag found or KeyValueStore doesn't exist"
             # Try without if-match (for new KeyValueStore or if describe fails)
             aws cloudfront-keyvaluestore put-key \
-              --kvs-arn "${{ secrets.CLOUDFRONT_KVS_ARN }}" \
+              --kvs-arn "$KVS_ARN" \
               --key "$KVS_KEY" \
               --value "$VERSIONS"
           fi
@@ -330,13 +343,13 @@ jobs:
         run: |
           echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Mode**: ${{ needs.determine-deployment.outputs.deployment-mode }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: ${{ github.event.inputs.target_environment || 'production' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ github.event.inputs.target_environment || (github.ref_name == 'sandbox' && 'sandbox' || 'production') }}" >> $GITHUB_STEP_SUMMARY
           if [ "${{ needs.determine-deployment.outputs.deployment-mode }}" = "new_version" ]; then
             echo "- **Version**: ${{ needs.determine-deployment.outputs.target-version }}" >> $GITHUB_STEP_SUMMARY
           else
             echo "- **Updated Version**: ${{ steps.latest-version.outputs.latest-version }}" >> $GITHUB_STEP_SUMMARY
           fi
-          echo "- **S3 Bucket**: ${{ needs.determine-deployment.outputs.s3-bucket }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **S3 Bucket**: ${{ steps.config.outputs.s3-bucket }}" >> $GITHUB_STEP_SUMMARY
           echo "- **CloudFront**: Invalidation triggered" >> $GITHUB_STEP_SUMMARY
 
   deployment-skipped:

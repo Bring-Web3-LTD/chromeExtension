@@ -139,14 +139,9 @@ jobs:
           echo "Branch: ${{ github.ref_name }}"
           echo "Target environment: $ENV"
           
-          # Use environment-specific secrets
-          if [ "$ENV" = "sandbox" ]; then
-            S3_BUCKET="${{ secrets.S3_BUCKET_SANDBOX }}"
-            CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID_SANDBOX }}"
-          else
-            S3_BUCKET="${{ secrets.S3_BUCKET_PROD }}"
-            CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID_PROD }}"
-          fi
+          # Use environment-specific secrets (configured in GitHub Environment settings)
+          S3_BUCKET="${{ secrets.S3_BUCKET }}"
+          CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID }}"
           echo "Using $ENV environment"
           
           echo "S3 Bucket: $S3_BUCKET"
@@ -184,7 +179,7 @@ jobs:
           echo "Building for environment: $ENV"
           echo "Building with base path: $BASE_PATH"
           
-          # Set environment-specific variables from GitHub Environment secrets
+          # Set environment-specific secrets from GitHub Environment
           export VITE_API_URL="${{ secrets.VITE_API_URL }}"
           export VITE_API_KEY="${{ secrets.VITE_API_KEY }}"
           export VITE_GA_MEASUREMENT_ID="${{ secrets.VITE_GA_MEASUREMENT_ID }}"
@@ -308,12 +303,8 @@ jobs:
           
           echo "Available versions: $VERSIONS"
           
-          # Determine environment-specific KVS ARN
-          if [ "$ENV" = "sandbox" ]; then
-            KVS_ARN="${{ secrets.CLOUDFRONT_KVS_ARN_SANDBOX }}"
-          else
-            KVS_ARN="${{ secrets.CLOUDFRONT_KVS_ARN_PROD }}"
-          fi
+          # Use shared repository secret for KVS ARN
+          KVS_ARN="${{ secrets.CLOUDFRONT_KVS_ARN }}"
           
           # Get current ETag from the KeyValueStore description
           ETAG=$(aws cloudfront-keyvaluestore describe-key-value-store \

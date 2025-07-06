@@ -128,3 +128,24 @@
     height: 28px;
     cursor: pointer;
 }
+
+.demo_container {
+    display: flex;
+    align-self: flex-start;
+    justify-content: center;
+    align-items: center;
+    height: 23px;
+    background: var(--wallet-bg);
+    padding: 0 12px;
+    border-radius: var(--wallet-radius);
+    margin-bottom: 9px;
+}
+
+.demo_label {
+    font-size: var(--wallet-f-s);
+    font-weight: var(--wallet-f-w);
+    color: var(--wallet-f-c);
+    border-width: var(--wallet-border-w);
+    border-style: solid;
+    border-color: var(--wallet-border-c);
+}

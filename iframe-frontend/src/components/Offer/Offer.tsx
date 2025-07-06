@@ -32,10 +32,11 @@ interface Props {
 const Offer = ({ info, nextFn, setRedirectUrl, closeFn }: Props) => {
     const { sendGaEvent } = useGoogleAnalytics()
     const { walletAddress, setWalletAddress } = useWalletAddress()
-    const { iconsPath, textMode, flowId } = useRouteLoaderData('root') as LoaderData
+    const { iconsPath, textMode, flowId, isTester } = useRouteLoaderData('root') as LoaderData
     const [tokenSymbol, setTokenSymbol] = useState(info.cryptoSymbols[0])
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isAddressUpdated, setIsAddressUpdated] = useState(false)
+    const [isDemo, setIsDemo] = useState(false)
     const [status, setStatus] = useState<'idle' | 'waiting' | 'switch' | 'activating' | 'done'>('idle')
 
     const activateAction = useCallback(async () => {
@@ -47,14 +48,21 @@ const Offer = ({ info, nextFn, setRedirectUrl, closeFn }: Props) => {
                 sendMessage({ action: ACTIONS.PROMPT_LOGIN })
                 return
             }
-            const res = await activate({
+
+            const body: Parameters<typeof activate>[0] = {
                 walletAddress,
                 platformName,
                 retailerId,
                 url,
                 tokenSymbol,
                 flowId
-            })
+            }
+
+            if (isTester && isDemo) {
+                body.isDemo = true
+            }
+
+            const res = await activate(body)
             if (res.status !== 200) throw `Got ${res.status} status`
 
             setRedirectUrl(res.url)
@@ -62,7 +70,7 @@ const Offer = ({ info, nextFn, setRedirectUrl, closeFn }: Props) => {
         } catch (error) {
             console.error(error);
         }
-    }, [info, walletAddress, tokenSymbol, flowId, setRedirectUrl, nextFn])
+    }, [info, walletAddress, tokenSymbol, flowId, setRedirectUrl, nextFn, isDemo, isTester])
 
     const handleFirstClick = () => {
         setStatus('activating')
@@ -113,6 +121,17 @@ const Offer = ({ info, nextFn, setRedirectUrl, closeFn }: Props) => {
                     <SwitchBtn
                         callback={() => setStatus('switch')}
                     />
+                    {isTester ?
+                        <div className={styles.demo_container}>
+                            <input
+                                className={styles.demo_checkbox}
+                                type="checkbox"
+                                id='demo'
+                                onChange={(e) => setIsDemo(e.target.checked)}
+                            />
+                            <label className={styles.demo_label} htmlFor="demo">Demo</label>
+                        </div> : null
+                    }
                 </div>
                 :
                 <div className={styles.wallet_spacer} />

@@ -42,7 +42,7 @@ const rootLoader = async ({ request }: Props) => {
         themeMode,
         textMode,
         switchWallet,
-        iconsPath: `/${themeMode}/icons/${res.info.platformName.toUpperCase() || 'DEFAULT'}`,
+        iconsPath: `${import.meta.env.BASE_URL}${themeMode}/icons/${res.info.platformName.toUpperCase() || 'DEFAULT'}`,
         variant
     }
 }

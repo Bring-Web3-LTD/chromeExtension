@@ -43,6 +43,10 @@ const CloseBtn = ({ callback, withTime = true, className = '' }: Props) => {
         >
             <div
                 className={styles.icon}
+                style={{
+                    maskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`,
+                    WebkitMaskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`
+                }}
             />
         </button>
     )

@@ -21,7 +21,7 @@ const CollaborationLogos = () => {
                 </div>
             </div>
             <img
-                src="/icons/plus-sign.svg"
+                src={`${import.meta.env.BASE_URL}icons/plus-sign.svg`}
                 alt="plus-sign"
                 className={styles.plus_logo}
             />

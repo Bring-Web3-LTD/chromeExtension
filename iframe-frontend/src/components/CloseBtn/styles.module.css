@@ -21,10 +21,7 @@
     -webkit-mask-size: 100%;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
-    -webkit-mask-image: url('/icons/x-mark.svg');
-
     mask-size: 100%;
     mask-repeat: no-repeat;
     mask-position: center;
-    mask-image: url('/icons/x-mark.svg');
 }

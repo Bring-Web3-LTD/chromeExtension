@@ -1,3 +1,4 @@
+import { ENV_IFRAME_URL } from "../config";
 import getQueryParams from "../getQueryParams";
 import getVersion from "../getVersion";
 interface Query {
@@ -18,7 +19,7 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
     const extensionId = chrome.runtime.id;
     const iframeId = `bringweb3-iframe-${extensionId}`;
     const element = document.getElementById(iframeId)
-    const iframeHost = process?.env?.IFRAME_URL ? `${process.env.IFRAME_URL}${page ? '/' + page : ''}` : iframeUrl
+    const iframeHost = ENV_IFRAME_URL ? `${ENV_IFRAME_URL}${page ? '/' + page : ''}` : iframeUrl
     if (element) return element as HTMLIFrameElement;
     const params = getQueryParams({ query: { ...query, extensionId, v: getVersion(), themeMode, textMode: text, switchWallet: String(switchWallet) } })
     const customStyles = theme ? `&${getQueryParams({ query: theme, prefix: 't' })}` : ''
@@ -27,7 +28,6 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
     iframe.src = encodeURI(`${iframeHost}?${params}${customStyles}`);
     const sandbox = "allow-scripts allow-same-origin"
     iframe.setAttribute('sandbox', sandbox)
-    // iframe.setAttribute('sandbox', "allow-popups allow-scripts allow-same-origin allow-top-navigation-by-user-activation")
     iframe.style.position = "fixed";
     iframe.scrolling = "no";
     iframe.style.overflow = "hidden";

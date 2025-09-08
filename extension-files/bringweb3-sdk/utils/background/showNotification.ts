@@ -2,7 +2,7 @@ import getUserId from "./getUserId";
 import sendMessage from "./sendMessage";
 import checkNotifications from "./checkNotifications";
 import getCashbackUrl from "./getCashbackUrl";
-import storage from "../storage";
+import storage from "../storage/storage";
 import { isMsRangeExpired } from "./timestampRange";
 
 interface Notification {
@@ -35,7 +35,7 @@ const showNotification = async (tabId: number, cashbackPagePath: string | undefi
         return await show(tabId, notificationFromStorage, domain)
     }
 
-    const notification = await checkNotifications(tabId, getCashbackUrl(cashbackPagePath))
+    const notification = await checkNotifications(showNotifications, tabId, getCashbackUrl(cashbackPagePath))
 
     if (notification.showNotification) {
         if (showNotifications) {

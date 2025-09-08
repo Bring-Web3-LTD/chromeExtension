@@ -16,7 +16,8 @@ const ACTIONS = {
     OPT_OUT_SPECIFIC: 'OPT_OUT_SPECIFIC',
     ADD_KEYFRAMES: 'ADD_KEYFRAMES',
     ERASE_NOTIFICATION: 'ERASE_NOTIFICATION',
-    OPEN_CASHBACK_PAGE: 'OPEN_CASHBACK_PAGE'
+    OPEN_CASHBACK_PAGE: 'OPEN_CASHBACK_PAGE',
+    STOP_REMINDERS: 'STOP_REMINDERS'
 }
 
 const UNION_ACTIONS = [ACTIONS.ACTIVATE]
@@ -24,7 +25,7 @@ const UNION_ACTIONS = [ACTIONS.ACTIVATE]
 const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
     if (!event?.data) return
 
-    const { from, action, style, keyFrames, time, extensionId, url, domain, redirectUrl } = event.data
+    const { from, action, style, keyFrames, time, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName } = event.data
     if (from !== 'bringweb3') return
 
     // If the event comes from another extension that installed our package, ignore it (unless it ACTIVATE action)
@@ -42,7 +43,7 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
             promptLogin()
             break;
         case ACTIONS.ACTIVATE:
-            chrome.runtime.sendMessage({ action, from: "bringweb3", domain, extensionId, time, redirectUrl })
+            chrome.runtime.sendMessage({ action, from: "bringweb3", domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, platformName })
             break;
         case ACTIONS.OPT_OUT:
             chrome.runtime.sendMessage({ action, time, from: "bringweb3" })
@@ -57,6 +58,9 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
             break;
         case ACTIONS.OPEN_CASHBACK_PAGE:
             chrome.runtime.sendMessage({ action, url, from: "bringweb3" })
+            break;
+        case ACTIONS.STOP_REMINDERS:
+            chrome.runtime.sendMessage({ action, from: "bringweb3" })
             break;
         default:
             // console.log('Non exist ACTION:', action);

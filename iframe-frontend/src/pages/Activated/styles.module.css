@@ -10,6 +10,7 @@
     display: flex;
     align-self: flex-start;
     justify-content: center;
+    height: 23px;
     gap: 7px;
 }
 
@@ -35,27 +36,39 @@
 }
 
 .subcontainer {
+    margin-top: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
     color: white;
-    margin-bottom: 20px;
+}
+
+.title {
+    margin-top: 6px;
+    font-size: var(--activate-title-f-s, 20px);
+    font-weight: var(--activate-title-f-w, 500);
+    color: var(--activate-title-f-c);
+    line-height: 28px;
 }
 
 .p {
-    font-size: var(--activate-title-f-s);
-    font-weight: var(--activate-title-f-w);
-    color: var(--activate-title-f-c);
+    font-size: var(--activate-subtitle-f-s, 14px);
+    font-weight: var(--activate-subtitle-f-w, 400);
+    color: var(--activate-subtitle-f-c, var(--activate-title-f-c));
     margin: 0;
-    line-height: 18px;
-    text-align: center;
+    line-height: 22px;
 }
 
-.bold {
-    font-size: var(--activate-title-bold-f-s);
-    font-weight: var(--activate-title-bold-f-w);
-    color: var(--activate-title-bold-f-c);
+.backed_by {
+    font-size: var(--activate-wallet-name-f-s, 12px);
+    font-weight: var(--activate-wallet-name-f-w, 400);
+    background: -webkit-linear-gradient(var(--activate-wallet-name-f-c, var(--activate-title-f-c)));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 12px;
+    margin-top: 8px;
+    margin-bottom: 10px;
 }
 
 .activate_btn {
@@ -79,13 +92,13 @@
 }
 
 .markdown {
-    padding: 4px 12px;
-    width: calc(438px - 24px);
+    padding: 16px;
+    padding-bottom: 0;
     border-radius: var(--markdown-radius);
     border-width: var(--markdown-border-w);
     border-style: solid;
     border-color: var(--markdown-border-c);
-    height: 102px;
+    height: calc(218px - 32px);
     font-size: var(--markdown-f-s);
     font-weight: var(--markdown-f-w);
     color: var(--markdown-f-c);
@@ -107,6 +120,6 @@
 }
 
 .markdown::-webkit-scrollbar-thumb {
-    background: var(--markdown-scrollbar-color);
+    background: var(--markdown-scrollbar-c);
     border-radius: 32px;
 }

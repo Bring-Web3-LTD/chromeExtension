@@ -1,16 +1,32 @@
+/* body {
+    background: red;
+}
+
+*/
 .container {
     display: flex;
+    padding: 10px 12px 10px 16px;
+    height: 36px;
     gap: 16px;
-    min-height: 50px;
     align-items: center;
-    justify-content: flex-start;
-    padding-left: 8px;
+}
+
+.no_wallet_container {
+    height: 50px;
+    padding: 10px 12px 10px 16px;
 }
 
 .notification_details {
     font-size: var(--notification-f-s);
     font-weight: var(--notification-f-w);
     color: var(--notification-f-c);
+    width: 240px;
+    user-select: none;
+}
+
+.no_wallet_notification_details {
+    width: auto;
+    line-height: 24px;
 }
 
 .link {
@@ -20,11 +36,49 @@
     color: var(--notification-btn-f-c);
     text-align: center;
     width: 102px;
-    padding: 5px 0;
+    padding: 7px 16px;
     border-radius: var(--notification-btn-radius);
     border-width: var(--notification-btn-border-w);
     border-style: solid;
     border-color: var(--notification-btn-border-c);
     background: var(--notification-btn-bg);
-    cursor: pointer
+    cursor: pointer;
+    line-height: 22px;
+}
+
+.no_wallet_link {
+    width: 155px;
+    white-space: nowrap;
+}
+
+.no_wallet_link_short {
+    width: auto;
+    white-space: nowrap;
+}
+
+.close_btn {
+    top: 16px;
+}
+
+.no_wallet_close_btn {
+    top: 22.5px;
+}
+
+.hr {
+    background: white;
+    height: 50px;
+    width: 1px;
+    border: none;
+    margin: 0;
+}
+
+.text_container {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 401px;
+}
+
+.bold {
+    font-weight: 500;
 }

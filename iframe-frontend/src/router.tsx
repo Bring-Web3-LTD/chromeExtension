@@ -5,6 +5,7 @@ import Notification from './pages/Notification/Notification.tsx'
 import rootLoader from './utils/loaders/rootLoader.ts'
 import removeTrailingSlash from './utils/removeTrailingSlash.ts'
 import { BASE_PATH } from './config.ts'
+import Activated from './pages/Activated/Activated.tsx'
 
 const router = createBrowserRouter([
     {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
             {
                 path: '/notification',
                 element: <Notification />
+            },
+            {
+                path: '/activated',
+                element: <Activated />
             }
         ],
     },

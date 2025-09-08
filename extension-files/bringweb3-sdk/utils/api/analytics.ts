@@ -1,6 +1,6 @@
 import apiRequest from "./apiRequest"
 
-interface Body {
+interface AnalyticEvent {
     type: string
     userId?: string
     walletAddress?: string
@@ -8,16 +8,26 @@ interface Body {
     action?: string
     process?: string
     details?: unknown
-    flowId: string
+    flowId?: string,
+    page?: string,
+    domain?: string,
+    entry?: string,
 }
 
-const analytics = async (body: Body) => {
-    body.category = body?.category || 'system'
+
+const analytics = async (body: AnalyticEvent | AnalyticEvent[]) => {
+    const isArray = Array.isArray(body)
+
+    if (isArray) {
+        body.forEach(e => e.category = e.category || 'system')
+    } else {
+        body.category = body?.category || 'system'
+    }
 
     await apiRequest({
         path: '/analytics',
         method: 'POST',
-        params: body
+        params: isArray ? { events: body } : body
     })
 }
 

@@ -1,0 +1,244 @@
+name: Sync Main to Dev Branches
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branches:
+        description: 'Branches to sync with main (comma-separated)'
+        required: false
+        default: 'dev,sandbox'
+        type: string
+  
+  # Automatically trigger after SDK publish (when changeset PR is merged to main)
+  push:
+    branches:
+      - main
+    paths:
+      - 'extension-files/bringweb3-sdk/package.json'
+
+jobs:
+  check-version-change:
+    runs-on: ubuntu-latest
+    outputs:
+      version-changed: ${{ steps.check.outputs.changed }}
+      old-version: ${{ steps.check.outputs.old-version }}
+      new-version: ${{ steps.check.outputs.new-version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Get current and previous commit
+      
+      - name: Check if SDK version changed
+        id: check
+        run: |
+          # Get current version
+          CURRENT_VERSION=$(cat extension-files/bringweb3-sdk/package.json | jq -r '.version')
+          
+          # Get previous version (from previous commit)
+          PREVIOUS_VERSION=$(git show HEAD~1:extension-files/bringweb3-sdk/package.json | jq -r '.version' 2>/dev/null || echo "")
+          
+          echo "Current version: $CURRENT_VERSION"
+          echo "Previous version: $PREVIOUS_VERSION"
+          
+          if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ] && [ -n "$PREVIOUS_VERSION" ]; then
+            echo "Version changed from $PREVIOUS_VERSION to $CURRENT_VERSION"
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "old-version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+            echo "new-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "No version change detected"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+  create-sync-prs:
+    needs: check-version-change
+    if: needs.check-version-change.outputs.version-changed == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Determine target branches
+        id: branches
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BRANCHES="${{ github.event.inputs.target_branches }}"
+          else
+            # Auto-sync after version change
+            BRANCHES="dev,sandbox"
+          fi
+          echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+          echo "Target branches: $BRANCHES"
+      
+      - name: Create sync PRs
+        run: |
+          BRANCHES="${{ steps.branches.outputs.branches }}"
+          SUCCESS_PRS=""
+          FAILED_BRANCHES=""
+          EXISTING_PRS=""
+          
+          # Convert comma-separated string to array
+          IFS=',' read -ra BRANCH_ARRAY <<< "$BRANCHES"
+          
+          for branch in "${BRANCH_ARRAY[@]}"; do
+            branch=$(echo "$branch" | xargs)  # trim whitespace
+            echo "=== Creating sync PR for branch: $branch ==="
+            
+            # Check if branch exists
+            if ! git ls-remote --heads origin "$branch" | grep -q "$branch"; then
+              echo "Branch $branch does not exist, skipping..."
+              FAILED_BRANCHES="$FAILED_BRANCHES $branch(not-found)"
+              continue
+            fi
+            
+            # Check if branch is behind main
+            BEHIND_COUNT=$(git rev-list --count "origin/$branch"..origin/main 2>/dev/null || echo "0")
+            echo "Branch $branch is $BEHIND_COUNT commits behind main"
+            
+            if [ "$BEHIND_COUNT" -eq 0 ]; then
+              echo "Branch $branch is already up to date with main"
+              SUCCESS_PRS="$SUCCESS_PRS $branch(up-to-date)"
+              continue
+            fi
+            
+            # Create sync branch name
+            SYNC_BRANCH="sync/main-to-$branch-$(date +%Y%m%d-%H%M%S)"
+            echo "Creating sync branch: $SYNC_BRANCH"
+            
+            # Create and checkout sync branch from main
+            if git checkout -b "$SYNC_BRANCH" origin/main; then
+              echo "Created sync branch $SYNC_BRANCH"
+            else
+              echo "Failed to create sync branch"
+              FAILED_BRANCHES="$FAILED_BRANCHES $branch(sync-branch-failed)"
+              continue
+            fi
+            
+            # Push sync branch
+            if git push origin "$SYNC_BRANCH"; then
+              echo "Pushed sync branch $SYNC_BRANCH"
+            else
+              echo "Failed to push sync branch"
+              FAILED_BRANCHES="$FAILED_BRANCHES $branch(push-failed)"
+              git checkout main 2>/dev/null || true
+              continue
+            fi
+            
+            # Check for existing sync PR
+            EXISTING_PR=$(gh pr list --base "$branch" --head "$SYNC_BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
+            
+            if [ -n "$EXISTING_PR" ]; then
+              echo "PR already exists: #$EXISTING_PR"
+              EXISTING_PRS="$EXISTING_PRS $branch(#$EXISTING_PR)"
+            else
+              # Create PR using gh CLI
+              VERSION_INFO="${{ needs.check-version-change.outputs.new-version || 'manual sync' }}"
+              PR_TITLE="🔄 Sync main to $branch after release $VERSION_INFO"
+              
+              if gh pr create --base "$branch" --head "$SYNC_BRANCH" --title "$PR_TITLE" --body "Sync changes from main branch to $branch after release $VERSION_INFO. This removes processed changesets and prevents accumulation issues. 🤖 Auto-created by GitHub Actions."; then
+                PR_NUMBER=$(gh pr list --base "$branch" --head "$SYNC_BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "unknown")
+                echo "Created PR #$PR_NUMBER for $branch"
+                SUCCESS_PRS="$SUCCESS_PRS $branch(#$PR_NUMBER)"
+              else
+                echo "Failed to create PR for $branch"
+                FAILED_BRANCHES="$FAILED_BRANCHES $branch(pr-creation-failed)"
+              fi
+            fi
+            
+            # Return to main branch
+            git checkout main 2>/dev/null || true
+            echo ""
+          done
+          
+          # Summary
+          echo "=== SYNC PR SUMMARY ==="
+          if [ -n "$SUCCESS_PRS" ]; then
+            echo "✅ Successfully created PRs: $SUCCESS_PRS"
+          fi
+          if [ -n "$EXISTING_PRS" ]; then
+            echo "ℹ️  Existing PRs found: $EXISTING_PRS"
+          fi
+          if [ -n "$FAILED_BRANCHES" ]; then
+            echo "❌ Failed to create PRs: $FAILED_BRANCHES"
+            echo "FAILED_BRANCHES=$FAILED_BRANCHES" >> $GITHUB_ENV
+          fi
+          
+          echo "SUCCESS_PRS=$SUCCESS_PRS" >> $GITHUB_ENV
+          echo "EXISTING_PRS=$EXISTING_PRS" >> $GITHUB_ENV
+      
+      - name: Create summary
+        run: |
+          echo "## 🔄 Branch Sync PR Summary" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "- **Trigger**: Manual workflow dispatch" >> $GITHUB_STEP_SUMMARY
+            echo "- **Target branches**: ${{ steps.branches.outputs.branches }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Trigger**: Automatic (SDK version change)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Version change**: ${{ needs.check-version-change.outputs.old-version }} → ${{ needs.check-version-change.outputs.new-version }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Target branches**: ${{ steps.branches.outputs.branches }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -n "$SUCCESS_PRS" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ✅ Successfully Created PRs" >> $GITHUB_STEP_SUMMARY
+            for pr in $SUCCESS_PRS; do
+              echo "- \`$pr\`" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+          
+          if [ -n "$EXISTING_PRS" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ℹ️ Existing PRs Found" >> $GITHUB_STEP_SUMMARY
+            for pr in $EXISTING_PRS; do
+              echo "- \`$pr\`" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+          
+          if [ -n "$FAILED_BRANCHES" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Failed to Create PRs" >> $GITHUB_STEP_SUMMARY
+            for branch in $FAILED_BRANCHES; do
+              echo "- \`$branch\`" >> $GITHUB_STEP_SUMMARY
+            done
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Action required**: Check failed branches and create PRs manually if needed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review and approve the created PRs" >> $GITHUB_STEP_SUMMARY
+          echo "2. Merge the PRs to complete the sync" >> $GITHUB_STEP_SUMMARY
+          echo "3. This will resolve changeset accumulation issues" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Fail if any PR creation failed
+        if: env.FAILED_BRANCHES != ''
+        run: |
+          echo "Some PRs failed to be created: $FAILED_BRANCHES"
+          exit 1
+
+  notify-completion:
+    needs: [check-version-change, create-sync-prs]
+    if: always() && (needs.check-version-change.outputs.version-changed == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notification
+        run: |
+          if [ "${{ needs.create-sync-prs.result }}" = "success" ]; then
+            echo "✅ Sync PRs created successfully"
+            echo "Review and merge the PRs to complete the sync process"
+            echo "This will resolve changeset accumulation issues"
+          else
+            echo "❌ Some sync PRs had issues"
+            echo "Check the workflow logs and create PRs manually if needed"
+          fi

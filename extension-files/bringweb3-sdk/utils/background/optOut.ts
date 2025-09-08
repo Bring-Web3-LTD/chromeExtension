@@ -1,4 +1,4 @@
-import storage from "../storage"
+import storage from "../storage/storage"
 import { isMsRangeActive } from "./timestampRange"
 
 interface OptOut {

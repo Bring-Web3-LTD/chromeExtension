@@ -6,6 +6,7 @@ interface ValidateDomainProps {
         domain: string,
         address: WalletAddress,
         country?: string
+        phase?: 'new' | 'activated'
     }
 }
 

@@ -1,4 +1,5 @@
 import { ApiEndpoint } from "../apiEndpoint"
+import { compress } from "../background/domainsListCompression"
 
 export const fetchWhitelist = async () => {
     try {
@@ -21,11 +22,13 @@ export const fetchWhitelist = async () => {
             throw new Error('Failed to fetch whitelist')
         }
 
-        const whitelist = await response.json()
+        let whitelist = await response.json()
 
         if (!Array.isArray(whitelist)) {
             throw new Error("whitelist isn't an array")
         }
+
+        whitelist = compress(whitelist)
 
         return whitelist
     } catch (error) {

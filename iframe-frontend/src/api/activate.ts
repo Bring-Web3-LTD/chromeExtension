@@ -1,7 +1,8 @@
 import { API_URL, API_KEY } from "../config"
 
 interface ActivateProps {
-    walletAddress: string
+    userId: string
+    walletAddress?: string
     platformName: string
     retailerId: string
     url: string
@@ -17,6 +18,8 @@ interface ActivateResponse {
     url: string
     cashbackInfoUrl: string
     generalTermsUrl: string
+    iframeUrl: string
+    token: string
 }
 
 const activate = async (body: ActivateProps): Promise<ActivateResponse> => {

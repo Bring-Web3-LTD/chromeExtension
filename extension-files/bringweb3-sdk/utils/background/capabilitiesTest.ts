@@ -1,4 +1,4 @@
-import storage from "../storage";
+import storage from "../storage/storage";
 
 const canSaveToMemory = async () => {
     const testKey = 'extensionMemoryTest';

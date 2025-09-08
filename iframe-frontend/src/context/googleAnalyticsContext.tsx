@@ -5,7 +5,7 @@ import { VariantKey } from '../utils/ABTest/platform-variants';
 import analytics from '../api/analytics';
 import { useWalletAddress } from '../hooks/useWalletAddress';
 
-type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'retailer_activation' | 'page_view' | 'beamer'
+type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer'
 
 interface GAEvent {
     category: "user_action" | "system";

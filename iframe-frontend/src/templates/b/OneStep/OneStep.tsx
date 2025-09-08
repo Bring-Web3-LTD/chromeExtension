@@ -1,7 +1,7 @@
 // Styles
 import styles from './style.module.css'
 // Hooks
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouteLoaderData } from "react-router-dom"
 import { useGoogleAnalytics } from "../../../hooks/useGoogleAnalytics"
 import { motion, AnimatePresence } from "framer-motion"
@@ -36,14 +36,12 @@ const slideVariants = {
     })
 }
 
-interface Props {
-    retailerMarkdown: string
-    generalMarkdown: string
-}
 
-const OneStep = ({ retailerMarkdown, generalMarkdown }: Props) => {
-    const { iconsPath, cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version } = useRouteLoaderData('root') as LoaderData
+
+const OneStep = () => {
+    const { iconsPath, cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId } = useRouteLoaderData('root') as LoaderData
     const [[isShowingTerms, direction], setIsShowingTerms] = useState([false, 0])
+    const [markdownContent, setMarkdownContent] = useState('')
     const [isShowingTurnoff, setIsShowingTurnoff] = useState(false)
     const tokenSymbol = cryptoSymbols[0]
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
@@ -51,6 +49,32 @@ const OneStep = ({ retailerMarkdown, generalMarkdown }: Props) => {
     const [isOptedOut, setIsOptedOut] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
     const { sendGaEvent } = useGoogleAnalytics()
+
+    useEffect(() => {
+        const controller = new AbortController()
+
+        const loadAllMarkdown = async () => {
+            try {
+                const [topGeneral, retailer, general] = await Promise.all([
+                    fetch(topGeneralTermsUrl, { signal: controller.signal }).then(res => res.text()),
+                    fetch(retailerTermsUrl, { signal: controller.signal }).then(res => res.text()),
+                    fetch(generalTermsUrl, { signal: controller.signal }).then(res => res.text())
+                ])
+
+                setMarkdownContent(topGeneral + retailer + general)
+            } catch (error: unknown) {
+                if (error instanceof Error && error.name !== 'AbortError') {
+                    console.error("Error fetching markdown:", error)
+                }
+            }
+        }
+
+        loadAllMarkdown()
+
+        return () => controller.abort()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
 
     const activateHandler = async () => {
         if (!walletAddress) {
@@ -75,6 +99,7 @@ const OneStep = ({ retailerMarkdown, generalMarkdown }: Props) => {
             url,
             tokenSymbol,
             flowId,
+            userId
         }
 
         if (isTester && isDemo) {
@@ -216,7 +241,7 @@ const OneStep = ({ retailerMarkdown, generalMarkdown }: Props) => {
                         </button>
                         <h1 className={styles.termsHeader}>Cashback terms:</h1>
                         <Markdown className={styles.markdown}>
-                            {`${retailerMarkdown}${generalMarkdown}`}
+                            {markdownContent}
                         </Markdown>
                     </motion.div>
                 )}

@@ -1,5 +1,6 @@
 'use strict';
 import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";
+import { dark } from "./themes/yoroi";
 const argentTheme = {
     fontUrl: 'https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap',
     fontFamily: "'Barlow', sans-serif",
@@ -36,7 +37,7 @@ const template = {
     markdownBorderW: "0",
     markdownRadius: "4px",
     markdownBorderC: "black",
-    markdownScrollbarC: "#DADCE5",
+    markdownScrollbarC: "#4B5266",
     // Wallet address
     walletBg: "#33535B",
     walletFS: "10px",
@@ -290,17 +291,48 @@ const lightTheme = {
     activateTitleBoldFC: "#242838",
 }
 
-const promptLogin = () => {
-    chrome.runtime.sendMessage({ action: "openWindow" });
+const promptLogin = async () => {
+    chrome.runtime.sendMessage({
+        type: "SET_WALLET_ADDRESS",
+        walletAddress: 'addr1qydfh2z0m4j2297rzwsu7dfu4ld3a6nhgytrn2wzxgvdlwd6y4l5psyq79gflnhwlttgw8gk7aj5j6lj95vg7my67vpsdcvu4l',
+        from: 'demoExtension'
+    });
+
+    const walletUpdated = new CustomEvent('BRING:WALLET_UPDATED', { detail: {} });
+
+    window.dispatchEvent(walletUpdated)
+}
+
+const getWalletAddress = async () => {
+    const res = await chrome.runtime.sendMessage({ type: 'GET_WALLET_ADDRESS', from: 'demoExtension' });
+    return res
 }
 
 bringInitContentScript({
-    getWalletAddress: async () => await new Promise(resolve => setTimeout(() => resolve('addr1qydfh2z0m4j2297rzwsu7dfu4ld3a6nhgytrn2wzxgvdlwd6y4l5psyq79gflnhwlttgw8gk7aj5j6lj95vg7my67vpsdcvu4l'), 200)),
-    walletAddressUpdateCallback: (callback) => { callback() },
-    // promptLogin: async () => await new Promise(resolve => setTimeout(() => resolve('addr1qydfh2z0m4j2297rzwsu7dfu4ld3a6nhgytrn2wzxgvdlwd6y4l5psyq79gflnhwlttgw8gk7aj5j6lj95vg7my67vpsdcvu4l'), 4000)),
+    getWalletAddress,
+    walletAddressListeners: ['BRING:WALLET_UPDATED'],
     promptLogin,
     theme: 'dark',
-    text: 'lower',
+    text: 'upper',
     switchWallet: false,
-    darkTheme
+    darkTheme: dark
 });
+
+window.addEventListener('message', async event => {
+    if (!event?.data) return
+    const { action, extensionId, from } = event.data
+    if (from !== 'bringweb3:portal' || chrome.runtime.id !== extensionId) return;
+
+    switch (action) {
+        case 'CONNECT':
+            event.source.postMessage({
+                action: 'CONNECT_RESPONSE',
+                walletAddress: await getWalletAddress(),
+                from: 'demoExtension'
+            }, '*')
+            break;
+
+        default:
+            break;
+    }
+})

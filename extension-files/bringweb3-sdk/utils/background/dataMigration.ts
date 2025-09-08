@@ -1,6 +1,7 @@
-import storage from "../storage"
+import storage from "../storage/storage"
+import { v4 as uuidv4, validate } from "uuid";
 
-const CURRENT_MIGRATION_VERSION = 1;
+const CURRENT_MIGRATION_VERSION = 2;
 
 const migrateObject = async (key: string, now: number) => {
     const obj = await storage.get(key);
@@ -12,7 +13,7 @@ const migrateObject = async (key: string, now: number) => {
                 delete obj[key]; // Remove expired quiet domains
             }
         }
-        storage.set(key, obj);
+        await storage.set(key, obj);
     }
 }
 
@@ -38,11 +39,43 @@ const runMigration = async () => {
     }
 }
 
+const runMigrationTwo = async () => {
+    try {
+        const quietDomains = await storage.get('quietDomains');
+        if (quietDomains && typeof quietDomains === 'object') {
+            for (const [key, value] of Object.entries(quietDomains)) {
+                if (Array.isArray(value)) {
+                    quietDomains[key] = {
+                        time: value,
+                        phase: 'quiet'
+                    };
+                }
+            }
+            await storage.set('quietDomains', quietDomains);
+        }
+
+        let id = await storage.get('id');
+        if (!validate(id || '')) {
+            id = uuidv4();
+            await storage.set('id', id);
+        }
+
+        return true
+    } catch (error) {
+        return false;
+    }
+}
+
 export const checkAndRunMigration = async () => {
     const migrationVersion = await storage.get('migrationVersion') || 0;
 
-    if (migrationVersion < CURRENT_MIGRATION_VERSION) {
+    if (migrationVersion < 1) {
         const isSucceed = await runMigration();
+        if (isSucceed) await storage.set('migrationVersion', 1);
+    }
+
+    if (migrationVersion < CURRENT_MIGRATION_VERSION) {
+        const isSucceed = await runMigrationTwo();
         if (isSucceed) await storage.set('migrationVersion', CURRENT_MIGRATION_VERSION);
     }
 }

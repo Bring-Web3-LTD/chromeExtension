@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Bring Mock Extension",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "Mock extension for the bringweb3-sdk",
   "icons": {
     "16": "icons/icon_16.png",
@@ -28,7 +28,8 @@
       ],
       "js": [
         "contentScript.js"
-      ]
+      ],
+      "all_frames": true
     }
   ],
   "host_permissions": [

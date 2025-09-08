@@ -1,27 +1,39 @@
-import storage from "../storage";
+import storage from "../storage/storage";
 import addQuietDomain from "./addQuietDomain";
 import checkNotifications from "./checkNotifications";
 import getCashbackUrl from "./getCashbackUrl";
 import isWhitelisted from "./isWhitelisted";
 import { DAY_MS } from "../constants";
+import closeAllPopups from "./closeAllPopups";
+import { compress } from "./domainsListCompression";
 
-const handleActivate = async (domain: string, extensionId: string, cashbackPagePath: string | undefined, time?: number, tabId?: number, redirectUrl?: string) => {
+const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string) => {
     const now = Date.now();
-    if (extensionId === chrome.runtime.id) {
-        await storage.set('lastActivation', now);
+
+    const isSameExtension = extensionId === chrome.runtime.id
+
+    if (isSameExtension) {
+        const storageOps = [storage.set('lastActivation', now)];
+
+        if (source === 'portal') storageOps.push(storage.set('portalRelevantDomains', compress([domain])))
+
+        await Promise.all(storageOps);
     }
 
-    if (domain) addQuietDomain(domain, time || DAY_MS)
+    const phase = isSameExtension ? 'activated' : 'quiet';
+
+
+    if (domain) addQuietDomain(domain, time || DAY_MS, { iframeUrl, token, flowId }, phase);
+
+    closeAllPopups(domain, tabId || -1, extensionId);
 
     if (tabId && redirectUrl) {
-        const whitelist = await storage.get('redirectsWhitelist')
-
-        if (await isWhitelisted(redirectUrl, whitelist)) {
+        if (await isWhitelisted(redirectUrl)) {
             chrome.tabs.update(tabId, { url: redirectUrl })
         }
     }
 
-    await checkNotifications(undefined, getCashbackUrl(cashbackPagePath))
+    await checkNotifications(showNotifications, undefined, getCashbackUrl(cashbackPagePath), isSameExtension)
 }
 
 export default handleActivate;

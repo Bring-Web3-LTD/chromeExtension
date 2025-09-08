@@ -25,5 +25,9 @@ interface BringEvent {
         url?: string
         domain?: string
         redirectUrl?: string
+        iframeUrl?: string
+        token?: string
+        flowId?: string
+        platformName?: string
     }
 }

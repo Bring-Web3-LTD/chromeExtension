@@ -1,7 +1,7 @@
 import { ApiEndpoint } from "../apiEndpoint"
 import getUserId from "../background/getUserId"
 import getVersion from "../getVersion"
-import storage from "../storage"
+import storage from "../storage/storage"
 
 interface Request {
     path: string

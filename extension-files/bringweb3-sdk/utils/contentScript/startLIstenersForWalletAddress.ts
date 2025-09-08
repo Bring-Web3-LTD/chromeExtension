@@ -13,14 +13,11 @@ interface UpdateAddressProps {
 const updateAddress = async ({ iframeEl, getWalletAddress }: UpdateAddressProps) => {
     if (!iframeEl) {
         iframeEl = document.querySelector(`#bringweb3-iframe-${chrome.runtime.id}`)
-        if (!iframeEl) return
     }
-    if (!iframeEl.contentWindow) {
-        return
-    }
+
     const address = await getWalletAddress()
 
-    iframeEl.contentWindow.postMessage({ action: 'WALLET_ADDRESS_UPDATE', walletAddress: address }, '*')
+    iframeEl?.contentWindow?.postMessage({ action: 'WALLET_ADDRESS_UPDATE', walletAddress: address }, '*')
     chrome.runtime.sendMessage({ action: 'WALLET_ADDRESS_UPDATE', from: 'bringweb3', walletAddress: address })
 }
 

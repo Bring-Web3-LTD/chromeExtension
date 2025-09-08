@@ -1,5 +1,5 @@
 import sendMessage from "./sendMessage";
-import storage from "../storage";
+import storage from "../storage/storage";
 
 const getWalletAddress = async (tabId?: number): Promise<WalletAddress> => {
     let walletAddress: WalletAddress = await storage.get('walletAddress')

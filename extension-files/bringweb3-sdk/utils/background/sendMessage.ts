@@ -1,15 +1,18 @@
 interface Message {
-    action: 'INJECT' | 'GET_WALLET_ADDRESS'
+    action: 'INJECT' | 'GET_WALLET_ADDRESS' | 'CLOSE_POPUP'
     domain?: string
     token?: string
     iframeUrl?: string
     page?: string
     userId?: string | undefined
-    portalReferrers?: string[]
+    reason?: string
+    path?: string
+    referrers?: string[]
+    flowId?: string
 }
 
-const sendMessage = (tabId: number, message: Message): Promise<any> => {
-    const maxRetries = 5;
+const sendMessage = (tabId: number, message: Message, maxRetries?: number): Promise<any> => {
+    maxRetries = maxRetries || 5;
     const baseDelay = 1000; // 1 second
 
     return new Promise((resolve, reject) => {

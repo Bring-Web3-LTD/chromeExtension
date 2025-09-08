@@ -1,40 +1,34 @@
 import { ApiEndpoint } from "../apiEndpoint";
-import storage from "../storage";
+import getDomain from "../getDomain";
+import storage from "../storage/storage";
+import { searchCompressed } from "./domainsListCompression";
 import { updateCache } from "./updateCache";
 
-const isWhitelisted = async (urlString: string, whitelist: string[]): Promise<boolean> => {
+const isWhitelisted = async (url: string): Promise<boolean> => {
     try {
         const whitelistEndpoint = ApiEndpoint.getInstance().getWhitelistEndpoint()
 
-        if (whitelistEndpoint && !whitelist?.length) {
+        if (!whitelistEndpoint) {
+            return true; // No whitelist endpoint set
+        }
+
+        let whitelist = await storage.get('redirectsWhitelist');
+
+        if (!(whitelist instanceof Uint8Array) || !whitelist?.length) {
             await updateCache()
             whitelist = await storage.get('redirectsWhitelist')
         }
 
-        if (!whitelist?.length) {
-            return whitelistEndpoint ? false : true;
-        };
+        if (!whitelist?.length) return false
 
-        const url = new URL(urlString);
-        let domain = url.hostname.toLowerCase();
+        const domain = getDomain(url)
 
-        // Remove "www." if present
-        domain = domain.replace('www.', '');
+        const { matched } = searchCompressed(whitelist, domain)
 
-        // Direct match check
-        if (whitelist.includes(domain)) {
-            return true;
-        }
+        return matched;
 
-        return whitelist.some((pattern) => {
-            if (pattern.startsWith("*.")) {
-                const baseDomain = pattern.slice(2); // Remove "*."
-                return domain.endsWith(baseDomain);
-            }
-            return false;
-        });
     } catch (error) {
-        console.error("Invalid URL:", urlString);
+        console.error("Invalid URL:", url);
         return false;
     }
 }

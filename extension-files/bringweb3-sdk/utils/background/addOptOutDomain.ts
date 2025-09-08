@@ -1,4 +1,4 @@
-import storage from "../storage"
+import storage from "../storage/storage"
 
 const STORAGE_KEY = 'optOutDomains'
 
@@ -16,7 +16,7 @@ const addOptOutDomain = async (domain: string, time: number) => {
 
     optOutDomains[domain] = [now, end]
 
-    storage.set(STORAGE_KEY, optOutDomains)
+    await storage.set(STORAGE_KEY, optOutDomains)
 }
 
 export default addOptOutDomain;

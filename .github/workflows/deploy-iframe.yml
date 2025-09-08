@@ -120,13 +120,30 @@ jobs:
               cp package.json "$TEMP_PACKAGE"
               
               # Set the version to main's version temporarily
-              jq --arg version "$MAIN_VERSION" '.version = $version' package.json > package.json.tmp
-              mv package.json.tmp package.json
+              echo "Temporarily setting package.json version to main version: $MAIN_VERSION"
+              if jq --arg version "$MAIN_VERSION" '.version = $version' package.json > package.json.tmp; then
+                mv package.json.tmp package.json
+                echo "Successfully updated package.json version"
+              else
+                echo "ERROR: Failed to update package.json version with jq"
+                exit 1
+              fi
               
               # Now run changeset status with main's version as base
-              yarn changeset status --output=changeset-output.json 2>/dev/null
-              RELEASE_OUTPUT=$(cat changeset-output.json || echo '{"releases":[]}')
-              rm changeset-output.json
+              echo "Running changeset status command..."
+              if yarn changeset status --output=changeset-output.json; then
+                echo "Changeset command succeeded"
+                RELEASE_OUTPUT=$(cat changeset-output.json 2>/dev/null || echo '{"releases":[]}')
+                rm -f changeset-output.json
+              else
+                CHANGESET_EXIT_CODE=$?
+                echo "ERROR: changeset status command failed with exit code: $CHANGESET_EXIT_CODE"
+                echo "Attempting to run changeset status without output redirection for debugging:"
+                yarn changeset status || echo "Changeset status also failed in debug mode"
+                # Restore original package.json before exiting
+                mv "$TEMP_PACKAGE" package.json
+                exit 1
+              fi
               echo "Changeset status output (with main base): $RELEASE_OUTPUT"
               
               # Restore original package.json

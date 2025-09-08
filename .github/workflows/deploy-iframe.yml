@@ -131,7 +131,7 @@ jobs:
               
               # Now run changeset status with main's version as base
               echo "Running changeset status command..."
-              if yarn changeset status --output=changeset-output.json --since=HEAD; then
+              if yarn changeset status --output=changeset-output.json --ignore-changed; then
                 echo "Changeset command succeeded"
                 RELEASE_OUTPUT=$(cat changeset-output.json 2>/dev/null || echo '{"releases":[]}')
                 rm -f changeset-output.json
@@ -139,7 +139,7 @@ jobs:
                 CHANGESET_EXIT_CODE=$?
                 echo "ERROR: changeset status command failed with exit code: $CHANGESET_EXIT_CODE"
                 echo "Attempting to run changeset status without output redirection for debugging:"
-                yarn changeset status --since=HEAD || echo "Changeset status also failed in debug mode"
+                yarn changeset status --ignore-changed || echo "Changeset status also failed in debug mode"
                 # Restore original package.json before exiting
                 mv "$TEMP_PACKAGE" package.json
                 exit 1

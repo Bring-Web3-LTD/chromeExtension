@@ -5,8 +5,12 @@ interface Helpers {
     }
 }
 
-export const strToUint8Array = (str: string): Uint8Array => {
-    return new Uint8Array(atob(str).split('').map(c => c.charCodeAt(0)))
+export const strToUint8Array = (str: string): Uint8Array | null => {
+    try {
+        return new Uint8Array(atob(str).split('').map(c => c.charCodeAt(0)))
+    } catch (error) {
+        return null
+    }
 }
 
 export const uint8ArrayToStr = (blob: Uint8Array): string => {

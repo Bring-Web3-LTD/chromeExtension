@@ -11,14 +11,18 @@ interface Props {
 }
 
 const rootLoader = async ({ request }: Props) => {
-    const searchParams = new URL(decodeURI(request.url)).searchParams
+    const url = new URL(decodeURI(request.url))
+    const searchParams = url.searchParams
+    const path = url.pathname
     const userId = searchParams.get('userId') || ''
 
     const res = await verify({ token: searchParams.get('token'), userId })
     if (res.status !== 200) throw `got ${res.status} code`
 
     const variant = selectVariant(userId || res.info.walletAddress || '', res.info.platformName)
-
+    if (variant === 'argentControl' && path !== '/') {
+        return;
+    }
     // Set open animation
     sendMessage({ action: ACTIONS.ADD_KEYFRAMES, keyFrames })
 

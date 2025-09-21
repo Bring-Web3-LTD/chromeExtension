@@ -4,7 +4,7 @@ import loadFont from "../loadFont"
 import verify from "../../api/verify"
 // import { selectVariant } from "../ABTest/ABTestVariant"
 import { selectVariant } from "../ABTest/platform-variants"
-import { ENV } from "../../config"
+import { BASE_PATH, ENV } from "../../config"
 
 interface Props {
     request: Request
@@ -20,7 +20,8 @@ const rootLoader = async ({ request }: Props) => {
     if (res.status !== 200) throw `got ${res.status} code`
 
     const variant = selectVariant(userId || res.info.walletAddress || '', res.info.platformName)
-    if (variant === 'argentControl' && path !== '/') {
+    // Argent Control: only load on base path
+    if (variant === 'argentControl' && path !== BASE_PATH) {
         return;
     }
     // Set open animation

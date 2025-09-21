@@ -5,6 +5,7 @@ import verify from "../../api/verify"
 // import { selectVariant } from "../ABTest/ABTestVariant"
 import { selectVariant } from "../ABTest/platform-variants"
 import { BASE_PATH, ENV } from "../../config"
+import removeTrailingSlash from "../removeTrailingSlash"
 
 interface Props {
     request: Request
@@ -21,8 +22,8 @@ const rootLoader = async ({ request }: Props) => {
 
     const variant = selectVariant(userId || res.info.walletAddress || '', res.info.platformName)
     // Argent Control: only load on base path
-    console.log('base', BASE_PATH, 'path', path, 'variant', variant)
-    if (variant === 'argentControl' && path !== BASE_PATH) {
+
+    if (variant === 'argentControl' && path !== removeTrailingSlash(BASE_PATH) && path !== '/') {
         return;
     }
     // Set open animation

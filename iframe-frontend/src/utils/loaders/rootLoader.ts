@@ -21,6 +21,7 @@ const rootLoader = async ({ request }: Props) => {
 
     const variant = selectVariant(userId || res.info.walletAddress || '', res.info.platformName)
     // Argent Control: only load on base path
+    console.log('base', BASE_PATH, 'path', path, 'variant', variant)
     if (variant === 'argentControl' && path !== BASE_PATH) {
         return;
     }

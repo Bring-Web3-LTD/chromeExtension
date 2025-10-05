@@ -29,7 +29,6 @@ const CollaborationLogos = () => {
                 <div className={styles.logo_wrapper} >
                     <PlatformLogo
                         platformName={platformName}
-                        width={49}
                     />
                 </div>
                 <div className={styles.logo_text}>{toCapital(platformName)} wallet</div>

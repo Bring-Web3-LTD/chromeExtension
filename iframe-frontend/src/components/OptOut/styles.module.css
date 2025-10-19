@@ -126,3 +126,11 @@
     line-height: 22px;
     margin-top: 8px;
 }
+
+.subcontainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 353px;
+    margin-top: 20px;
+}

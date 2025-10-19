@@ -151,7 +151,7 @@ const OptOut = ({ onClose }: Props) => {
                     </button>
                 </>
                 :
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '333px', marginTop: '20px' }}>
+                <div className={styles.subcontainer}>
                     <div className={styles.card} style={{ justifyContent: 'space-between' }}>
                         <div className={styles.title}>
                             Cashback offers turned off

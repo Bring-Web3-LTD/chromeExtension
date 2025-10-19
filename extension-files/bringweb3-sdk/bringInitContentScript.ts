@@ -127,6 +127,7 @@ const bringInitContentScript = async ({
                 } else {
                     sendResponse({ status: 'failed', message: 'Domain mismatch or iframe not open' })
                 }
+                return true
             case 'INJECT':
                 try {
                     const { referrer } = document

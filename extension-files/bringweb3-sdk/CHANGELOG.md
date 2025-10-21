@@ -1,5 +1,11 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.5.2
+
+### Patch Changes
+
+- 71806b4: fix missing break for switch case
+
 ## 1.5.1
 
 ### Patch Changes

@@ -118,39 +118,58 @@ const OptOut = ({ onClose }: Props) => {
         <div
             className={styles.container}>
             {!isOpted ?
-                <div className={styles.card}>
-                    <div className={styles.title}>Turn off Cashback offers</div>
-                    <div className={styles.description}>
-                        With {toCapital(platformName)}’s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
+                <>
+                    <div className={styles.card}>
+                        <div className={styles.title}>Turn off Cashback offers</div>
+                        <div className={styles.description}>
+                            With {toCapital(platformName)}’s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
+                        </div>
+                        <RadioGroup
+                            options={websiteOptions}
+                            title={`Turn off cashback offers`}
+                            onChange={(option => setSelection({ ...selection, websites: option }))}
+                            defaultOption={websiteOptions[0]}
+                        />
+                        <RadioGroup
+                            options={durationOptions}
+                            title={`Turn off cashback offers for`}
+                            onChange={(option => setSelection({ ...selection, duration: option }))}
+                            defaultOption={durationOptions[0]}
+                        />
                     </div>
-                    <RadioGroup
-                        options={websiteOptions}
-                        title={`Turn off cashback offers`}
-                        onChange={(option => setSelection({ ...selection, websites: option }))}
-                        defaultOption={websiteOptions[0]}
-                    />
-                    <RadioGroup
-                        options={durationOptions}
-                        title={`Turn off cashback offers for`}
-                        onChange={(option => setSelection({ ...selection, duration: option }))}
-                        defaultOption={durationOptions[0]}
-                    />
-                </div>
+                    <button
+                        className={`${styles.btn} ${styles.apply_btn}`}
+                        onClick={handleOptOut}
+                    >
+                        {toCaseString('Apply', textMode)}
+                    </button>
+                    <button
+                        className={`${styles.btn} ${styles.close_btn}`}
+                        onClick={handleClose}
+                    >
+                        {toCaseString('Back to activation', textMode)}
+                    </button>
+                </>
                 :
-                <div className={styles.message}>Your request to turn off offers has been received. You can reactivate them anytime in settings.</div>
+                <div className={styles.subcontainer}>
+                    <div className={styles.card} style={{ justifyContent: 'space-between' }}>
+                        <div className={styles.title}>
+                            Cashback offers turned off
+                        </div>
+                        <div className={styles.description}>
+                            Your request to turn off cashback offers has been received.<br />
+                            You will no longer see {toCapital(platformName)}'s cashback offers {!selection.websites.value ? 'on this website' : 'across all websites'} {selection.duration.label === 'forever' ? selection.duration.label : `for the next ${selection.duration.label}`}.
+                        </div>
+
+                    </div>
+                    <button
+                        className={`${styles.btn} ${styles.close_btn}`}
+                        onClick={handleClose}
+                    >
+                        {toCaseString('Close', textMode)}
+                    </button>
+                </div>
             }
-            <button
-                className={`${styles.btn} ${styles.apply_btn}`}
-                onClick={handleOptOut}
-            >
-                {toCaseString('Apply', textMode)}
-            </button>
-            <button
-                className={`${styles.btn} ${styles.close_btn}`}
-                onClick={handleClose}
-            >
-                {toCaseString('Back to activation', textMode)}
-            </button>
         </div >
     )
 }

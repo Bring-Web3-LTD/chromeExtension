@@ -35,6 +35,7 @@ const CloseBtn = ({ callback, withTime = true, className = '' }: Props) => {
 
     return (
         <button
+            id="close-btn"
             onClick={() => {
                 close()
                 callback && callback()
@@ -42,6 +43,7 @@ const CloseBtn = ({ callback, withTime = true, className = '' }: Props) => {
             className={`${styles.btn} ${className}`}
         >
             <div
+                id="close-btn-icon"
                 className={styles.icon}
                 style={{
                     maskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`,

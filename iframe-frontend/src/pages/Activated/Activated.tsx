@@ -46,20 +46,20 @@ const Activated = () => {
     }, [])
 
     return (
-        <div className={styles.container}>
+        <div id="activated-container" className={styles.container}>
             <CloseBtn
                 withTime={false}
             />
-            <div className={styles.top_container}>
-                {walletAddress ? <div className={styles.wallet_container}>
-                    <span className={styles.wallet}>{splitWordMaxFive(walletAddress)}</span>
+            <div id="activated-top-container" className={styles.top_container}>
+                {walletAddress ? <div id="activated-wallet-container" className={styles.wallet_container}>
+                    <span id="activated-wallet-address" className={styles.wallet}>{splitWordMaxFive(walletAddress)}</span>
                 </div> : null}
             </div>
-            <div className={styles.subcontainer} >
-                <img src={`${iconsPath}/activated.svg`} />
-                <div className={styles.title}>{tokenSymbol} cashback activated</div>
-                <p className={styles.p}>Reward approval may take up to 48 hours.</p>
-                <div className={styles.backed_by}>Backed by {toCapital(platformName)} Wallet</div>
+            <div id="activated-subcontainer" className={styles.subcontainer} >
+                <img id="activated-icon" src={`${iconsPath}/activated.svg`} />
+                <div id="activated-title" className={styles.title}>{tokenSymbol} cashback activated</div>
+                <p id="activated-text" className={styles.p}>Reward approval may take up to 48 hours.</p>
+                <div id="activated-backed-by" className={styles.backed_by}>Backed by {toCapital(platformName)} Wallet</div>
             </div>
             <Markdown className={styles.markdown}>
                 {markdownContent}

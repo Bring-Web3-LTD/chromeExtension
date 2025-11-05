@@ -12,12 +12,13 @@ const LoadingOverlay = ({ open, text = "Log into your wallet to proceed" }: Prop
         <AnimatePresence>
             {open ?
                 <motion.div
+                    id="loading-overlay"
                     transition={{ ease: 'easeInOut' }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className={styles.waiting}>
-                    <div className={styles.message}>{text}</div>
+                    <div id="loading-message" className={styles.message}>{text}</div>
                     <Oval
                         visible={true}
                         height="60"

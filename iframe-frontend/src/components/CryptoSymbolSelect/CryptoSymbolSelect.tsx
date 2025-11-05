@@ -14,12 +14,13 @@ const CryptoSymbolSelect = ({ options, select, set }: props): JSX.Element => {
 
     if (options.length === 1) {
         return (
-            <span className={styles.cashback_symbol}>{options[0]}</span>
+            <span id="cashback-symbol" className={styles.cashback_symbol}>{options[0]}</span>
         )
     }
 
     return (
         <select
+            id="crypto-symbol-select"
             className={styles.select}
             onChange={handleChange}
         >

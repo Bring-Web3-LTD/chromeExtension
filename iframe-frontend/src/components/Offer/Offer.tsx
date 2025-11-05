@@ -118,6 +118,7 @@ const Offer = ({ closeFn }: Props) => {
                 {
                     !optOutOpen ?
                         <motion.div
+                            id="offer-container"
                             key="main"
                             className={styles.container}
                             initial={{ x: 0, opacity: 1 }}
@@ -125,13 +126,14 @@ const Offer = ({ closeFn }: Props) => {
                             exit={{ x: "-100%", opacity: 0 }}
                             transition={{ duration: .2, ease: "easeInOut" }}
                         >
-                            <div className={styles.top_container}>
+                            <div id="offer-top-container" className={styles.top_container}>
                                 {walletAddress ?
-                                    <div className={styles.wallet_container}>
-                                        <span className={styles.wallet} >{splitWordMaxFive(walletAddress)}</span>
+                                    <div id="wallet-display-container" className={styles.wallet_container}>
+                                        <span id="wallet-address" className={styles.wallet} >{splitWordMaxFive(walletAddress)}</span>
                                     </div>
                                     :
                                     <button
+                                        id="connect-wallet-btn"
                                         className={`${styles.wallet_container} ${styles.wallet} ${styles.connect_btn}`}
                                         onClick={() => sendMessage({ action: ACTIONS.PROMPT_LOGIN })}
                                     >
@@ -142,25 +144,26 @@ const Offer = ({ closeFn }: Props) => {
                                     callback={() => setStatus('switch')}
                                 />
                                 {walletAddress && isTester ?
-                                    <div className={styles.demo_container}>
+                                    <div id="demo-container" className={styles.demo_container}>
                                         <input
                                             className={styles.demo_checkbox}
                                             type="checkbox"
                                             id='demo'
                                             onChange={(e) => setIsDemo(e.target.checked)}
                                         />
-                                        <label className={styles.demo_label} htmlFor="demo">Demo</label>
+                                        <label id="demo-label" className={styles.demo_label} htmlFor="demo">Demo</label>
                                     </div> : null
                                 }
                             </div>
-                            <div className={styles.details}>
+                            <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
-                                <div className={styles.details_txt} >
-                                    Buy with any card and earn up to <span className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}
+                                <div id="offer-details-text" className={styles.details_txt} >
+                                    Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}
                                 </div>
                             </div>
-                            <div className={styles.action_container}>
+                            <div id="offer-action-container" className={styles.action_container}>
                                 <button
+                                    id="activate-btn"
                                     onClick={activateAction}
                                     className={styles.btn}
                                     disabled={status !== 'idle'}
@@ -180,8 +183,9 @@ const Offer = ({ closeFn }: Props) => {
                                         />
                                     }
                                 </button>
-                                <div className={styles.btns_container}>
+                                <div id="offer-action-btns-container" className={styles.btns_container}>
                                     <button
+                                        id="opt-out-btn"
                                         className={styles.action_btn}
                                         disabled={status !== 'idle'}
                                         onClick={() => setOptOutOpen(true)}
@@ -189,6 +193,7 @@ const Offer = ({ closeFn }: Props) => {
                                         {toCaseString("Opt out", textMode)}
                                     </button>
                                     <button
+                                        id="cancel-btn"
                                         className={styles.action_btn}
                                         disabled={status !== 'idle'}
                                         onClick={async () => {
@@ -203,11 +208,12 @@ const Offer = ({ closeFn }: Props) => {
                                         {toCaseString("Cancel", textMode)}
                                     </button>
                                 </div>
-                                <div className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>
+                                <div id="offer-clarify-text" className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>
                             </div>
                         </motion.div>
                         :
                         <motion.div
+                            id="opt-out-motion-container"
                             key="optout"
                             initial={{ x: "100%", opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}

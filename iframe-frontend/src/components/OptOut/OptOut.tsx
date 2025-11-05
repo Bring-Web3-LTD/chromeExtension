@@ -55,7 +55,6 @@ const RadioGroup = ({ title, options, onChange, defaultOption }: RadioGroupProps
                             }}
                             type='radio'
                             name={title}
-                            id={option.label}
                             value={option.label}
                             checked={checked?.label === option.label}
                         />
@@ -116,13 +115,14 @@ const OptOut = ({ onClose }: Props) => {
 
     return (
         <div
+            id="opt-out-container"
             className={styles.container}>
             {!isOpted ?
                 <>
-                    <div className={styles.card}>
-                        <div className={styles.title}>Turn off Cashback offers</div>
-                        <div className={styles.description}>
-                            With {toCapital(platformName)}’s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
+                    <div id="opt-out-card" className={styles.card}>
+                        <div id="opt-out-title" className={styles.title}>Turn off Cashback offers</div>
+                        <div id="opt-out-description" className={styles.description}>
+                            With {toCapital(platformName)}'s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
                         </div>
                         <RadioGroup
                             options={websiteOptions}
@@ -138,12 +138,14 @@ const OptOut = ({ onClose }: Props) => {
                         />
                     </div>
                     <button
+                        id="opt-out-apply-btn"
                         className={`${styles.btn} ${styles.apply_btn}`}
                         onClick={handleOptOut}
                     >
                         {toCaseString('Apply', textMode)}
                     </button>
                     <button
+                        id="opt-out-back-btn"
                         className={`${styles.btn} ${styles.close_btn}`}
                         onClick={handleClose}
                     >
@@ -151,18 +153,19 @@ const OptOut = ({ onClose }: Props) => {
                     </button>
                 </>
                 :
-                <div className={styles.subcontainer}>
-                    <div className={styles.card} style={{ justifyContent: 'space-between' }}>
-                        <div className={styles.title}>
+                <div id="opt-out-subcontainer" className={styles.subcontainer}>
+                    <div id="opt-out-confirmation-card" className={styles.card} style={{ justifyContent: 'space-between' }}>
+                        <div id="opt-out-confirmation-title" className={styles.title}>
                             Cashback offers turned off
                         </div>
-                        <div className={styles.description}>
+                        <div id="opt-out-confirmation-description" className={styles.description}>
                             Your request to turn off cashback offers has been received.<br />
                             You will no longer see {toCapital(platformName)}'s cashback offers {!selection.websites.value ? 'on this website' : 'across all websites'} {selection.duration.label === 'forever' ? selection.duration.label : `for the next ${selection.duration.label}`}.
                         </div>
 
                     </div>
                     <button
+                        id="opt-out-close-btn"
                         className={`${styles.btn} ${styles.close_btn}`}
                         onClick={handleClose}
                     >

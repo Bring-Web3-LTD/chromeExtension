@@ -20,10 +20,12 @@ const SwitchBtn = ({ callback }: Props) => {
 
     return (
         <button
+            id="switch-btn"
             className={styles.switch_btn}
             onClick={promptLogin}
         >
             <img
+                id="switch-btn-icon"
                 src={`${iconsPath}/switch.svg`}
                 alt="switch icon"
             />

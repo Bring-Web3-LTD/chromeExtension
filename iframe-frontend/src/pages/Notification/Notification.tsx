@@ -46,10 +46,10 @@ const NotificationText = (props: NotificationTextProps) => {
     const isJustClaimable = !_new && !_total
 
     return (
-        <div className={styles.text_container} style={props.minWidth ? { minWidth: props.minWidth } : {}}>
-            <div className={`${styles.notification_details} ${styles.no_wallet_notification_details}`}>
+        <div id="notification-text-container" className={styles.text_container} style={props.minWidth ? { minWidth: props.minWidth } : {}}>
+            <div id="notification-details-top" className={`${styles.notification_details} ${styles.no_wallet_notification_details}`}>
                 {_new ?
-                    <div>
+                    <div id="notification-earned">
                         Just earned:{isJustNew ? <br /> : ' '}<span className={`${isJustNew ? styles.bold : ''}`}>{_new.amount} {_new.symbol}</span>
                     </div>
                     : null}
@@ -57,23 +57,23 @@ const NotificationText = (props: NotificationTextProps) => {
                     props.expiredAt ?
                         <>
                             {_claimable ?
-                                <div className={styles.bold} >Claimable:{isJustClaimable ? <br /> : ' '}{_claimable.amount} {_claimable.symbol}</div>
+                                <div id="notification-claimable" className={styles.bold} >Claimable:{isJustClaimable ? <br /> : ' '}{_claimable.amount} {_claimable.symbol}</div>
                                 : null}
                         </>
                         :
                         <>
                             {_total ?
-                                <div className={styles.bold} >Total: {_total?.amount} {_total?.symbol}</div>
+                                <div id="notification-total" className={styles.bold} >Total: {_total?.amount} {_total?.symbol}</div>
                                 : null}
                         </>
                 }
             </div>
-            <hr className={styles.hr} />
-            <div className={`${styles.notification_details} ${styles.no_wallet_notification_details}`}>
+            <hr id="notification-hr" className={styles.hr} />
+            <div id="notification-details-bottom" className={`${styles.notification_details} ${styles.no_wallet_notification_details}`}>
                 {props.expiredAt ?
-                    <div>Connect to avoid expiration<br />Deadline: {formatDate(props.expiredAt)}</div>
+                    <div id="notification-expiration">Connect to avoid expiration<br />Deadline: {formatDate(props.expiredAt)}</div>
                     :
-                    <div>Connect your wallet to<br />safeguard your cashback</div>
+                    <div id="notification-connect-prompt">Connect your wallet to<br />safeguard your cashback</div>
                 }
             </div>
         </div>
@@ -144,14 +144,15 @@ const Notification = () => {
 
     if (!promptPairing) {
         return (
-            <div className={styles.container}>
+            <div id="notification-container-simple" className={styles.container}>
                 <PlatformLogo
                     platformName={platformName}
                     size='sm'
                     width={28}
                 />
-                <div className={styles.notification_details}>New cashback reward</div>
+                <div id="notification-details-simple" className={styles.notification_details}>New cashback reward</div>
                 <button
+                    id="notification-details-btn"
                     className={styles.link}
                     onClick={openCashbackPage}
                 >
@@ -166,7 +167,7 @@ const Notification = () => {
     }
 
     return (
-        <div className={`${styles.container} ${styles.no_wallet_container}`}>
+        <div id="notification-container-pairing" className={`${styles.container} ${styles.no_wallet_container}`}>
             <PlatformLogo
                 platformName={platformName}
                 size='sm'
@@ -180,6 +181,7 @@ const Notification = () => {
                 minWidth={isExtraBtn ? 'auto' : undefined}
             />
             <button
+                id="notification-cta-btn"
                 className={`${styles.link} ${styles.no_wallet_link} ${isExtraBtn ? styles.no_wallet_link_short : styles.no_wallet_link}`}
                 onClick={openCashbackPage}
             >
@@ -187,6 +189,7 @@ const Notification = () => {
             </button>
             {isExtraBtn ?
                 <button
+                    id="notification-stop-reminders-btn"
                     className={`${styles.link} ${styles.no_wallet_link}`}
                     onClick={stopReminders}
                 >

@@ -153,18 +153,19 @@ const OneStep = () => {
                             opacity: { duration: 0.2 }
                         }}
                     >
-                        <div className={styles.addressContainer}>
+                        <div id="onestep-address-container" className={styles.addressContainer}>
                             {walletAddress ?
-                                <div className={styles.address}>
+                                <div id="onestep-wallet-address" className={styles.address}>
                                     {splitStringWithDots(walletAddress, 7, 5)}
                                 </div>
                                 : null}
                         </div>
                         {
                             isTester ?
-                                <label className={styles.test_label}>
+                                <label id="onestep-test-label" className={styles.test_label}>
                                     <span>Demo Store</span>
                                     <input
+                                        id="onestep-demo-checkbox"
                                         className={styles.test_checkbox}
                                         type="checkbox"
                                         checked={isDemo}
@@ -174,27 +175,30 @@ const OneStep = () => {
                                 : null
                         }
                         <CloseBtn />
-                        <div className={styles.spacer}>
+                        <div id="onestep-spacer" className={styles.spacer}>
                         </div>
-                        <img src={`${iconsPath}/coins.svg`} alt="coins" />
-                        <h1 className={styles.title}>Activate Shop to Earn here</h1>
-                        <h2 className={styles.subtitle}>Get up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} back in {tokenSymbol} when you shop at {name}.</h2>
+                        <img id="onestep-coins-icon" src={`${iconsPath}/coins.svg`} alt="coins" />
+                        <h1 id="onestep-title" className={styles.title}>Activate Shop to Earn here</h1>
+                        <h2 id="onestep-subtitle" className={styles.subtitle}>Get up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} back in {tokenSymbol} when you shop at {name}.</h2>
                         <button
+                            id="onestep-terms-btn"
                             className={styles.termsBtn}
                             onClick={() => paginate(1)}
                         >
-                            <img src={`${iconsPath}/info.svg`} alt="info icon" />
+                            <img id="onestep-info-icon" src={`${iconsPath}/info.svg`} alt="info icon" />
                             Cashback terms
                         </button>
-                        <div className={styles.clarify}>You’ll get a reward notification within 48 hours. {tokenSymbol} arrives after the return period ends.</div>
-                        <div className={styles.btns}>
+                        <div id="onestep-clarify-text" className={styles.clarify}>You'll get a reward notification within 48 hours. {tokenSymbol} arrives after the return period ends.</div>
+                        <div id="onestep-btns" className={styles.btns}>
                             <button
+                                id="onestep-turnoff-btn"
                                 className={styles.secondaryBtn}
                                 onClick={() => setIsShowingTurnoff(true)}
                             >
                                 Turn off
                             </button>
                             <button
+                                id="onestep-activate-btn"
                                 className={styles.primaryBtn}
                                 onClick={activateHandler}
                                 disabled={status !== 'idle'}
@@ -215,12 +219,13 @@ const OneStep = () => {
                                 }
                             </button>
                         </div>
-                        <div className={styles.agree}>
-                            By activating, I accept the <span className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: 'https://www.argent.xyz/legal/privacy/argent-x' })}>legal terms.</span>
+                        <div id="onestep-agree-text" className={styles.agree}>
+                            By activating, I accept the <span id="onestep-terms-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: 'https://www.argent.xyz/legal/privacy/argent-x' })}>legal terms.</span>
                         </div>
                     </motion.div>
                 ) : (
                     <motion.div
+                        id="onestep-terms-container"
                         key="terms"
                         className={styles.container}
                         custom={direction}
@@ -234,12 +239,13 @@ const OneStep = () => {
                         }}
                     >
                         <button
+                            id="onestep-back-btn"
                             className={styles.backBtn}
                             onClick={() => paginate(-1)}
                         >
-                            <img src={`${iconsPath}/arrow-left.svg`} alt="arrow left" />
+                            <img id="onestep-arrow-left-icon" src={`${iconsPath}/arrow-left.svg`} alt="arrow left" />
                         </button>
-                        <h1 className={styles.termsHeader}>Cashback terms:</h1>
+                        <h1 id="onestep-terms-header" className={styles.termsHeader}>Cashback terms:</h1>
                         <Markdown className={styles.markdown}>
                             {markdownContent}
                         </Markdown>
@@ -249,6 +255,7 @@ const OneStep = () => {
             <AnimatePresence>
                 {isShowingTurnoff ?
                     <motion.div
+                        id="onestep-overlay"
                         className={styles.overlay}
                         onClick={() => {
                             isOptedOut ?
@@ -261,6 +268,7 @@ const OneStep = () => {
                         transition={{ duration: 0.2 }}
                     >
                         <motion.div
+                            id="onestep-turnoff-modal"
                             className={styles.turnoffContainer}
                             onClick={(e) => e.stopPropagation()}
                             initial={{ y: 50 }}
@@ -271,25 +279,28 @@ const OneStep = () => {
                             {!isOptedOut ?
                                 <>
                                     <button
+                                        id="onestep-turnoff-close-btn"
                                         className={styles.turnoffCloseBtn}
                                         onClick={() => setIsShowingTurnoff(false)}
                                     >
-                                        <img src={`${iconsPath}/popup-x-mark.svg`} alt="x-mark icon" />
+                                        <img id="onestep-x-mark-icon" src={`${iconsPath}/popup-x-mark.svg`} alt="x-mark icon" />
                                     </button>
-                                    <img src={`${iconsPath}/turnoff.svg`} alt="turnoff icon" />
+                                    <img id="onestep-turnoff-icon" src={`${iconsPath}/turnoff.svg`} alt="turnoff icon" />
 
-                                    <div className={styles.turnoffText}>Turn off offer for this store</div>
+                                    <div id="onestep-turnoff-text" className={styles.turnoffText}>Turn off offer for this store</div>
                                     <TimePeriodSelector
                                         onChange={(_, timestamp) => setOptoutPeriod(timestamp)}
                                     />
-                                    <div className={`${styles.btns} ${styles.turnoffBtns}`}>
+                                    <div id="onestep-turnoff-btns" className={`${styles.btns} ${styles.turnoffBtns}`}>
                                         <button
+                                            id="onestep-turnoff-cancel-btn"
                                             className={`${styles.secondaryBtn} ${styles.turnoffBtn}`}
                                             onClick={() => setIsShowingTurnoff(false)}
                                         >
                                             Cancel
                                         </button>
                                         <button
+                                            id="onestep-turnoff-confirm-btn"
                                             className={`${styles.primaryBtn} ${styles.turnoffBtn} ${optoutPeriod === null ? styles.primaryDisabled : ''}`}
                                             onClick={optoutSpecificDomain}
                                             disabled={optoutPeriod === null}
@@ -298,13 +309,14 @@ const OneStep = () => {
                                 </>
                                 :
                                 <>
-                                    <div className={`${styles.turnoffText}`}>
+                                    <div id="onestep-turnoff-success-text" className={`${styles.turnoffText}`}>
                                         Offer turned off for this store
                                     </div>
-                                    <div className={styles.turnoffDetails}>
+                                    <div id="onestep-turnoff-details" className={styles.turnoffDetails}>
                                         Shop to Earn is now turned off for this website. To turn it off on all websites, please go to Settings.
                                     </div>
                                     <button
+                                        id="onestep-turnoff-final-close-btn"
                                         className={`${styles.secondaryBtn} ${styles.turnOffCloseBtn}`}
                                         onClick={closePopup}
                                     >Close</button>

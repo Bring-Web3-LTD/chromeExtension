@@ -29,13 +29,14 @@ const CloseBtn = ({ callback }: Props) => {
 
     return (
         <button
+            id="template-close-btn"
             onClick={() => {
                 close()
                 callback && callback()
             }}
             className={styles.btn}
         >
-            <img src={`${iconsPath}/x-mark.svg`} alt="exit icon" />
+            <img id="template-close-btn-icon" src={`${iconsPath}/x-mark.svg`} alt="exit icon" />
         </button>
     )
 }

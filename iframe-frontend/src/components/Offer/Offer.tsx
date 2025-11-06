@@ -45,7 +45,8 @@ const Offer = ({ closeFn }: Props) => {
         domain,
         maxCashback,
         cashbackSymbol,
-        cashbackCurrency
+        cashbackCurrency,
+        variant
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -179,29 +180,62 @@ const Offer = ({ closeFn }: Props) => {
                                         />
                                     }
                                 </button>
-                                <div className={styles.btns_container}>
-                                    <button
-                                        className={styles.action_btn}
-                                        disabled={status !== 'idle'}
-                                        onClick={() => setOptOutOpen(true)}
-                                    >
-                                        {toCaseString("Opt out", textMode)}
-                                    </button>
-                                    <button
-                                        className={styles.action_btn}
-                                        disabled={status !== 'idle'}
-                                        onClick={async () => {
-                                            await sendGaEvent('popup_close', {
-                                                category: 'user_action',
-                                                action: 'click',
-                                                details: 'extension'
-                                            })
-                                            closeFn()
-                                        }}
-                                    >
-                                        {toCaseString("Cancel", textMode)}
-                                    </button>
-                                </div>
+
+                                {variant === 'positiveFramingOrder2' && (
+                                    <div className={styles.btns_container}>
+                                        <button
+                                            className={styles.action_btn}
+                                            disabled={status !== 'idle'}
+                                            onClick={() => setOptOutOpen(true)}
+                                        >
+                                            {toCaseString("Pause Cashback", textMode)}
+                                        </button>
+                                        <button
+                                            className={styles.action_btn}
+                                            disabled={status !== 'idle'}
+                                            onClick={async () => {
+                                                await sendGaEvent('popup_close', {
+                                                    category: 'user_action',
+                                                    action: 'click',
+                                                    details: 'extension'
+                                                })
+                                                closeFn()
+                                            }}
+                                        >
+                                            {toCaseString("Cancel", textMode)}
+                                        </button>
+                                    </div>
+                                )}
+
+                                {(variant === 'control' || variant === 'positiveFramingOrder1') && (
+                                    <div className={styles.btns_container}>
+                                        <button
+                                            className={styles.action_btn}
+                                            disabled={status !== 'idle'}
+                                            onClick={() => setOptOutOpen(true)}
+                                        >
+                                            {variant === 'control'
+                                                ? toCaseString("Opt out", textMode)
+                                                : toCaseString("Pause Cashback", textMode)
+                                            }
+                                        </button>
+                                        <button
+                                            className={styles.action_btn}
+                                            disabled={status !== 'idle'}
+                                            onClick={async () => {
+                                                await sendGaEvent('popup_close', {
+                                                    category: 'user_action',
+                                                    action: 'click',
+                                                    details: 'extension'
+                                                })
+                                                closeFn()
+                                            }}
+                                        >
+                                            {toCaseString("Cancel", textMode)}
+                                        </button>
+                                    </div>
+                                )}
+
                                 <div className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>
                             </div>
                         </motion.div>

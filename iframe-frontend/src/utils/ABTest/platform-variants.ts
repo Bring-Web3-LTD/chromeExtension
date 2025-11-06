@@ -17,13 +17,15 @@ export type VariantsConfig = {
 export const variants = {
   // Global default for companies without specific settings
   'default': {
-    'control': 50,
-    'test': 50
+    'control': 33,
+    'positiveFramingOrder1': 33,
+    'positiveFramingOrder2': 33
   },
   // Company-specific configurations
   'argent': {
     'argentControl': 100,
-    'test': 0
+    'positiveFramingOrder1': 0,
+    'positiveFramingOrder2': 0
   }
 };
 

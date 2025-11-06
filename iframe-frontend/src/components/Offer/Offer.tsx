@@ -49,7 +49,7 @@ const Offer = ({ closeFn }: Props) => {
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
-    const [status, setStatus] = useState<'idle' | 'waiting' | 'switch' | 'activating' | 'done'>('idle')
+    const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
 
     const activateAction = useCallback(async () => {
         setStatus('activating')
@@ -139,7 +139,6 @@ const Offer = ({ closeFn }: Props) => {
                                     </button>
                                 }
                                 <SwitchBtn
-                                    callback={() => setStatus('switch')}
                                 />
                                 {walletAddress && isTester ?
                                     <div className={styles.demo_container}>

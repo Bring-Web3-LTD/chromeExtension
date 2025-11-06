@@ -182,15 +182,9 @@ const Offer = ({ closeFn }: Props) => {
                                 </button>
 
                                 {variant === 'positiveFramingOrder2' && (
-                                    <div className={styles.btns_container}>
+                                    <div id="offer-action-btns-container" className={styles.btns_container}>
                                         <button
-                                            className={styles.action_btn}
-                                            disabled={status !== 'idle'}
-                                            onClick={() => setOptOutOpen(true)}
-                                        >
-                                            {toCaseString("Pause Cashback", textMode)}
-                                        </button>
-                                        <button
+                                            id="cancel-btn"
                                             className={styles.action_btn}
                                             disabled={status !== 'idle'}
                                             onClick={async () => {
@@ -204,12 +198,21 @@ const Offer = ({ closeFn }: Props) => {
                                         >
                                             {toCaseString("Cancel", textMode)}
                                         </button>
+                                        <button
+                                            id="opt-out-btn"
+                                            className={styles.action_btn}
+                                            disabled={status !== 'idle'}
+                                            onClick={() => setOptOutOpen(true)}
+                                        >
+                                            {toCaseString("Pause Cashback", textMode)}
+                                        </button>
                                     </div>
                                 )}
 
                                 {(variant === 'control' || variant === 'positiveFramingOrder1') && (
-                                    <div className={styles.btns_container}>
+                                    <div id="offer-action-btns-container" className={styles.btns_container}>
                                         <button
+                                            id="opt-out-btn"
                                             className={styles.action_btn}
                                             disabled={status !== 'idle'}
                                             onClick={() => setOptOutOpen(true)}
@@ -220,6 +223,7 @@ const Offer = ({ closeFn }: Props) => {
                                             }
                                         </button>
                                         <button
+                                            id="cancel-btn"
                                             className={styles.action_btn}
                                             disabled={status !== 'idle'}
                                             onClick={async () => {
@@ -236,7 +240,7 @@ const Offer = ({ closeFn }: Props) => {
                                     </div>
                                 )}
 
-                                <div className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>
+                                <div id="offer-clarify-text" className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>
                             </div>
                         </motion.div>
                         :

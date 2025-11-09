@@ -17,15 +17,13 @@ export type VariantsConfig = {
 export const variants = {
   // Global default for companies without specific settings
   'default': {
-    'control': 34,
-    'testA': 33,
-    'testB': 33
+    'control': 50,
+    'test': 50
   },
   // Company-specific configurations
   'argent': {
     'argentControl': 100,
-    'testA': 0,
-    'testB': 0
+    'test': 0
   }
 };
 

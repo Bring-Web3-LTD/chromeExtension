@@ -2,9 +2,9 @@ import { TEST_ID } from "../../config";
 import murmurhash from "./murmurhash"
 
 export const variants = {
-    'control': 33,
-    'positive framing 1': 33,
-    'positive framing 2': 33,
+    'control': 34,
+    'testA': 33,
+    'testB': 33,
 } as const
 
 export type VariantKey = keyof typeof variants;

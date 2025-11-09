@@ -18,14 +18,14 @@ export const variants = {
   // Global default for companies without specific settings
   'default': {
     'control': 34,
-    'positiveFramingOrder1': 33,
-    'positiveFramingOrder2': 33
+    'testA': 33,
+    'testB': 33
   },
   // Company-specific configurations
   'argent': {
     'argentControl': 100,
-    'positiveFramingOrder1': 0,
-    'positiveFramingOrder2': 0
+    'testA': 0,
+    'testB': 0
   }
 };
 

@@ -184,7 +184,7 @@ const Offer = ({ closeFn }: Props) => {
                                     }
                                 </button>
 
-                                {variant === 'positiveFramingOrder2' && (
+                                {variant === 'testB' && (
                                     <div id="offer-action-btns-container" className={styles.btns_container}>
                                         <button
                                             id="cancel-btn"
@@ -212,7 +212,7 @@ const Offer = ({ closeFn }: Props) => {
                                     </div>
                                 )}
 
-                                {(variant === 'control' || variant === 'positiveFramingOrder1') && (
+                                {(variant === 'control' || variant === 'testA') && (
                                     <div id="offer-action-btns-container" className={styles.btns_container}>
                                         <button
                                             id="opt-out-btn"

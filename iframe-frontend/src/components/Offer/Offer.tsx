@@ -45,7 +45,8 @@ const Offer = ({ closeFn }: Props) => {
         domain,
         maxCashback,
         cashbackSymbol,
-        cashbackCurrency
+        cashbackCurrency,
+        variant
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -182,14 +183,22 @@ const Offer = ({ closeFn }: Props) => {
                                         />
                                     }
                                 </button>
-                                <div id="offer-action-btns-container" className={styles.btns_container}>
+
+                                <div 
+                                    id="offer-action-btns-container" 
+                                    className={styles.btns_container}
+                                    style={variant === 'testB' ? { flexDirection: 'row-reverse' } : undefined}
+                                >
                                     <button
                                         id="opt-out-btn"
                                         className={styles.action_btn}
                                         disabled={status !== 'idle'}
                                         onClick={() => setOptOutOpen(true)}
                                     >
-                                        {toCaseString("Opt out", textMode)}
+                                        {variant === 'control'
+                                            ? toCaseString("Opt out", textMode)
+                                            : toCaseString("Pause Cashback", textMode)
+                                        }
                                     </button>
                                     <button
                                         id="cancel-btn"
@@ -207,6 +216,7 @@ const Offer = ({ closeFn }: Props) => {
                                         {toCaseString("Cancel", textMode)}
                                     </button>
                                 </div>
+
                                 <div id="offer-clarify-text" className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>
                             </div>
                         </motion.div>

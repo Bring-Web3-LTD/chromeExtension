@@ -17,7 +17,7 @@ export type VariantsConfig = {
 export const variants = {
   // Global default for companies without specific settings
   'default': {
-    'control': 33,
+    'control': 34,
     'positiveFramingOrder1': 33,
     'positiveFramingOrder2': 33
   },

@@ -1,4 +1,4 @@
-import { VariantKey } from "./utils/ABTest/ABTestVariant"
+import { VariantKey } from "./utils/ABTest/platform-variants"
 declare global {
 
     declare enum ACTIONS {

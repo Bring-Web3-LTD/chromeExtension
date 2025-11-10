@@ -8,7 +8,8 @@ bringInitBackground({
     isEnabledByDefault: false,
     cashbackPagePath: '/main_window.html#/cashback',
     showNotifications: true,
-    notificationCallback: () => { console.log('notificationCallback running from the extension') }
+    notificationCallback: () => { console.log('notificationCallback running from the extension') },
+
 })
 
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {

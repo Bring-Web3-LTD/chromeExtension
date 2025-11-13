@@ -9,17 +9,18 @@ import toCaseString from '../../utils/toCaseString';
 interface Option {
     label: string
     value: number | string | boolean
+    id: string
 }
 
 const websiteOptions: Option[] = [
-    { label: 'For this website', value: false },
-    { label: 'For all websites', value: true }
+    { label: 'For this website', value: false, id: 'websiteOption0' },
+    { label: 'For all websites', value: true, id: 'websiteOption1' }
 ]
 
 const durationOptions: Option[] = [
-    { label: '24 hours', value: 24 * 60 * 60 * 1000 },
-    { label: '30 days', value: 30 * 24 * 60 * 60 * 1000 },
-    { label: 'forever', value: 999999999999999 },
+    { label: '24 hours', value: 24 * 60 * 60 * 1000, id: 'durationOption0' },
+    { label: '30 days', value: 30 * 24 * 60 * 60 * 1000, id: 'durationOption1' },
+    { label: 'forever', value: 999999999999999, id: 'durationOption2' },
 ]
 
 const dict = {
@@ -44,7 +45,7 @@ const RadioGroup = ({ title, options, onChange, defaultOption }: RadioGroupProps
             <div className={styles.radio_container}>
                 {options.map((option) => (
                     <span
-                        key={option.label}
+                        key={option.id}
                         className={styles.input_container}
                     >
                         <input
@@ -58,8 +59,9 @@ const RadioGroup = ({ title, options, onChange, defaultOption }: RadioGroupProps
                             id={option.label}
                             value={option.label}
                             checked={checked?.label === option.label}
+                            id={option.id}
                         />
-                        <label className={styles.label} htmlFor={option.label}>{option.label}</label>
+                        <label className={styles.label} htmlFor={option.id}>{option.label}</label>
                     </span>
                 ))}
             </div>

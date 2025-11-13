@@ -38,7 +38,7 @@ declare global {
         domain?: string
         flowId: string
         isTester?: boolean
-        customText?: string
+        offerText?: string
     }
 
     interface LoaderData extends Info {

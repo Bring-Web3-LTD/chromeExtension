@@ -42,7 +42,7 @@ const Offer = ({ closeFn }: Props) => {
         isTester,
         version,
         domain,
-        customText
+        offerText
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -153,7 +153,7 @@ const Offer = ({ closeFn }: Props) => {
                             <div className={styles.details}>
                                 <CollaborationLogos />
                                 <div className={styles.details_txt} >
-                                    {customText}
+                                    {offerText}
                                 </div>
                             </div>
                             <div className={styles.action_container}>

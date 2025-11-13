@@ -56,7 +56,6 @@ const RadioGroup = ({ title, options, onChange, defaultOption }: RadioGroupProps
                             }}
                             type='radio'
                             name={title}
-                            id={option.label}
                             value={option.label}
                             checked={checked?.label === option.label}
                             id={option.id}

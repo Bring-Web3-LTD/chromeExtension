@@ -39,9 +39,9 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'OPT_OUT_SPECIFIC': {
-                const { domain, time } = request
+                const { domain, time, url } = request
 
-                addOptOutDomain(domain, time).then(res => sendResponse(res))
+                addOptOutDomain(domain, time, url).then(res => sendResponse(res))
                 return true;
             }
             case 'GET_POPUP_ENABLED': {

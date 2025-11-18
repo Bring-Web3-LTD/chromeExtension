@@ -14,6 +14,7 @@ import isWhitelisted from "./isWhitelisted";
 import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
+import checkOptOutDomain from "./checkOptOutDomain";
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -47,9 +48,17 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 await storage.remove('optOut')
             }
 
-            const optOutDomains = await storage.get('optOutDomains')
-
-            if (optOutDomains && isMsRangeActive(optOutDomains[match], now)) {
+            // Check if this specific domain/query is opted out (supports regex patterns)
+            const urlObj = new URL(tab.url)
+            let hostname = urlObj.hostname
+            // Remove www prefixes
+            hostname = hostname.replace(/^www\./, '').replace(/^www1\./, '').replace(/^www2\./, '')
+            
+            // Build query with full path including search parameters for regex matching
+            const queryWithParams = hostname + urlObj.pathname + urlObj.search
+            const isOptedOut = await checkOptOutDomain(queryWithParams)
+            
+            if (isOptedOut) {
                 return;
             }
         } else if (phase === 'activated') {

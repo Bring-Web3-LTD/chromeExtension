@@ -1,8 +1,10 @@
 import storage from "../storage/storage"
+import isRegexPattern from "./isRegexPattern"
+import createSpecificQuietDomain from "./createSpecificQuietDomain"
 
 const STORAGE_KEY = 'optOutDomains'
 
-const addOptOutDomain = async (domain: string, time: number) => {
+const addOptOutDomain = async (domain: string, time: number, url?: string) => {
     if (!domain) return
 
     let optOutDomains = await storage.get(STORAGE_KEY)
@@ -14,7 +16,13 @@ const addOptOutDomain = async (domain: string, time: number) => {
     const now = Date.now()
     const end = now + time
 
-    optOutDomains[domain] = [now, end]
+    // If URL is provided and domain contains regex, create a specific pattern
+    let domainToStore = domain
+    if (url && isRegexPattern(domain)) {
+        domainToStore = createSpecificQuietDomain(url, domain)
+    }
+
+    optOutDomains[domainToStore] = [now, end]
 
     await storage.set(STORAGE_KEY, optOutDomains)
 }

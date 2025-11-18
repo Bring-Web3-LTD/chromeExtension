@@ -38,7 +38,7 @@ const getRelevantDomain = async (url: string | undefined): Promise<{ matched: bo
         }
     }
 
-    const { matched, match } = searchCompressed(relevantDomains, query)
+    const { matched, match } = searchCompressed(relevantDomains, query, true)
 
     if (!matched) return falseResponse
 

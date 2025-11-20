@@ -96,6 +96,7 @@ const OptOut = ({ onClose }: Props) => {
 
     const handleOptOut = () => {
         if (isOpted) return
+        setIsOpted(true)
         
         const { websites, duration } = selection
 
@@ -107,7 +108,6 @@ const OptOut = ({ onClose }: Props) => {
         }
 
         sendMessage(event)
-        setIsOpted(true)
         sendGaEvent(websites.value ? 'opt_out' : 'opt_out_specific', {
             category: 'user_action',
             action: 'click',

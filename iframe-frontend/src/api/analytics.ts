@@ -16,8 +16,8 @@ interface Body {
     timestamp?: number
 }
 
-const analytics = async (body: Body) => {
-    body.timestamp = Date.now()
+const analytics = async (body: Body,timestamp?: number) => {
+    body.timestamp = timestamp ?? Date.now()
 
     const res = await fetch(`${API_URL}/analytics`, {
         method: 'POST',

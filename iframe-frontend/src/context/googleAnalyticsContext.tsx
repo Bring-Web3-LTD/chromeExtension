@@ -24,6 +24,10 @@ interface BackendEvent {
 
 export const GoogleAnalyticsContext = createContext<GoogleAnalyticsContextType | undefined>(undefined);
 
+// Move these outside the component to persist across remounts
+const sentEvents = new Set<EventName>()
+const pendingPromises = new Map<EventName, Promise<{ success: boolean; error?: Error; skipped?: boolean }>>()
+
 interface Props {
     measurementId: string
     children: ReactNode
@@ -38,25 +42,20 @@ interface Props {
 export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId }) => {
     const effectRan = useRef(false)
     const { walletAddress } = useWalletAddress()
-    // Track which events have been sent
-    const sentEvents = useRef<Set<EventName>>(new Set())
-    // Track pending event requests
-    const pendingEvents = useRef<Set<EventName>>(new Set())
-    // Track promises for pending events
-    const pendingPromises = useRef<Map<EventName, Promise<{ success: boolean; error?: Error; skipped?: boolean }>>>(new Map())
 
     const sendBackendEvent = useCallback(async (name: EventName, event: BackendEvent) => {
+        const timestamp = Date.now()
         // Check if this event type has already been sent successfully
-        if (sentEvents.current.has(name)) {
+        if (sentEvents.has(name)) {
             return { success: true, skipped: true }
         }
 
         // If there's a pending promise for this event, wait for it
-        if (pendingPromises.current.has(name)) {
+        if (pendingPromises.has(name)) {
             try {
-                await pendingPromises.current.get(name)
+                await pendingPromises.get(name)
                 // After waiting, check if it was sent successfully
-                if (sentEvents.current.has(name)) {
+                if (sentEvents.has(name)) {
                     return { success: true, skipped: true }
                 }
             } catch (error) {
@@ -80,23 +79,21 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         // Create the promise for this event
         const eventPromise = (async () => {
             try {
-                pendingEvents.current.add(name)
-                const result = await analytics(backendEvent)
+                const result = await analytics(backendEvent, timestamp)
                 if (result.success) {
-                    sentEvents.current.add(name)
+                    sentEvents.add(name)
                 }
                 return result
             } catch (error) {
                 console.error('BRING: Error sending analytics event', error)
                 return { success: false, error: error as Error }
             } finally {
-                pendingEvents.current.delete(name)
-                pendingPromises.current.delete(name)
+                pendingPromises.delete(name)
             }
         })()
 
         // Store the promise
-        pendingPromises.current.set(name, eventPromise)
+        pendingPromises.set(name, eventPromise)
 
         return eventPromise
     }, [flowId, platform, retailerName, testVariant, userId, walletAddress])

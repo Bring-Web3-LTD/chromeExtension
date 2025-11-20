@@ -95,6 +95,8 @@ const OptOut = ({ onClose }: Props) => {
     }, [isOpted, onClose])
 
     const handleOptOut = () => {
+        if (isOpted) return
+        
         const { websites, duration } = selection
 
         const event = {

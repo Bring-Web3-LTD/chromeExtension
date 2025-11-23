@@ -1,5 +1,11 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.5.3
+
+### Patch Changes
+
+- 7065367: Fix overflow bug for relevantDomains storage helper
+
 ## 1.5.2
 
 ### Patch Changes

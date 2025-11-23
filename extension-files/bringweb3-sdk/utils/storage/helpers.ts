@@ -7,14 +7,24 @@ interface Helpers {
 
 export const strToUint8Array = (str: string): Uint8Array | null => {
     try {
-        return new Uint8Array(atob(str).split('').map(c => c.charCodeAt(0)))
+        const decoded = atob(str);
+        const arr = new Uint8Array(decoded.length);
+        for (let i = 0; i < decoded.length; i++) {
+            arr[i] = decoded.charCodeAt(i);
+        }
+        return arr;
     } catch (error) {
         return null
     }
 }
 
 export const uint8ArrayToStr = (blob: Uint8Array): string => {
-    return btoa(String.fromCharCode(...blob))
+    const arr = [];
+    for (let i = 0; i < blob.length; i += 1000) {
+        const next = Math.min(i + 1000, blob.length)
+        arr.push(String.fromCharCode(...blob.slice(i, next)))
+    }
+    return btoa(arr.join(''))
 }
 
 const helpers: Helpers = {

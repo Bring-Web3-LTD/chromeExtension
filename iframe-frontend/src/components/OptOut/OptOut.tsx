@@ -136,7 +136,7 @@ const OptOut = ({ onClose }: Props) => {
                         />
                         <RadioGroup
                             options={durationOptions}
-                            title={`Turn off cashback offers for`}
+                            title={`For`}
                             onChange={(option => setSelection({ ...selection, duration: option }))}
                             defaultOption={durationOptions[0]}
                         />

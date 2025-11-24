@@ -1,20 +1,22 @@
 import styles from './styles.module.css'
-import { sendMessage, ACTIONS } from '../../utils/sendMessage';
-import { useState, useCallback } from 'react';
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
-import { useRouteLoaderData } from 'react-router-dom';
-import toCapital from '../../utils/toCapital';
-import toCaseString from '../../utils/toCaseString';
+import { sendMessage, ACTIONS } from '../../utils/sendMessage'
+import { useState, useCallback } from 'react'
+import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
+import { useRouteLoaderData } from 'react-router-dom'
+import toCapital from '../../utils/toCapital'
+import toCaseString from '../../utils/toCaseString'
 
 interface Option {
     label: string
     value: number | string | boolean
     id: string
+    action?: ACTIONS
 }
 
 const websiteOptions: Option[] = [
-    { label: 'For this website', value: false, id: 'websiteOption0' },
-    { label: 'For all websites', value: true, id: 'websiteOption1' }
+    { label: 'For this search term', value: 'search', id: 'websiteOption0', action: ACTIONS.OPT_OUT_SEARCH_TERM },
+    { label: 'For this website', value: false, id: 'websiteOption1', action: ACTIONS.OPT_OUT_SPECIFIC },
+    { label: 'For all websites', value: true, id: 'websiteOption2', action: ACTIONS.OPT_OUT }
 ]
 
 const durationOptions: Option[] = [
@@ -74,11 +76,11 @@ interface Selection {
 }
 
 interface Props {
-    onClose: () => void;
+    onClose: () => void
 }
 
-const OptOut = ({ onClose }: Props) => {
-    const { cryptoSymbols, platformName, textMode, domain, name, domainPattern } = useRouteLoaderData('root') as LoaderData
+const OfferLineOptOut = ({ onClose }: Props) => {
+    const { cryptoSymbols, platformName, textMode, domain, name, domainPattern, searchTermPattern } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)
     const [selection, setSelection] = useState<Selection>({
@@ -97,17 +99,29 @@ const OptOut = ({ onClose }: Props) => {
     const handleOptOut = () => {
         const { websites, duration } = selection
 
-        const event = {
-            action: websites.value ? ACTIONS.OPT_OUT : ACTIONS.OPT_OUT_SPECIFIC,
+        const event: Message = {
+            action: websites.action,
             time: +duration.value,
             domain,
             domainPattern,
             key: dict[duration.label as keyof typeof dict]
         }
 
+        // Add searchTermPattern for search-specific opt-out
+        if (websites.action === ACTIONS.OPT_OUT_SEARCH_TERM && searchTermPattern) {
+            event.searchTermPattern = searchTermPattern
+        }
+
         sendMessage(event)
         setIsOpted(true)
-        sendGaEvent(websites.value ? 'opt_out' : 'opt_out_specific', {
+
+        const eventType = websites.action === ACTIONS.OPT_OUT 
+            ? 'opt_out' 
+            : websites.action === ACTIONS.OPT_OUT_SPECIFIC
+            ? 'opt_out_specific'
+            : 'opt_out_search_term'
+
+        sendGaEvent(eventType as any, {
             category: 'user_action',
             action: 'click',
             details: duration.label,
@@ -118,13 +132,13 @@ const OptOut = ({ onClose }: Props) => {
 
     return (
         <div
-            id="opt-out-container"
+            id="offerline-opt-out-container"
             className={styles.container}>
             {!isOpted ?
                 <>
-                    <div id="opt-out-card" className={styles.card}>
-                        <div id="opt-out-title" className={styles.title}>Turn off Cashback offers</div>
-                        <div id="opt-out-description" className={styles.description}>
+                    <div id="offerline-opt-out-card" className={styles.card}>
+                        <div id="offerline-opt-out-title" className={styles.title}>Turn off Cashback offers</div>
+                        <div id="offerline-opt-out-description" className={styles.description}>
                             With {toCapital(platformName)}'s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
                         </div>
                         <RadioGroup
@@ -141,43 +155,39 @@ const OptOut = ({ onClose }: Props) => {
                         />
                     </div>
                     <button
-                        id="opt-out-apply-btn"
+                        id="offerline-opt-out-apply-btn"
                         className={`${styles.btn} ${styles.apply_btn}`}
                         onClick={handleOptOut}
                     >
                         {toCaseString('Apply', textMode)}
                     </button>
                     <button
-                        id="opt-out-back-btn"
-                        className={`${styles.btn} ${styles.close_btn}`}
+                        id="offerline-opt-out-cancel-btn"
+                        className={`${styles.btn} ${styles.cancel_btn}`}
                         onClick={handleClose}
                     >
-                        {toCaseString('Back to activation', textMode)}
+                        {toCaseString('Cancel', textMode)}
                     </button>
                 </>
                 :
-                <div id="opt-out-subcontainer" className={styles.subcontainer}>
-                    <div id="opt-out-confirmation-card" className={styles.card} style={{ justifyContent: 'space-between' }}>
-                        <div id="opt-out-confirmation-title" className={styles.title}>
-                            Cashback offers turned off
+                <>
+                    <div id="offerline-opt-out-success-card" className={styles.card}>
+                        <div id="offerline-opt-out-success-title" className={styles.title}>Settings updated</div>
+                        <div id="offerline-opt-out-success-description" className={styles.description}>
+                            You won't receive cashback offers {selection.websites.label.toLowerCase()} for {selection.duration.label}
                         </div>
-                        <div id="opt-out-confirmation-description" className={styles.description}>
-                            Your request to turn off cashback offers has been received.<br />
-                            You will no longer see {toCapital(platformName)}'s cashback offers {!selection.websites.value ? 'on this website' : 'across all websites'} {selection.duration.label === 'forever' ? selection.duration.label : `for the next ${selection.duration.label}`}.
-                        </div>
-
                     </div>
                     <button
-                        id="opt-out-close-btn"
-                        className={`${styles.btn} ${styles.close_btn}`}
+                        id="offerline-opt-out-close-btn"
+                        className={`${styles.btn} ${styles.apply_btn}`}
                         onClick={handleClose}
                     >
                         {toCaseString('Close', textMode)}
                     </button>
-                </div>
+                </>
             }
-        </div >
+        </div>
     )
 }
 
-export default OptOut
+export default OfferLineOptOut

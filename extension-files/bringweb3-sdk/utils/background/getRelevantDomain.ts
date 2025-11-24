@@ -7,7 +7,7 @@ const urlRemoveOptions = ['www.', 'www1.', 'www2.']
 const getRelevantDomain = async (url: string | undefined): Promise<{ matched: boolean, match: string }> => {
     const relevantDomains = await updateCache()
     const portalRelevantDomains = await storage.get('portalRelevantDomains')
-    const falseResponse = { matched: false, match: '', phase: undefined }
+    const falseResponse = { matched: false, match: '' }
 
     if (!url || !relevantDomains || !relevantDomains.length || !(relevantDomains instanceof Uint8Array)) return falseResponse
 

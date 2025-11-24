@@ -9,6 +9,8 @@ interface Message {
     path?: string
     referrers?: string[]
     flowId?: string
+    placement?: PlacementConfig
+    domainPattern?: string
 }
 
 const sendMessage = (tabId: number, message: Message, maxRetries?: number): Promise<any> => {

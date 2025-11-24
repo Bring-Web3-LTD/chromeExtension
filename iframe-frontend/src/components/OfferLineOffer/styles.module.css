@@ -1,0 +1,93 @@
+/* Simple Black Rectangle Container */
+.container {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #000000;
+    border-radius: 8px;
+    min-height: 200px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Offer Text from Server */
+.offer_text {
+    font-size: 16px;
+    font-weight: 400;
+    color: #ffffff;
+    text-align: center;
+    line-height: 24px;
+    margin-bottom: 8px;
+}
+
+/* Activate Button */
+.activate_btn {
+    background: #007AFF;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.activate_btn:hover:not(:disabled) {
+    background: #0051D5;
+}
+
+.activate_btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Opt Out Button */
+.opt_out_btn {
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    height: 40px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.opt_out_btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.opt_out_btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Demo Container for Testers */
+.demo_container {
+    display: flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.demo_checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.demo_label {
+    font-size: 14px;
+    font-weight: 400;
+    color: #ffffff;
+    cursor: pointer;
+}

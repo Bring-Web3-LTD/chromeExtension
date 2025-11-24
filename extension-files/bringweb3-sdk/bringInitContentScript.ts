@@ -148,10 +148,11 @@ const bringInitContentScript = async ({
                         return true
                     }
 
-                    const { token, iframeUrl, userId } = request;
+                    const { token, iframeUrl, userId, placement, domainPattern } = request;
 
                     const query: { [key: string]: string } = { token }
                     if (userId) query['userId'] = userId
+                    if (domainPattern) query['domainPattern'] = domainPattern
 
                     iframeEl = injectIFrame({
                         query,
@@ -160,7 +161,8 @@ const bringInitContentScript = async ({
                         themeMode: theme || 'light',
                         text,
                         switchWallet,
-                        page: request.page
+                        page: request.page,
+                        placement  // Pass placement configuration from server
                     });
                     isIframeOpen = true
                     iframePath = `/${request.page || ''}`

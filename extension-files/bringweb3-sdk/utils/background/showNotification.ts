@@ -9,6 +9,7 @@ interface Notification {
     token: string,
     iframeUrl: string,
     showNotification: boolean
+    placement?: PlacementConfig  // Optional placement configuration from server
 }
 
 const show = async (tabId: number, notification: Notification, domain: string) => {
@@ -18,7 +19,8 @@ const show = async (tabId: number, notification: Notification, domain: string) =
         token: notification.token,
         iframeUrl: notification.iframeUrl,
         userId: await getUserId(),
-        domain
+        domain,
+        placement: notification.placement  // Pass placement configuration from notification
     })
 }
 

@@ -16,6 +16,10 @@ import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
 import checkOptOutDomain from "./checkOptOutDomain";
 
+const getCleanDomain = (match: string): string => {
+    return match.replace(/\\./g, '.').split('/')[0]?.split('\\')[0] || match
+}
+
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         if (!changeInfo.url || !tab?.url?.startsWith('http')) return
@@ -28,7 +32,9 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         await checkPostPurchasePage(tab.url);
 
+        console.log("before");
         const { matched, match } = await getRelevantDomain(tab.url);
+        console.log("after");
 
         if (!matched) {
             await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
@@ -53,17 +59,17 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             let hostname = urlObj.hostname
             // Remove www prefixes
             hostname = hostname.replace(/^www\./, '').replace(/^www1\./, '').replace(/^www2\./, '')
-            
+
             // Build query with full path including search parameters for regex matching
             const queryWithParams = hostname + urlObj.pathname + urlObj.search
             const isOptedOut = await checkOptOutDomain(queryWithParams)
-            
+
             if (isOptedOut) {
                 return;
             }
         } else if (phase === 'activated') {
             const userId = await getUserId()
-            const { iframeUrl, token } = payload || {};
+            const { iframeUrl, token, placement } = payload || {};
 
             const res = await sendMessage(tabId, {
                 action: 'INJECT',
@@ -72,6 +78,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 domain: url,
                 userId,
                 page: phase,
+                placement  // Pass placement configuration from payload
             });
             return;
         } else if (phase === 'quiet') {
@@ -82,7 +89,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         const address = await getWalletAddress(tabId);
 
-        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers } = await validateDomain({
+        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement, isOfferLine } = await validateDomain({
             body: {
                 domain: match,
                 phase,
@@ -100,6 +107,9 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         const userId = await getUserId()
 
+        // Extract clean domain for OPT_OUT_SPECIFIC (e.g., "google.com" from "google\.com/search\?.*")
+        const cleanDomain = getCleanDomain(match)
+
         const res = await sendMessage(tabId, {
             action: 'INJECT',
             token,
@@ -107,8 +117,10 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             iframeUrl,
             userId,
             referrers: portalReferrers,
-            page: phase === 'new' ? '' : phase,
-            flowId
+            page: isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
+            flowId,
+            placement,
+            domainPattern: cleanDomain
         });
 
         if (res?.action) {

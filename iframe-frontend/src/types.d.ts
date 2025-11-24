@@ -8,6 +8,7 @@ declare global {
         PROMPT_LOGIN = 'PROMPT_LOGIN',
         OPT_OUT = 'OPT_OUT',
         OPT_OUT_SPECIFIC = 'OPT_OUT_SPECIFIC',
+        OPT_OUT_SEARCH_TERM = 'OPT_OUT_SEARCH_TERM',
         ADD_KEYFRAMES = 'ADD_KEYFRAMES',
         ERASE_NOTIFICATION = 'ERASE_NOTIFICATION',
         OPEN_CASHBACK_PAGE = 'OPEN_CASHBACK_PAGE',
@@ -38,6 +39,9 @@ declare global {
         domain?: string
         flowId: string
         isTester?: boolean
+        searchTermPattern?: string
+        isOfferLine?: boolean
+        offerText?: string
     }
 
     interface LoaderData extends Info {
@@ -50,6 +54,7 @@ declare global {
         version: string
         networkUrl: string
         beamer: boolean
+        domainPattern?: string
     }
 
     interface ActivatedData extends Info {
@@ -71,6 +76,8 @@ declare global {
         token?: string
         flowId?: string
         platformName?: string
+        searchTermPattern?: string
+        domainPattern?: string
     }
 
     interface GoogleAnalyticsContextType {

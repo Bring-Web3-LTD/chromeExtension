@@ -33,6 +33,7 @@ const rootLoader = async ({ request }: Props) => {
     const themeMode = searchParams.get('themeMode') || 'light'
     const version = searchParams.get('v') || '0.0.0'
     const switchWallet = (searchParams.get('switchWallet') || 'false')?.toLowerCase() === 'true'
+    const domainPattern = searchParams.get('domainPattern') || undefined
 
     // Load chosen font
     loadFont(searchParams.get('t_fontUrl'), searchParams.get('t_fontFamily'))
@@ -49,6 +50,7 @@ const rootLoader = async ({ request }: Props) => {
         themeMode,
         textMode,
         switchWallet,
+        domainPattern,
         iconsPath: `${import.meta.env.BASE_URL}${themeMode}/icons/${res.info.platformName.toUpperCase() || 'DEFAULT'}`,
         variant
     }

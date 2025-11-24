@@ -95,6 +95,9 @@ const OptOut = ({ onClose }: Props) => {
     }, [isOpted, onClose])
 
     const handleOptOut = () => {
+        if (isOpted) return
+        setIsOpted(true)
+        
         const { websites, duration } = selection
 
         const event = {
@@ -106,7 +109,6 @@ const OptOut = ({ onClose }: Props) => {
         }
 
         sendMessage(event)
-        setIsOpted(true)
         sendGaEvent(websites.value ? 'opt_out' : 'opt_out_specific', {
             category: 'user_action',
             action: 'click',
@@ -135,7 +137,7 @@ const OptOut = ({ onClose }: Props) => {
                         />
                         <RadioGroup
                             options={durationOptions}
-                            title={`Turn off cashback offers for`}
+                            title={`For`}
                             onChange={(option => setSelection({ ...selection, duration: option }))}
                             defaultOption={durationOptions[0]}
                         />

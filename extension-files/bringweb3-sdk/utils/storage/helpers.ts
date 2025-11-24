@@ -7,24 +7,25 @@ interface Helpers {
 
 export const strToUint8Array = (str: string): Uint8Array | null => {
     try {
-        return new Uint8Array(atob(str).split('').map(c => c.charCodeAt(0)))
+        const decoded = atob(str);
+        const arr = new Uint8Array(decoded.length);
+        for (let i = 0; i < decoded.length; i++) {
+            arr[i] = decoded.charCodeAt(i);
+        }
+        return arr;
     } catch (error) {
         return null
     }
 }
 
 export const uint8ArrayToStr = (blob: Uint8Array): string => {
-    // Process in chunks to avoid "Maximum call stack size exceeded" error
-    // when dealing with large Uint8Arrays (e.g., 77KB domain lists)
-    const CHUNK_SIZE = 8192; // 8KB chunks - safe for all browsers
-    let binaryString = '';
-    
-    for (let i = 0; i < blob.length; i += CHUNK_SIZE) {
-        const chunk = blob.subarray(i, i + CHUNK_SIZE);
-        binaryString += String.fromCharCode(...chunk);
+
+    const arr = [];
+    for (let i = 0; i < blob.length; i += 1000) {
+        const next = Math.min(i + 1000, blob.length)
+        arr.push(String.fromCharCode(...blob.slice(i, next)))
     }
-    
-    return btoa(binaryString);
+    return btoa(arr.join(''))
 }
 
 const helpers: Helpers = {

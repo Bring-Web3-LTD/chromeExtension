@@ -32,9 +32,9 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         await checkPostPurchasePage(tab.url);
 
-        console.log("before");
         const { matched, match } = await getRelevantDomain(tab.url);
-        console.log("after");
+        console.log('[Popup Debug] 🔍 URL:', tab.url);
+        console.log('[Popup Debug] 🎯 Domain matched:', matched, '| match:', match);
 
         if (!matched) {
             await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
@@ -42,13 +42,17 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         };
 
         const { phase, payload } = await getQuietDomain(match);
+        console.log('[Popup Debug] 📊 Phase:', phase, '| payload:', payload);
 
         if (phase === 'new') {
             const now = Date.now();
 
             const optOut = await storage.get('optOut');
+            const isGlobalOptOut = isMsRangeActive(optOut, now);
+            console.log('[Popup Debug] 🚫 Global opt-out active:', isGlobalOptOut);
 
-            if (isMsRangeActive(optOut, now)) {
+            if (isGlobalOptOut) {
+                console.log('[Popup Debug] ❌ Blocked by global opt-out');
                 return;
             } else {
                 await storage.remove('optOut')
@@ -63,8 +67,11 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             // Build query with full path including search parameters for regex matching
             const queryWithParams = hostname + urlObj.pathname + urlObj.search
             const isOptedOut = await checkOptOutDomain(queryWithParams)
+            console.log('[Popup Debug] 🔒 Specific opt-out check - query:', queryWithParams);
+            console.log('[Popup Debug] 🔒 Is opted out:', isOptedOut);
 
             if (isOptedOut) {
+                console.log('[Popup Debug] ❌ Blocked by specific opt-out');
                 return;
             }
         } else if (phase === 'activated') {
@@ -97,19 +104,27 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 address
             }
         });
+        console.log('[Popup Debug] 🔐 Validation result - isValid:', isValid, '| isOfferLine:', isOfferLine, '| token:', token ? '✓' : '✗');
 
         if (isValid === false) {
+            console.log('[Popup Debug] ❌ Blocked by validation failure');
             addQuietDomain(match, time);
             return;
         }
 
-        if (!await isWhitelisted(networkUrl)) return;
+        // const whitelisted = await isWhitelisted(networkUrl);
+        // if (!whitelisted) {
+        //     console.log('[Bring Popup Flow] ❌ Network URL not whitelisted:', networkUrl);
+        //     return;
+        // }
+        // console.log('[Bring Popup Flow] ✅ Network URL whitelisted:', networkUrl);
 
         const userId = await getUserId()
 
         // Extract clean domain for OPT_OUT_SPECIFIC (e.g., "google.com" from "google\.com/search\?.*")
         const cleanDomain = getCleanDomain(match)
 
+        console.log('[Popup Debug] 💉 Sending INJECT to content script | page:', isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase));
         const res = await sendMessage(tabId, {
             action: 'INJECT',
             token,
@@ -122,6 +137,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             placement,
             domainPattern: cleanDomain
         });
+        console.log('[Popup Debug] 📬 Content script response:', res);
 
         if (res?.action) {
             switch (res.action) {
@@ -135,6 +151,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         }
 
         if (res?.status !== 'success') {
+            console.log('[Popup Debug] ❌ Popup NOT shown - reason:', res?.message, '| status:', res?.status);
             analytics({
                 type: 'no_popup',
                 userId,
@@ -142,6 +159,8 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 details: { url: tab.url, match, iframeUrl, reason: res?.message, status: res?.status },
                 flowId
             })
+        } else {
+            console.log('[Popup Debug] ✅ Popup shown successfully!');
         }
     })
 }

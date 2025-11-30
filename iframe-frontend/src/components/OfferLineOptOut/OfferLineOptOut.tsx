@@ -80,7 +80,7 @@ interface Props {
 }
 
 const OfferLineOptOut = ({ onClose }: Props) => {
-    const { cryptoSymbols, platformName, textMode, domain, name, domainPattern, searchTermPattern } = useRouteLoaderData('root') as LoaderData
+    const { cryptoSymbols, platformName, textMode, domain, offerlineDomain, name, domainPattern, searchTermPattern } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)
     const [selection, setSelection] = useState<Selection>({
@@ -97,31 +97,18 @@ const OfferLineOptOut = ({ onClose }: Props) => {
     }, [isOpted, onClose])
 
     const handleOptOut = () => {
-        const { websites, duration } = selection
+        const { duration } = selection
 
         const event: Message = {
-            action: websites.action,
+            action: ACTIONS.OPT_OUT_OFFER_LINE,
             time: +duration.value,
-            domain,
-            domainPattern,
             key: dict[duration.label as keyof typeof dict]
-        }
-
-        // Add searchTermPattern for search-specific opt-out
-        if (websites.action === ACTIONS.OPT_OUT_SEARCH_TERM && searchTermPattern) {
-            event.searchTermPattern = searchTermPattern
         }
 
         sendMessage(event)
         setIsOpted(true)
 
-        const eventType = websites.action === ACTIONS.OPT_OUT 
-            ? 'opt_out' 
-            : websites.action === ACTIONS.OPT_OUT_SPECIFIC
-            ? 'opt_out_specific'
-            : 'opt_out_search_term'
-
-        sendGaEvent(eventType as any, {
+        sendGaEvent('opt_out_offer_line' as any, {
             category: 'user_action',
             action: 'click',
             details: duration.label,
@@ -141,12 +128,6 @@ const OfferLineOptOut = ({ onClose }: Props) => {
                         <div id="offerline-opt-out-description" className={styles.description}>
                             With {toCapital(platformName)}'s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
                         </div>
-                        <RadioGroup
-                            options={websiteOptions}
-                            title={`Turn off cashback offers`}
-                            onChange={(option => setSelection({ ...selection, websites: option }))}
-                            defaultOption={websiteOptions[0]}
-                        />
                         <RadioGroup
                             options={durationOptions}
                             title={`Turn off cashback offers for`}
@@ -174,7 +155,7 @@ const OfferLineOptOut = ({ onClose }: Props) => {
                     <div id="offerline-opt-out-success-card" className={styles.card}>
                         <div id="offerline-opt-out-success-title" className={styles.title}>Settings updated</div>
                         <div id="offerline-opt-out-success-description" className={styles.description}>
-                            You won't receive cashback offers {selection.websites.label.toLowerCase()} for {selection.duration.label}
+                            You won't receive cashback offers for {selection.duration.label}
                         </div>
                     </div>
                     <button

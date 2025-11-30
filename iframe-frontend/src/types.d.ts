@@ -9,6 +9,7 @@ declare global {
         OPT_OUT = 'OPT_OUT',
         OPT_OUT_SPECIFIC = 'OPT_OUT_SPECIFIC',
         OPT_OUT_SEARCH_TERM = 'OPT_OUT_SEARCH_TERM',
+        OPT_OUT_OFFER_LINE = 'OPT_OUT_OFFER_LINE',
         ADD_KEYFRAMES = 'ADD_KEYFRAMES',
         ERASE_NOTIFICATION = 'ERASE_NOTIFICATION',
         OPEN_CASHBACK_PAGE = 'OPEN_CASHBACK_PAGE',
@@ -24,7 +25,9 @@ declare global {
     interface Info {
         walletAddress: WalletAddress
         platformName: string
+        platformId: number
         retailerId: string
+        retailerDomain: string
         name: string
         maxCashback: string
         cashbackSymbol: string
@@ -36,12 +39,15 @@ declare global {
         cryptoSymbols: string[]
         iconUrl: string
         url: string
-        domain?: string
+        domain: string
+        offerlineDomain?: string
         flowId: string
         isTester?: boolean
         searchTermPattern?: string
         isOfferLine?: boolean
         offerText?: string
+        networkUrl?: string
+        offerlineSearch?: string
     }
 
     interface LoaderData extends Info {

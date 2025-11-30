@@ -32,7 +32,7 @@ export class ApiEndpoint {
         this.apiEndpoint = 'https://sandbox-api.bringweb3.io/v1/extension';
         break;
       case 'dev':
-        this.apiEndpoint = 'https://api.bring.network/henyag/v1/extension/domains?version=7'
+        this.apiEndpoint = 'https://api.bring.network/henyag/v1/extension'
         break;
       default:
         this.apiEndpoint = 'https://sandbox-api.bringweb3.io/v1/extension';

@@ -23,13 +23,14 @@ const getRelevantDomain = async (url: string | undefined): Promise<{ matched: bo
         }
     }
 
-    const { hostname, pathname } = urlObj
+    const { hostname, pathname, search } = urlObj
 
-    let query = hostname + pathname
+    let query = hostname + pathname + search
 
     for (const urlRemoveOption of urlRemoveOptions) {
         query = query.replace(urlRemoveOption, '')
     }
+
     if (portalRelevantDomains) {
         const search = searchCompressed(portalRelevantDomains, query)
         if (search.matched) {

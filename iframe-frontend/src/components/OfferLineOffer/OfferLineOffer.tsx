@@ -31,7 +31,11 @@ const OfferLineOffer = () => {
         isTester,
         version,
         domain,
-        offerText
+        offerlineDomain,
+        offerText,
+        networkUrl,
+        isOfferLine,
+        offerlineSearch
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -40,17 +44,26 @@ const OfferLineOffer = () => {
     const activateAction = useCallback(async () => {
         setStatus('activating')
 
+        console.log('[OfferLineOffer] isOfferLine value:', isOfferLine)
+
         const body: Parameters<typeof activate>[0] = {
             walletAddress,
             platformName,
             retailerId,
-            url,
+            url: networkUrl,
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
+            isOfferLine,
+            networkUrl,
+            offerlineDomain,
+            offerlinePageUrl: url,
+            offerlineSearch
         }
 
         if (isTester && isDemo) body.isDemo = true
+        
+        console.log('[OfferLineOffer] activate body:', JSON.stringify(body, null, 2))
 
         const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
 
@@ -77,7 +90,7 @@ const OfferLineOffer = () => {
             details: name
         })
 
-    }, [cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [cryptoSymbols, domain, offerlineDomain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferLine, offerlineSearch])
 
     useEffect(() => {
         if (status === 'done') return

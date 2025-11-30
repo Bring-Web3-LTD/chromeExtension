@@ -35,22 +35,59 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
             }
             case 'OPT_OUT': {
                 const { time } = request
-                setOptOut(time).then(res => sendResponse(res))
+                console.log('[OPT_OUT] 🚫 Global opt-out requested, time:', time);
+                setOptOut(time).then(async res => {
+                    console.log('[OPT_OUT] ✅ Global opt-out set successfully:', res);
+                    const optOutDomains = await storage.get('optOutDomains') || {};
+                    console.log('[OPT_OUT] 📋 Current optOutDomains list:', optOutDomains);
+                    sendResponse(res);
+                })
                 return true;
             }
             case 'OPT_OUT_SPECIFIC': {
                 const { domain, time, domainPattern } = request
-                addOptOutDomain(domain, time, domainPattern).then(res => sendResponse(res))
+                console.log('[OPT_OUT_SPECIFIC] 🔒 Domain-specific opt-out requested:', { domain, domainPattern, time });
+                addOptOutDomain(domain, time, domainPattern).then(async res => {
+                    console.log('[OPT_OUT_SPECIFIC] ✅ Domain added to opt-out list:', res);
+                    const optOutDomains = await storage.get('optOutDomains') || {};
+                    console.log('[OPT_OUT_SPECIFIC] 📋 Current optOutDomains list:', optOutDomains);
+                    sendResponse(res);
+                })
                 return true;
             }
             case 'OPT_OUT_SEARCH_TERM': {
                 const { time, searchTermPattern } = request
+                console.log('[OPT_OUT_SEARCH_TERM] 🔍 Search term opt-out requested:', { searchTermPattern, time });
                 // For search term opt-out, the pattern IS the domain identifier
                 if (!searchTermPattern) {
+                    console.log('[OPT_OUT_SEARCH_TERM] ❌ Missing searchTermPattern');
                     sendResponse({ error: 'Missing searchTermPattern' })
                     return true
                 }
-                addOptOutDomain('', time, searchTermPattern).then(res => sendResponse(res))
+                addOptOutDomain('', time, searchTermPattern).then(async res => {
+                    console.log('[OPT_OUT_SEARCH_TERM] ✅ Search term added to opt-out list:', res);
+                    const optOutDomains = await storage.get('optOutDomains') || {};
+                    console.log('[OPT_OUT_SEARCH_TERM] 📋 Current optOutDomains list:', optOutDomains);
+                    sendResponse(res);
+                })
+                return true;
+            }
+            case 'OPT_OUT_OFFER_LINE': {
+                const { time } = request
+                console.log('[OPT_OUT_OFFER_LINE] 🌐 OfferLine opt-out requested, time:', time);
+                // Add both domains sequentially to avoid race condition
+                addOptOutDomain('', time, 'google\\.com')
+                    .then(() => {
+                        console.log('[OPT_OUT_OFFER_LINE] ✅ google.com added to opt-out list');
+                        return addOptOutDomain('', time, 'amazon\\.com');
+                    })
+                    .then(async () => {
+                        console.log('[OPT_OUT_OFFER_LINE] ✅ amazon.com added to opt-out list');
+                        console.log('[OPT_OUT_OFFER_LINE] ✅ OfferLine opt-out complete');
+                        const optOutDomains = await storage.get('optOutDomains') || {};
+                        console.log('[OPT_OUT_OFFER_LINE] 📋 Current optOutDomains list:', optOutDomains);
+                        sendResponse({ success: true });
+                    })
                 return true;
             }
             case 'GET_POPUP_ENABLED': {

@@ -90,7 +90,7 @@
     align-items: center;
     margin-left: 10px;
     margin-right: 20px;
-    color: var(--offerline-optout-success-f-c, #FFF);
+    color: var(--static-white, #FFF);
     font-family: Rubik;
     font-size: 17px;
     font-weight: 400;

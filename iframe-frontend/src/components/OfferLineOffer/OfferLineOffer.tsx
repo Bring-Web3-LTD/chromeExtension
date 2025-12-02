@@ -45,7 +45,7 @@ const OfferLineOffer = () => {
         cashbackCurrency
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
-    const [isDemo] = useState(false)
+    const [isDemo, setIsDemo] = useState(false)
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
 
     const activateAction = useCallback(async () => {
@@ -66,7 +66,9 @@ const OfferLineOffer = () => {
             offerlineSearch
         }
 
-        if (isTester && isDemo) body.isDemo = true
+        if (isTester && isDemo) {
+            body.isDemo = true
+        }
 
         const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
 
@@ -93,11 +95,10 @@ const OfferLineOffer = () => {
             details: name
         })
 
-    }, [cryptoSymbols, domain, offerlineDomain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferLine, offerlineSearch])
+    }, [cryptoSymbols, domain, offerlineDomain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferLine, offerlineSearch, searchTermPattern])
 
     useEffect(() => {
         if (status === 'done') return
-
         const walletAddressUpdate = (e: MessageEvent<BringEventData>) => {
             const { walletAddress, action } = e.data
             if (action !== 'WALLET_ADDRESS_UPDATE') return
@@ -129,6 +130,20 @@ const OfferLineOffer = () => {
                             Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}
                         </div>
                         <div className={styles.actions_container}>
+                            {walletAddress && isTester ?
+                                <div className={styles.demo_container}>
+                                    <input
+                                        type='checkbox'
+                                        id='isDemo'
+                                        className={styles.demo_checkbox}
+                                        checked={isDemo}
+                                        onChange={e => setIsDemo(e.target.checked)}
+                                        disabled={status !== 'idle'}
+                                    />
+                                    <label htmlFor='isDemo' className={styles.demo_label}>isDemo</label>
+                                </div>
+                                : null
+                            }
                             <div className={styles.buttons}>
                                 <button
                                     id="activate-btn"

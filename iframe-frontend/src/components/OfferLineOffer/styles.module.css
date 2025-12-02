@@ -6,21 +6,6 @@
     align-self: stretch;
 }
 
-.subtitle_container {
-    display: flex;
-    align-items: end;
-    gap: 10px;
-    min-height: 42px;
-}
-
-.subtitle {
-    font-size: var(--details-title-f-s);
-    font-weight: var(--details-title-f-w);
-    color: var(--details-title-f-c);
-    margin: 0;
-    line-height: 24px;
-}
-
 .details_txt {
     display: flex;
     height: 65px;
@@ -51,18 +36,33 @@
     gap: 20px;
 }
 
+.demo_container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: 1px solid var(--primary-f-c);
+    border-radius: 5px;
+}
+
+.demo_checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.demo_label {
+    color: var(--primary-f-c);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+}
+
 .buttons {
     display: flex;
     align-items: center;
     gap: 15px;
-}
-
-.action_container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--offerline-action-gap);
-    flex-shrink: 0;
 }
 
 .btn {
@@ -86,65 +86,6 @@
     white-space: nowrap;
 }
 
-.xMark:hover {
-    transform: scale(1.1);
-}
-
-.details {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: var(--offerline-details-gap);
-    padding: var(--offerline-details-padding);
-    background: var(--offerline-details-bg);
-    border-radius: var(--offerline-details-radius);
-    border-width: var(--offerline-details-border-w);
-    border-style: solid;
-    border-color: var(--offerline-details-border-c);
-    user-select: none;
-    flex: 1;
-    white-space: nowrap;
-}
-
-.top_container {
-    display: flex;
-    align-self: flex-start;
-    justify-content: center;
-    gap: var(--offerline-top-gap);
-}
-
-.wallet_container {
-    display: flex;
-    align-self: flex-start;
-    justify-content: center;
-    align-items: center;
-    height: var(--offerline-wallet-height);
-    background: var(--offerline-wallet-bg);
-    padding: var(--offerline-wallet-padding);
-    border-radius: var(--offerline-wallet-radius);
-}
-
-.wallet {
-    font-size: var(--offerline-wallet-f-s);
-    font-weight: var(--offerline-wallet-f-w);
-    color: var(--offerline-wallet-f-c);
-    border-width: var(--offerline-wallet-border-w);
-    border-style: solid;
-    border-color: var(--offerline-wallet-border-c);
-}
-
-.connect_btn {
-    background: var(--offerline-wallet-bg);
-    cursor: pointer;
-}
-
-.btns_container {
-    display: flex;
-    gap: var(--offerline-btns-gap);
-    flex-shrink: 0;
-}
-
 .action_btn {
     color: var(--offerline-secondary-btn-f-c);
     background: var(--offerline-secondary-btn-bg);
@@ -164,41 +105,4 @@
     justify-content: center;
     gap: var(--offerline-btn-gap, 6px);
     white-space: nowrap;
-}
-
-.demo_container {
-    display: flex;
-    align-self: flex-start;
-    justify-content: center;
-    align-items: center;
-    height: calc(var(--offerline-wallet-height) - 1px);
-    background: var(--offerline-wallet-bg);
-    padding: var(--offerline-wallet-padding);
-    border-radius: var(--offerline-wallet-radius);
-}
-
-.demo_checkbox {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-}
-
-.demo_label {
-    font-size: var(--offerline-wallet-f-s);
-    font-weight: var(--offerline-wallet-f-w);
-    color: var(--offerline-wallet-f-c);
-    border-width: var(--offerline-wallet-border-w);
-    border-style: solid;
-    border-color: var(--offerline-wallet-border-c);
-}
-
-.clarify {
-    text-align: left;
-    white-space: nowrap;
-    font-size: var(--offerline-clarify-f-s);
-    font-weight: var(--offerline-clarify-f-w);
-    color: var(--offerline-clarify-f-c);
-    line-height: 1.2;
-    user-select: none;
-    flex-shrink: 0;
 }

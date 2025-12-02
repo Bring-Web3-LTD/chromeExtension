@@ -22,12 +22,9 @@ const OfferLine = () => {
     }
   }, [platformName, themeMode])
 
-  useEffect(() => {
-    sendMessage({ action: ACTIONS.OPEN, style: offerLineIframeStyle[platformName.toLowerCase()] || offerLineIframeStyle['default'] })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Override padding for Amazon only - Google uses media queries from main.css
+    useEffect(() => {
+        sendMessage({ action: ACTIONS.OPEN, style: offerLineIframeStyle[platformName.toLowerCase()] || offerLineIframeStyle['default'] })
+    }, [platformName])  // Override padding for Amazon only - Google uses media queries from main.css
   useEffect(() => {
     if (offerlineDomain && offerlineDomain !== 'google.com') {
       document.documentElement.style.setProperty('--offerline-left-padding', '20px')

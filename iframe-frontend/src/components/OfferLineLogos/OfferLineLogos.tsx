@@ -3,7 +3,7 @@ import PlatformLogo from '../PlatformLogo/PlatformLogo';
 import { useRouteLoaderData } from 'react-router-dom';
 
 const OfferLineLogos = () => {
-    const { iconUrl, name, platformName, themeMode } = useRouteLoaderData('root') as LoaderData
+    const { iconUrl, name, platformName } = useRouteLoaderData('root') as LoaderData
 
     return (
         <div className={styles.logos_wrapper}>

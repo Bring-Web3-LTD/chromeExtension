@@ -14,7 +14,7 @@ interface ThemeParamsResult {
     done: boolean
 }
 
-const useCustomTheme = (): ThemeParamsResult => {
+const useCustomTheme = (isOfferLine?: boolean): ThemeParamsResult => {
     const { getAllParams } = useSearchParams()
     const theme = getThemeParams(getAllParams())
     const [done, setDone] = useState(false)
@@ -23,6 +23,11 @@ const useCustomTheme = (): ThemeParamsResult => {
         // Apply custom theme
         Object.entries(theme).map(([key, value]) => {
             if (themeNames[key]) {
+                // Skip close button colors for OfferLine - handled by platformStyles
+                if (isOfferLine && (key === 'xBtnFC' || key === 'closeFC')) {
+                    return
+                }
+                
                 let val = ''
                 try {
                     val = decodeURIComponent(value)
@@ -33,7 +38,7 @@ const useCustomTheme = (): ThemeParamsResult => {
             }
         })
         setDone(true)
-    }, [theme])
+    }, [theme, isOfferLine])
 
     return { done }
 }

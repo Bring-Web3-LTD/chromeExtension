@@ -16,6 +16,8 @@ interface Configuration {
     promptLogin: () => Promise<void>
     lightTheme?: Style
     darkTheme?: Style
+    lightThemeOfferline?: Style
+    darkThemeOfferline?: Style
     theme: string
     text: 'upper' | 'lower',
     switchWallet: boolean
@@ -31,8 +33,10 @@ interface Configuration {
  * @param {Function} configuration.promptLogin - A function to prompt the user to login.
  * @param {string[]} configuration.walletAddressListeners - An optional array of strings representing wallet address listeners.
  * @param {Function} [configuration.walletAddressUpdateCallback] - An optional callback function for wallet address updates.
- * @param {Object} [configuration.lightTheme] - Optional light theme settings.
- * @param {Object} [configuration.darkTheme] - Optional dark theme settings.
+ * @param {Object} [configuration.lightTheme] - Optional light theme settings for regular popup.
+ * @param {Object} [configuration.darkTheme] - Optional dark theme settings for regular popup.
+ * @param {Object} [configuration.lightThemeOfferline] - Optional light theme settings for offerline (falls back to lightTheme if not provided).
+ * @param {Object} [configuration.darkThemeOfferline] - Optional dark theme settings for offerline (falls back to darkTheme if not provided).
  * @param {string} configuration.theme - The chosen theme, light | dark.
  * @param {string} configuration.text - The chosen case for some of the texts, upper | lower.
  * @throws {Error} Throws an error if any required configuration is missing.
@@ -51,7 +55,9 @@ interface Configuration {
  *   theme: 'light',
  *   text: 'lower',
  *   lightTheme: { ... },
- *   darkTheme: { ... }
+ *   darkTheme: { ... },
+ *   lightThemeOfferline: { ... },  // Optional: specific theme for offerline
+ *   darkThemeOfferline: { ... }    // Optional: specific theme for offerline
  * });
  */
 const bringInitContentScript = async ({
@@ -61,6 +67,8 @@ const bringInitContentScript = async ({
     walletAddressUpdateCallback,
     lightTheme,
     darkTheme,
+    lightThemeOfferline,
+    darkThemeOfferline,
     theme,
     text,
     switchWallet = false
@@ -148,26 +156,43 @@ const bringInitContentScript = async ({
                         return true
                     }
 
-                    const { token, iframeUrl, userId } = request;
+                    const { token, iframeUrl, userId, placement, domainPattern } = request;
 
                     const query: { [key: string]: string } = { token }
                     if (userId) query['userId'] = userId
+                    if (domainPattern) query['domainPattern'] = domainPattern
+
+                    // Select appropriate theme based on page type and theme mode
+                    let selectedTheme;
+                    if (request.page === 'offerline') {
+                        // Use offerline-specific theme if available, fallback to regular theme
+                        selectedTheme = theme === 'dark' 
+                            ? (darkThemeOfferline || darkTheme)
+                            : (lightThemeOfferline || lightTheme);
+                    } else {
+                        // Regular popup theme
+                        selectedTheme = theme === 'dark' ? darkTheme : lightTheme;
+                    }
 
                     iframeEl = injectIFrame({
                         query,
                         iframeUrl,
-                        theme: theme === 'dark' ? darkTheme : lightTheme,
+                        theme: selectedTheme,
                         themeMode: theme || 'light',
                         text,
                         switchWallet,
-                        page: request.page
+                        page: request.page,
+                        placement  // Pass placement configuration from server
                     });
+
                     isIframeOpen = true
                     iframePath = `/${request.page || ''}`
                     flowId = request.flowId
+                    
                     sendResponse({ status: 'success' });
                     return true
                 } catch (error) {
+                    console.error('[SDK Inject] ❌ Error during injection', error);
                     if (error instanceof Error) {
                         sendResponse({ status: 'failed', message: error.message });
                     } else {

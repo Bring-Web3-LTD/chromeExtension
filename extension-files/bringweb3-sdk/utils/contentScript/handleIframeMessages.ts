@@ -14,6 +14,7 @@ const ACTIONS = {
     PROMPT_LOGIN: 'PROMPT_LOGIN',
     OPT_OUT: 'OPT_OUT',
     OPT_OUT_SPECIFIC: 'OPT_OUT_SPECIFIC',
+    OPT_OUT_OFFER_LINE: 'OPT_OUT_OFFER_LINE',
     ADD_KEYFRAMES: 'ADD_KEYFRAMES',
     ERASE_NOTIFICATION: 'ERASE_NOTIFICATION',
     OPEN_CASHBACK_PAGE: 'OPEN_CASHBACK_PAGE',
@@ -50,6 +51,9 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
             break;
         case ACTIONS.OPT_OUT_SPECIFIC:
             chrome.runtime.sendMessage({ action, domain, time, from: "bringweb3" })
+            break;
+        case ACTIONS.OPT_OUT_OFFER_LINE:
+            chrome.runtime.sendMessage({ action, time, from: "bringweb3" })
             break;
         case ACTIONS.ERASE_NOTIFICATION:
             chrome.runtime.sendMessage({ action, from: "bringweb3" })

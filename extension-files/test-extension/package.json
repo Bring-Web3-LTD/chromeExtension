@@ -19,5 +19,7 @@
     "webpack-cli": "^4.10.0",
     "webpack-merge": "^5.10.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@bringweb3/chrome-extension-kit": "file:../bringweb3-sdk"
+  }
 }

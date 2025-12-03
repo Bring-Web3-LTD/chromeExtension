@@ -7,9 +7,11 @@ const urlRemoveOptions = ['www.', 'www1.', 'www2.']
 const getRelevantDomain = async (url: string | undefined): Promise<{ matched: boolean, match: string }> => {
     const relevantDomains = await updateCache()
     const portalRelevantDomains = await storage.get('portalRelevantDomains')
-    const falseResponse = { matched: false, match: '', phase: undefined }
+    const falseResponse = { matched: false, match: '' }
 
-    if (!url || !relevantDomains || !relevantDomains.length || !(relevantDomains instanceof Uint8Array)) return falseResponse
+    if (!url || !relevantDomains || !relevantDomains.length || !(relevantDomains instanceof Uint8Array)) {
+        return falseResponse;
+    }
 
     let urlObj = null
 
@@ -23,13 +25,14 @@ const getRelevantDomain = async (url: string | undefined): Promise<{ matched: bo
         }
     }
 
-    const { hostname, pathname } = urlObj
+    const { hostname, pathname, search } = urlObj
 
-    let query = hostname + pathname
+    let query = hostname + pathname + search
 
     for (const urlRemoveOption of urlRemoveOptions) {
         query = query.replace(urlRemoveOption, '')
     }
+
     if (portalRelevantDomains) {
         const search = searchCompressed(portalRelevantDomains, query)
         if (search.matched) {
@@ -38,9 +41,11 @@ const getRelevantDomain = async (url: string | undefined): Promise<{ matched: bo
         }
     }
 
-    const { matched, match } = searchCompressed(relevantDomains, query)
+    const { matched, match } = searchCompressed(relevantDomains, query, true)
 
-    if (!matched) return falseResponse
+    if (!matched) {
+        return falseResponse;
+    }
 
     return {
         matched,

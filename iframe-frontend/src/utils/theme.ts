@@ -105,5 +105,8 @@ export const themeNames: ThemeNames = {
     activateWalletNameFS: "--activate-wallet-name-f-s",
     activateWalletNameFW: "--activate-wallet-name-f-w",
     activateWalletNameFC: "--activate-wallet-name-f-c",
-    xBtnFC: "--x-btn-f-c"
+    xBtnFC: "--x-btn-f-c",
+    offerlineOptoutPauseFS: "--offerline-optout-pause-f-s",
+    offerlineOptoutPauseFW: "--offerline-optout-pause-f-w",
+    offerlineOptoutPauseFC: "--offerline-optout-pause-f-c"
 }

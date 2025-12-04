@@ -185,8 +185,16 @@ export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean
                     }
                 }
             } else {
-                const pattern = `^${entryPath}${fullMatch ? '$' : ''}`;
-                if (new RegExp(pattern).test(queryPath)) {
+                let pattern = entryPath;
+                let flags = '';
+                
+                if (entryPath[0] === '/' && entryPath.lastIndexOf('/') > 0) {
+                    const lastSlash = entryPath.lastIndexOf('/');
+                    flags = entryPath.slice(lastSlash + 1);
+                    pattern = entryPath.slice(1, lastSlash);
+                }
+                
+                if (new RegExp(`^${pattern}${fullMatch ? '$' : ''}`, flags).test(queryPath)) {
                     return {
                         matched: true,
                         match: `${entryDomain}${entrySlashIndex !== -1 ? `/${entryPath}` : ''}`

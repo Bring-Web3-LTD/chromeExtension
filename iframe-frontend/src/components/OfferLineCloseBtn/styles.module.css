@@ -1,0 +1,30 @@
+.btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0;
+    padding-right: var(--offerline-right-padding);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: auto;
+    height: 65px;
+    flex-shrink: 0;
+}
+
+.icon {
+    width: 18px;
+    height: 18px;
+    aspect-ratio: 1/1;
+    background: var(--x-btn-f-c, var(--close-f-c));
+    -webkit-mask-image: url('/icons/x-mark.svg');
+    -webkit-mask-size: 100%;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-image: url('/icons/x-mark.svg');
+    mask-size: 100%;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}

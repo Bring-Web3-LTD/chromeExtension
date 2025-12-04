@@ -1,0 +1,108 @@
+.container {
+    display: flex;
+    align-items: center;
+    flex: 1 0 0;
+    height: 65px;
+}
+
+.logo_outer_wrapper {
+    display: flex;
+    height: 65px;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: var(--offerline-left-padding);
+    flex-shrink: 0;
+}
+
+.logo_wrapper {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    background: var(--logo-bg, white);
+    border-radius: var(--logo-radius, 50%);
+    flex-shrink: 0;
+}
+
+.pause_text {
+    display: flex;
+    height: 65px;
+    align-items: center;
+    margin-left: 20px;
+    margin-right: 15px;
+    color: var(--offerline-optout-pause-f-c);
+    font-size: var(--offerline-optout-pause-f-s);
+    font-weight: var(--offerline-optout-pause-f-w);
+    line-height: 24px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.actions_wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1 0 0;
+    height: 65px;
+    gap: 20px;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.close_btn_wrapper {
+    display: flex;
+    min-width: 100px;
+    flex: 0 1 233px;
+    height: 24px;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: auto;
+}
+
+.duration_btn {
+    display: flex;
+    min-width: 120px;
+    flex: 0 1 147px;
+    padding: 7px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    color: var(--offerline-secondary-btn-f-c);
+    background: var(--offerline-secondary-btn-bg);
+    border-width: var(--offerline-secondary-btn-border-w);
+    border-style: solid;
+    border-color: var(--offerline-secondary-btn-border-c);
+    border-radius: var(--offerline-secondary-btn-radius);
+    font-size: var(--offerline-secondary-btn-f-s);
+    font-weight: var(--offerline-secondary-btn-f-w);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.success_message {
+    display: flex;
+    height: 65px;
+    align-items: center;
+    margin-left: 10px;
+    margin-right: 20px;
+    color: var(--offerline-optout-success-f-c, #FFF);
+    font-family: Rubik;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.success_close_wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex: 1 0 0;
+    height: 65px;
+}

@@ -16,9 +16,6 @@ import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
 import checkOptOutDomain from "./checkOptOutDomain";
 
-const getCleanDomain = (match: string): string => {
-    return match.replace(/\\./g, '.').split('/')[0]?.split('\\')[0] || match
-}
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -28,9 +25,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         const isPopupEnabled = await storage.get('popupEnabled');
 
-        if (!isPopupEnabled) {
-            return;
-        }
+        if (!isPopupEnabled) return;
 
         await checkPostPurchasePage(tab.url);
 
@@ -41,13 +36,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             return;
         };
 
-        // Build full URL path for quiet domain checking (for searchTermPattern matching)
-        const urlObj = new URL(tab.url)
-        let hostname = urlObj.hostname
-        hostname = hostname.replace(/^www\./, '').replace(/^www1\./, '').replace(/^www2\./, '')
-        const fullUrlPath = hostname + urlObj.pathname + urlObj.search
-
-        const { phase, payload } = await getQuietDomain(match, fullUrlPath);
+        const { phase, payload } = await getQuietDomain(match, url);
 
         if (phase === 'new') {
             const now = Date.now();
@@ -60,17 +49,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 await storage.remove('optOut')
             }
 
-            // Check if this specific domain/query is opted out (supports regex patterns)
-            const urlObj = new URL(tab.url)
-            let hostname = urlObj.hostname
-            // Remove www prefixes
-            hostname = hostname.replace(/^www\./, '').replace(/^www1\./, '').replace(/^www2\./, '')
-
-            // Build query with full path including search parameters for regex matching
-            const queryWithParams = hostname + urlObj.pathname + urlObj.search
-            const isOptedOut = await checkOptOutDomain(queryWithParams)
-
-            if (isOptedOut) {
+            if (await checkOptOutDomain(match, url)) {
                 return;
             }
         } else if (phase === 'activated') {
@@ -109,16 +88,9 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             return;
         }
 
-            const whitelisted = await isWhitelisted(networkUrl);
-            if (!whitelisted) {
-                return;
-            }
-        
+        if (!await isWhitelisted(networkUrl)) return;
 
         const userId = await getUserId()
-
-        // Extract clean domain for OPT_OUT_SPECIFIC (e.g., "google.com" from "google\.com/search\?.*")
-        const cleanDomain = getCleanDomain(match)
 
         const res = await sendMessage(tabId, {
             action: 'INJECT',
@@ -129,8 +101,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             referrers: portalReferrers,
             page: isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
             flowId,
-            placement,
-            domainPattern: cleanDomain
+            placement
         });
 
         if (res?.action) {

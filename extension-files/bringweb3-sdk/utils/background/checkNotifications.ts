@@ -25,8 +25,7 @@ const checkNotifications = async (showNotifications: boolean, tabId?: number, ca
         showNotification: res.showNotification as boolean,
         token: res.token as string,
         iframeUrl: res.iframeUrl as string,
-        expiration: [now, now + res.expiration],
-        ...(res.placement && { placement: res.placement })  // Include placement if provided by server
+        expiration: [now, now + res.expiration]
     }
 
     if (notification.showNotification && showNotifications) {

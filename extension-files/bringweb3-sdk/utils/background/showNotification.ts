@@ -19,8 +19,7 @@ const show = async (tabId: number, notification: Notification, domain: string) =
         token: notification.token,
         iframeUrl: notification.iframeUrl,
         userId: await getUserId(),
-        domain,
-        placement: notification.placement  // Pass placement configuration from notification
+        domain
     })
 }
 

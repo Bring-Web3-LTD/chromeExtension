@@ -21,18 +21,12 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
     const iframeId = `bringweb3-iframe-${extensionId}`;
     const element = document.getElementById(iframeId)
     const iframeHost = ENV_IFRAME_URL ? `${ENV_IFRAME_URL}${page ? '/' + page : ''}` : iframeUrl
-
-    if (element) {
-        return element as HTMLIFrameElement;
-    }
-
+    if (element) return element as HTMLIFrameElement;
     const params = getQueryParams({ query: { ...query, extensionId, v: getVersion(), themeMode, textMode: text, switchWallet: String(switchWallet) } })
     const customStyles = theme ? `&${getQueryParams({ query: theme, prefix: 't' })}` : ''
-    
     const iframe = document.createElement('iframe');
     iframe.id = iframeId;
     iframe.src = encodeURI(`${iframeHost}?${params}${customStyles}`);
-
     const sandbox = "allow-scripts allow-same-origin"
     iframe.setAttribute('sandbox', sandbox)
     if (page !== 'offerline') {
@@ -47,10 +41,8 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
     iframe.style.border = "none";
     iframe.style.cssText += `z-index: 99999999999999 !important;`;
     if (theme?.popupShadow) iframe.style.boxShadow = theme.popupShadow;
-
     // Inject iframe with placement configuration
     injectIframeWithPlacement(iframe, placement);
-    
     return iframe
 }
 

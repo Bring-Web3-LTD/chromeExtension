@@ -42,7 +42,8 @@ const OfferLineOffer = () => {
         offerlineSearch,
         maxCashback,
         cashbackSymbol,
-        cashbackCurrency
+        cashbackCurrency,
+        searchTermPattern
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -81,6 +82,7 @@ const OfferLineOffer = () => {
             action: ACTIONS.ACTIVATE,
             url,
             domain,
+            searchTermPattern,
             time: parseTime(ACTIVATE_QUIET_TIME, version),
             redirectUrl,
             iframeUrl,

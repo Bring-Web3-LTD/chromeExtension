@@ -148,34 +148,27 @@ const bringInitContentScript = async ({
                         return true
                     }
 
-                    const { token, iframeUrl, userId, placement, domainPattern } = request;
+                    const { token, iframeUrl, userId, placement } = request;
 
                     const query: { [key: string]: string } = { token }
                     if (userId) query['userId'] = userId
-                    if (domainPattern) query['domainPattern'] = domainPattern
-
-                    // Select theme based on theme mode
-                    const selectedTheme = theme === 'dark' ? darkTheme : lightTheme;
 
                     iframeEl = injectIFrame({
                         query,
                         iframeUrl,
-                        theme: selectedTheme,
+                        theme: theme === 'dark' ? darkTheme : lightTheme,
                         themeMode: theme || 'light',
                         text,
                         switchWallet,
                         page: request.page,
                         placement  // Pass placement configuration from server
                     });
-
                     isIframeOpen = true
                     iframePath = `/${request.page || ''}`
                     flowId = request.flowId
-                    
                     sendResponse({ status: 'success' });
                     return true
                 } catch (error) {
-                    console.error('[SDK Inject] ❌ Error during injection', error);
                     if (error instanceof Error) {
                         sendResponse({ status: 'failed', message: error.message });
                     } else {

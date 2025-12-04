@@ -1,45 +1,33 @@
 import storage from "../storage/storage"
 import { isMsRangeActive } from "./timestampRange"
+import { compress, searchCompressed } from "./domainsListCompression"
 
-/**
- * Check if a domain is in the opted-out domains list
- * Supports both exact matches and regex patterns
- * 
- * @param query - The domain/URL to check (e.g., "google.com/search?q=shoes")
- * @returns true if the domain is opted out and the opt-out period is still active, false otherwise
- */
-const checkOptOutDomain = async (query: string): Promise<boolean> => {
+
+const checkOptOutDomain = async (domain: string, url: string): Promise<boolean> => {
     const optOutDomains = await storage.get('optOutDomains') || {}
     
-    if (typeof optOutDomains !== 'object' || optOutDomains === null) {
-        return false
-    }
+    if (typeof optOutDomains !== 'object' || optOutDomains === null) return false
     
     const now = Date.now()
     
-    // Check each stored domain pattern
-    for (const [domainPattern, timeRange] of Object.entries(optOutDomains)) {
-        // Check if time range is still active
-        if (!isMsRangeActive(timeRange as [number, number], now)) {
-            // Clean up expired entry
-            delete optOutDomains[domainPattern]
+    // Check exact match with domain first
+    if (optOutDomains[domain] && isMsRangeActive(optOutDomains[domain] as [number, number], now)) {
+        return true
+    }
+    
+    const compressed = compress(Object.keys(optOutDomains))
+    const result = searchCompressed(compressed, url, true, false)
+    
+    if (result.matched) {
+        const matchedKey = result.match
+        
+        if (!isMsRangeActive(optOutDomains[matchedKey] as [number, number], now)) {
+            delete optOutDomains[matchedKey]
             await storage.set('optOutDomains', optOutDomains)
-            continue
+            return false
         }
         
-        // Check if pattern matches the query
-        try {
-            // Try as regex first
-            const regex = new RegExp(domainPattern)
-            if (regex.test(query)) {
-                return true
-            }
-        } catch (e) {
-            // If not valid regex, try exact match
-            if (domainPattern === query) {
-                return true
-            }
-        }
+        return true
     }
     
     return false

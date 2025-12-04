@@ -15,9 +15,9 @@
     "url": "https://github.com/Bring-Web3-LTD/chromeExtension.git"
   },
   "scripts": {
-    "watch": "tsup index.ts --env.IFRAME_URL=http://localhost:5173 --env.ENDPOINT=dev --env.VERSION=1.5.0 --format cjs,esm --dts --watch",
+    "watch": "tsup index.ts --env.IFRAME_URL=http://localhost:5173 --env.ENDPOINT=dev --env.VERSION=1.5.2 --format cjs,esm --dts --watch",
     "build": "tsup index.ts --format cjs,esm --dts --minify",
-    "build:dev": "tsup index.ts --format cjs,esm --dts --minify --env.ENDPOINT=dev --env.VERSION=1.5.0",
+    "build:dev": "tsup index.ts --format cjs,esm --dts --minify --env.ENDPOINT=dev --env.VERSION=1.5.2",
     "lint": "tsc",
     "test": "vitest --coverage",
     "release": "yarn build && changeset publish"

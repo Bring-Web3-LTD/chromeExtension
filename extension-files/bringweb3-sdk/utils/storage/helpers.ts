@@ -19,7 +19,6 @@ export const strToUint8Array = (str: string): Uint8Array | null => {
 }
 
 export const uint8ArrayToStr = (blob: Uint8Array): string => {
-
     const arr = [];
     for (let i = 0; i < blob.length; i += 1000) {
         const next = Math.min(i + 1000, blob.length)

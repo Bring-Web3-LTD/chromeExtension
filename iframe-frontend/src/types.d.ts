@@ -60,7 +60,6 @@ declare global {
         version: string
         networkUrl: string
         beamer: boolean
-        domainPattern?: string
     }
 
     interface ActivatedData extends Info {
@@ -83,7 +82,7 @@ declare global {
         flowId?: string
         platformName?: string
         searchTermPattern?: string
-        domainPattern?: string
+        offerlineDomain?: string
     }
 
     interface GoogleAnalyticsContextType {

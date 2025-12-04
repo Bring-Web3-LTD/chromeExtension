@@ -78,7 +78,7 @@ interface Props {
 }
 
 const OptOut = ({ onClose }: Props) => {
-    const { cryptoSymbols, platformName, textMode, domain, name, domainPattern } = useRouteLoaderData('root') as LoaderData
+    const { cryptoSymbols, platformName, textMode, domain, name } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)
     const [selection, setSelection] = useState<Selection>({
@@ -104,7 +104,6 @@ const OptOut = ({ onClose }: Props) => {
             action: websites.value ? ACTIONS.OPT_OUT : ACTIONS.OPT_OUT_SPECIFIC,
             time: +duration.value,
             domain,
-            domainPattern,
             key: dict[duration.label as keyof typeof dict]
         }
 

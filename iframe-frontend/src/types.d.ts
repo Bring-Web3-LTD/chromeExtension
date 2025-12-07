@@ -15,7 +15,7 @@ declare global {
     }
 
     interface Styles {
-        [key: string]: { [key: string]: string }
+       [key: string]: { [key: string]: { [key: string]: string } }
     }
 
     type WalletAddress = string | undefined

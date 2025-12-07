@@ -1,3 +1,5 @@
+import { IFRAME_ID_PREFIX } from "../constants";
+
 interface Props {
     walletAddressUpdateCallback?: (callback: () => void) => void
     walletAddressListeners?: string[]
@@ -12,7 +14,7 @@ interface UpdateAddressProps {
 
 const updateAddress = async ({ iframeEl, getWalletAddress }: UpdateAddressProps) => {
     if (!iframeEl) {
-        iframeEl = document.querySelector(`#bringweb3-iframe-${chrome.runtime.id}`)
+        iframeEl = document.querySelector(`#${IFRAME_ID_PREFIX}-${chrome.runtime.id}`)
     }
 
     const address = await getWalletAddress()

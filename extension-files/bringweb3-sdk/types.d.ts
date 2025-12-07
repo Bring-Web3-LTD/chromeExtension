@@ -13,6 +13,12 @@ interface KeyFrame {
     rules: string
 }
 
+// Placement configuration for iframe injection
+interface PlacementConfig {
+    location: 'end' | 'start' | 'after' | 'before'
+    selector?: string  // Required for 'after' and 'before' types
+}
+
 interface BringEvent {
     data: {
         from: string

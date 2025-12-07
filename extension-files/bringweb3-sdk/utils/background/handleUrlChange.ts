@@ -54,7 +54,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             }
         } else if (phase === 'activated') {
             const userId = await getUserId()
-            const { iframeUrl, token } = payload || {};
+            const { iframeUrl, token, placement } = payload || {};
 
             const res = await sendMessage(tabId, {
                 action: 'INJECT',
@@ -63,6 +63,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 domain: url,
                 userId,
                 page: phase,
+                placement  // Pass placement configuration from payload
             });
             return;
         } else if (phase === 'quiet') {
@@ -73,7 +74,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         const address = await getWalletAddress(tabId);
 
-        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers } = await validateDomain({
+        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement } = await validateDomain({
             body: {
                 domain: match,
                 phase,
@@ -98,8 +99,8 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             iframeUrl,
             userId,
             referrers: portalReferrers,
-            page: phase === 'new' ? '' : phase,
-            flowId
+            flowId,
+            placement
         });
 
         if (res?.action) {

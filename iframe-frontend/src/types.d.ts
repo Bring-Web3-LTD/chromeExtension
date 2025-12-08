@@ -65,7 +65,7 @@ declare global {
         keyFrames?: unknown
         key?: string
         url?: string
-        domain?: string
+        domain?: string | string[]
         redirectUrl?: string
         iframeUrl?: string
         token?: string

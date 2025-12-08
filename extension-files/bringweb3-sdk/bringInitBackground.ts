@@ -59,7 +59,7 @@ const bringInitBackground = async ({ identifier, apiEndpoint, cashbackPagePath, 
     if (!identifier || !apiEndpoint) throw new Error('Missing configuration')
     if (ENDPOINT) console.log({ ENDPOINT });
 
-    if (!['prod', 'sandbox'].includes(apiEndpoint)) throw new Error('unknown apiEndpoint')
+    if (!['prod', 'sandbox', 'dev'].includes(apiEndpoint)) throw new Error('unknown apiEndpoint')
     const apiEndpointInstance = ApiEndpoint.getInstance()
     apiEndpointInstance.setApiEndpoint(ENDPOINT || apiEndpoint as EndpointName)
     apiEndpointInstance.setWhitelistEndpoint(whitelistEndpoint || '')

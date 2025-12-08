@@ -16,6 +16,8 @@ interface Configuration {
     promptLogin: () => Promise<void>
     lightTheme?: Style
     darkTheme?: Style
+    offerlineLightTheme?: Style
+    offerlineDarkTheme?: Style
     theme: string
     text: 'upper' | 'lower',
     switchWallet: boolean
@@ -61,6 +63,8 @@ const bringInitContentScript = async ({
     walletAddressUpdateCallback,
     lightTheme,
     darkTheme,
+    offerlineLightTheme,
+    offerlineDarkTheme,
     theme,
     text,
     switchWallet = false
@@ -153,10 +157,16 @@ const bringInitContentScript = async ({
                     const query: { [key: string]: string } = { token }
                     if (userId) query['userId'] = userId
 
+                    // Determine which theme to use based on page type
+                    const isOfferLine = request.page === 'offerline'
+                    const selectedTheme = isOfferLine
+                        ? (theme === 'dark' ? offerlineDarkTheme : offerlineLightTheme) || (theme === 'dark' ? darkTheme : lightTheme)
+                        : (theme === 'dark' ? darkTheme : lightTheme)
+
                     iframeEl = injectIFrame({
                         query,
                         iframeUrl,
-                        theme: theme === 'dark' ? darkTheme : lightTheme,
+                        theme: selectedTheme,
                         themeMode: theme || 'light',
                         text,
                         switchWallet,

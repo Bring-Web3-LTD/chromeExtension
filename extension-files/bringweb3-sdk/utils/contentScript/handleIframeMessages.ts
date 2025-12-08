@@ -25,7 +25,7 @@ const UNION_ACTIONS = [ACTIONS.ACTIVATE]
 const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
     if (!event?.data) return
 
-    const { from, action, style, keyFrames, time, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName } = event.data
+    const { from, action, style, keyFrames, time, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName, searchTermPattern } = event.data
     if (from !== 'bringweb3') return
 
     // If the event comes from another extension that installed our package, ignore it (unless it ACTIVATE action)

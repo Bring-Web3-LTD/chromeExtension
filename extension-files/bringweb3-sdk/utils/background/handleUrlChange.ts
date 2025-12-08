@@ -14,6 +14,7 @@ import isWhitelisted from "./isWhitelisted";
 import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
+import checkOptOutDomain from "./checkOptOutDomain";
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -47,9 +48,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 await storage.remove('optOut')
             }
 
-            const optOutDomains = await storage.get('optOutDomains')
-
-            if (optOutDomains && isMsRangeActive(optOutDomains[match], now)) {
+            if (await checkOptOutDomain(match, url)) {
                 return;
             }
         } else if (phase === 'activated') {

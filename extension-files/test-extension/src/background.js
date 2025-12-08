@@ -3,7 +3,7 @@ import { bringInitBackground } from '@bringweb3/chrome-extension-kit'
 
 bringInitBackground({
     identifier: process.env.PLATFORM_IDENTIFIER,
-    apiEndpoint: 'sandbox', // 'sandbox' || 'prod'
+    apiEndpoint: 'dev', // 'sandbox' || 'prod' || 'dev'
     whitelistEndpoint: 'https://media.bringweb3.io/tests/redirects.json',
     isEnabledByDefault: false,
     cashbackPagePath: '/main_window.html#/cashback',

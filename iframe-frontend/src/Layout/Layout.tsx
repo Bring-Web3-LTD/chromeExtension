@@ -6,8 +6,8 @@ import useCustomTheme from "../hooks/useCustomTheme"
 import Beamer from "../components/Beamer/Beamer"
 
 const Layout = () => {
-    useCustomTheme()
     const data = useLoaderData() as LoaderData
+    useCustomTheme(data.isOfferLine)
 
     return (
         <>

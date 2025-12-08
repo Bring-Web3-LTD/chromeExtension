@@ -102,7 +102,133 @@
     --activate-title-bold-f-s: 14px;
     --activate-title-bold-f-w: 700;
     --activate-title-bold-f-c: #fff;
+
+    /* ========================================== */
+    /* OFFERLINE SPECIFIC VARIABLES              */
+    /* These override popup styles for OfferLine */
+    /* If not set, will fallback to popup values */
+    /* ========================================== */
+
+    /* OfferLine Container & Layout */
+    --offerline-container-padding: 10px;
+    --offerline-container-gap: 30px;
+    --offerline-top-gap: 5px;
+
+    /* OfferLine Primary Button */
+    --offerline-primary-btn-bg: var(--primary-btn-bg);
+    --offerline-primary-btn-f-c: var(--primary-btn-f-c);
+    --offerline-primary-btn-f-w: var(--primary-btn-f-w);
+    --offerline-primary-btn-f-s: 11px;
+    --offerline-primary-btn-border-c: var(--primary-btn-border-c);
+    --offerline-primary-btn-border-w: var(--primary-btn-border-w);
+    --offerline-primary-btn-radius: var(--primary-btn-radius);
+    --offerline-primary-btn-height: 28px;
+
+    /* OfferLine Secondary Buttons */
+    --offerline-secondary-btn-bg: var(--secondary-btn-bg);
+    --offerline-secondary-btn-f-s: 10px;
+    --offerline-secondary-btn-f-w: var(--secondary-btn-f-w);
+    --offerline-secondary-btn-f-c: var(--secondary-btn-f-c);
+    --offerline-secondary-btn-border-c: var(--secondary-btn-border-c);
+    --offerline-secondary-btn-border-w: var(--secondary-btn-border-w);
+    --offerline-secondary-btn-radius: var(--secondary-btn-radius);
+    --offerline-secondary-btn-height: 28px;
+
+    /* OfferLine Wallet */
+    --offerline-wallet-bg: var(--wallet-bg);
+    --offerline-wallet-f-s: 9px;
+    --offerline-wallet-f-w: var(--wallet-f-w);
+    --offerline-wallet-f-c: var(--wallet-f-c);
+    --offerline-wallet-border-c: var(--wallet-border-c);
+    --offerline-wallet-border-w: var(--wallet-border-w);
+    --offerline-wallet-radius: var(--wallet-radius);
+    --offerline-wallet-height: 24px;
+    --offerline-wallet-padding: 0 8px;
+
+    /* OfferLine Details Section */
+    --offerline-details-bg: var(--details-bg);
+    --offerline-details-title-f-s: 11px;
+    --offerline-details-title-f-w: var(--details-title-f-w);
+    --offerline-details-title-f-c: var(--details-title-f-c);
+    --offerline-details-subtitle-f-s: var(--details-subtitle-f-s);
+    --offerline-details-subtitle-f-w: var(--details-subtitle-f-w);
+    --offerline-details-subtitle-f-c: var(--details-subtitle-f-c);
+    --offerline-details-radius: var(--details-radius);
+    --offerline-details-border-w: var(--details-border-w);
+    --offerline-details-border-c: var(--details-border-c);
+    --offerline-details-amount-f-c: var(--details-amount-f-c);
+    --offerline-details-amount-f-w: var(--details-amount-f-w);
+    --offerline-details-height: auto;
+    --offerline-details-gap: 8px;
+    --offerline-details-padding: 6px 10px;
+
+    /* OfferLine Action Section */
+    --offerline-action-gap: 8px;
+    --offerline-btns-gap: 6px;
+
+    /* OfferLine Clarify Text */
+    --offerline-clarify-f-s: 9px;
+    --offerline-clarify-f-w: var(--clarify-f-w, 400);
+    --offerline-clarify-f-c: var(--clarify-f-c, var(--details-subtitle-f-c));
+
+
+    /* OfferLine Spacing */
+    --offerline-left-padding: 8px;
+    --offerline-right-padding: 214px;
+
+    /* OfferLine OptOut Pause Text */
+    --offerline-optout-pause-f-s: 18px;
+    --offerline-optout-pause-f-w: 400;
+    --offerline-optout-pause-f-c: #FFF;
 }
+
+/* OfferLine Responsive Left Padding */
+@media (min-width: 684px) {
+    :root {
+        --offerline-left-padding: clamp(4px, 2vw, 8px);
+    }
+}
+
+@media (min-width: 800px) {
+    :root {
+        --offerline-left-padding: 8px;
+    }
+}
+
+@media (min-width: 1156px) {
+    :root {
+        --offerline-left-padding: clamp(8px, 2vw, 16px);
+    }
+}
+
+@media (min-width: 1164px) {
+    :root {
+        --offerline-left-padding: clamp(16px, 5vw, 96px);
+    }
+}
+
+@media (min-width: 1301px) {
+    :root {
+        --offerline-left-padding: 160px;
+    }
+}
+
+@media (min-width: 1475px) and (max-width: 1675px) {
+    :root {
+        --offerline-left-padding: clamp(160px, 12vw, 210px);
+    }
+}
+
+@media (min-width: 1676px) {
+    :root {
+        --offerline-left-padding: 210px;
+    }
+
+
+
+}
+
+
 
 body {
     margin: 0;

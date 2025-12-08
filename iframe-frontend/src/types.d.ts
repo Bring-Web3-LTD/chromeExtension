@@ -23,7 +23,9 @@ declare global {
     interface Info {
         walletAddress: WalletAddress
         platformName: string
+        platformId: number
         retailerId: string
+        retailerDomain: string
         name: string
         maxCashback: string
         cashbackSymbol: string
@@ -35,9 +37,15 @@ declare global {
         cryptoSymbols: string[]
         iconUrl: string
         url: string
-        domain?: string
+        domain: string
+        offerlineDomain?: string
         flowId: string
         isTester?: boolean
+        searchTermPattern?: string
+        isOfferLine?: boolean
+        offerText?: string
+        networkUrl?: string
+        offerlineSearch?: string
     }
 
     interface LoaderData extends Info {
@@ -71,6 +79,8 @@ declare global {
         token?: string
         flowId?: string
         platformName?: string
+        searchTermPattern?: string
+        offerlineDomain?: string
     }
 
     interface GoogleAnalyticsContextType {

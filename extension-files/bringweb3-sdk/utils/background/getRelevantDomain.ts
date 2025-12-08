@@ -23,9 +23,9 @@ const getRelevantDomain = async (url: string | undefined): Promise<{ matched: bo
         }
     }
 
-    const { hostname, pathname } = urlObj
+    const { hostname, pathname, search } = urlObj
 
-    let query = hostname + pathname
+    let query = hostname + pathname + search
 
     for (const urlRemoveOption of urlRemoveOptions) {
         query = query.replace(urlRemoveOption, '')
@@ -38,7 +38,7 @@ const getRelevantDomain = async (url: string | undefined): Promise<{ matched: bo
         }
     }
 
-    const { matched, match } = searchCompressed(relevantDomains, query)
+    const { matched, match } = searchCompressed(relevantDomains, query, true, false)
 
     if (!matched) return falseResponse
 

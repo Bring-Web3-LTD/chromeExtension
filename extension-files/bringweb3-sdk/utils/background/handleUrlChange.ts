@@ -35,7 +35,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             return;
         };
 
-        const { phase, payload } = await getQuietDomain(match);
+        const { phase, payload } = await getQuietDomain(match, url);
 
         if (phase === 'new') {
             const now = Date.now();

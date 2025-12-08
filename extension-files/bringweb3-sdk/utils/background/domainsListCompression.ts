@@ -111,7 +111,7 @@ type SearchCompressedResult =
     | { matched: false, match: undefined }
     | { matched: true, match: string }
 
-export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean = false, fullMatch: boolean = false): SearchCompressedResult => {
+export const searchCompressed = (blob: Uint8Array, query: string): SearchCompressedResult => {
     /**
       * Scan the compressed blob and return true if `query` matches:
       *   - exactly an entry, or
@@ -165,7 +165,18 @@ export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean
             entryDomain = reverseStr(part);
             entryPath = curRev.substring(entrySlashIndex + 1);
         }
-
+        // Detect if entry is regex (domain starts with |) and extract flags
+        let regex = false;
+        let regexFlags = '';
+        if (entryDomain.startsWith('|')) {
+            regex = true;
+            entryDomain = entryDomain.slice(1); // Remove pipe from domain
+            
+            // Extract flags from end of path (format: pattern|flags)
+            const lastPipeIndex = entryPath.lastIndexOf('|');
+                regexFlags = entryPath.slice(lastPipeIndex + 1);
+                entryPath = entryPath.slice(0, lastPipeIndex); 
+        }
         // 4) query check
         if ((entryDomain === queryDomain) ||           // exact match
             (entryDomain.startsWith('*.') && (        // wildcard match
@@ -178,19 +189,21 @@ export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean
                 }
             }
             if (!regex) {
-                if ((fullMatch && queryPath === entryPath) || (!fullMatch && queryPath.startsWith(entryPath))) {
+                if (queryPath.startsWith(entryPath)) {
                     return {
                         matched: true,
                         match: `${entryDomain}${entrySlashIndex !== -1 ? `/${entryPath}` : ''}`
                     }
                 }
             } else {
-                const pattern = `^${entryPath}${fullMatch ? '$' : ''}`;
-                if (new RegExp(pattern).test(queryPath)) {
-                    return {
-                        matched: true,
-                        match: `${entryDomain}${entrySlashIndex !== -1 ? `/${entryPath}` : ''}`
+                try {
+                    if (new RegExp(entryPath, regexFlags).test(queryPath)) {
+                        return {
+                            matched: true,
+                            match: `|${entryDomain}${entrySlashIndex !== -1 ? `/${entryPath}` : ''}${regexFlags ? `|${regexFlags}` : '|'}`
+                        }
                     }
+                } catch (error) {
                 }
             }
         }

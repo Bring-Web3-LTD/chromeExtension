@@ -1,7 +1,7 @@
 import storage from "../storage/storage"
 import { v4 as uuidv4, validate } from "uuid";
 
-const CURRENT_MIGRATION_VERSION = 2;
+const CURRENT_MIGRATION_VERSION = 3;
 
 const migrateObject = async (key: string, now: number) => {
     const obj = await storage.get(key);
@@ -65,6 +65,18 @@ const runMigrationTwo = async () => {
         return false;
     }
 }
+const runMigrationThree = async () => {
+    try {
+        await Promise.all([
+            storage.remove('redirectsWhitelist'),
+            storage.remove('relevantDomains'),
+            storage.remove('postPurchaseUrls')
+        ]);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
 
 export const checkAndRunMigration = async () => {
     const migrationVersion = await storage.get('migrationVersion') || 0;
@@ -73,9 +85,13 @@ export const checkAndRunMigration = async () => {
         const isSucceed = await runMigration();
         if (isSucceed) await storage.set('migrationVersion', 1);
     }
+    if (migrationVersion < 2) {
+        const isSucceed = await runMigrationTwo();
+        if (isSucceed) await storage.set('migrationVersion', 2);
+    }
 
     if (migrationVersion < CURRENT_MIGRATION_VERSION) {
-        const isSucceed = await runMigrationTwo();
+        const isSucceed = await runMigrationThree();
         if (isSucceed) await storage.set('migrationVersion', CURRENT_MIGRATION_VERSION);
     }
 }

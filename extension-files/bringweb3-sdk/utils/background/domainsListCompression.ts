@@ -111,7 +111,7 @@ type SearchCompressedResult =
     | { matched: false, match: undefined }
     | { matched: true, match: string }
 
-export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean = false, fullMatch: boolean = false): SearchCompressedResult => {
+export const searchCompressed = (blob: Uint8Array, query: string): SearchCompressedResult => {
     /**
       * Scan the compressed blob and return true if `query` matches:
       *   - exactly an entry, or
@@ -150,10 +150,10 @@ export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean
         i = j; // move to next record
 
         // 3) Reconstruct full reversed-domain & normal domain
-        const curRev = prev.substring(0, lcp) + rem;
-        prev = curRev;
+        let curRev = prev.substring(0, lcp) + rem;
+        prev = curRev; // Save for next LCP calculation
 
-        // split entry and reconstruct domain and path
+        // Split entry and reconstruct domain and path
         const entrySlashIndex = curRev.indexOf('/');
         let entryDomain: string;
         let entryPath: string;
@@ -165,32 +165,51 @@ export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean
             entryDomain = reverseStr(part);
             entryPath = curRev.substring(entrySlashIndex + 1);
         }
+        // Detect if entry is regex (domain starts with |) and extract flags
+        let regex = false;
+        let regexFlags = '';
+        if (entryDomain.startsWith('|')) {
+            regex = true;
+            entryDomain = entryDomain.slice(1); // Remove pipe from domain
+            
+            // Extract flags from end of path (format: pattern|flags)
+            const lastPipeIndex = entryPath.lastIndexOf('|');
+            if (lastPipeIndex > 0) {
+                regexFlags = entryPath.slice(lastPipeIndex + 1);
+                entryPath = entryPath.slice(0, lastPipeIndex);
+            }
+        }
+        const entryDomainWithFlags = regex ? `|${entryDomain}` : entryDomain;
+        const entryPathWithFlags = entrySlashIndex === -1 ? '' : (regex && regexFlags ? `${entryPath}|${regexFlags}` : entryPath);
 
         // 4) query check
-        if ((entryDomain === queryDomain) ||           // exact match
+        const domainMatches = (entryDomain === queryDomain) ||           // exact match
             (entryDomain.startsWith('*.') && (        // wildcard match
                 queryDomain.endsWith('.' + entryDomain.substring(2)) ||
-                queryDomain === entryDomain.substring(2)))) {
+                queryDomain === entryDomain.substring(2))); 
+        if (domainMatches) {
             if (queryPath === '' && entryPath === '') {
                 return {
                     matched: true,
-                    match: `${entryDomain}${entrySlashIndex !== -1 ? `/${entryPath}` : ''}`
+                    match: `${entryDomainWithFlags}${entrySlashIndex !== -1 ? `/${entryPathWithFlags}` : ''}`
                 }
             }
             if (!regex) {
-                if ((fullMatch && queryPath === entryPath) || (!fullMatch && queryPath.startsWith(entryPath))) {
+                if (queryPath.startsWith(entryPath)) {
                     return {
                         matched: true,
-                        match: `${entryDomain}${entrySlashIndex !== -1 ? `/${entryPath}` : ''}`
+                        match: `${entryDomainWithFlags}${entrySlashIndex !== -1 ? `/${entryPathWithFlags}` : ''}`
                     }
                 }
             } else {
-                const pattern = `^${entryPath}${fullMatch ? '$' : ''}`;
-                if (new RegExp(pattern).test(queryPath)) {
-                    return {
-                        matched: true,
-                        match: `${entryDomain}${entrySlashIndex !== -1 ? `/${entryPath}` : ''}`
+                try {
+                    if (new RegExp(entryPath, regexFlags).test(queryPath)) {
+                        return {
+                            matched: true,
+                            match: `${entryDomainWithFlags}${entrySlashIndex !== -1 ? `/${entryPathWithFlags}` : ''}`
+                        }
                     }
+                } catch (error) {
                 }
             }
         }

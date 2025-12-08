@@ -23,37 +23,29 @@ const getQuietDomain = async (domain: string, fullUrlPath: string): Promise<Resp
     let payload: Payload = {}
     let matchedKey: string | null = null
 
-    // Check for exact match with domain first (for regular popups)
     if (quietDomains[domain]) {
-        const { time } = quietDomains[domain]
-        if (!isMsRangeActive(time, undefined, { maxRange: 60 * DAY_MS })) {
-            delete quietDomains[domain]
-            await storage.set('quietDomains', quietDomains)
-        } else {
-            matchedKey = domain
-        }
-    }
-    // If no exact match, check patterns with searchCompressed (for OfferLine with searchTermPattern)
-    if (!matchedKey) {
+        matchedKey = domain
+    } else {
         const compressed = compress(Object.keys(quietDomains))
-        const result = searchCompressed(compressed, fullUrlPath, true, false)
+        const result = searchCompressed(compressed, fullUrlPath)
         if (result.matched) {
             matchedKey = result.match
-            const { time } = quietDomains[matchedKey]    
-            if (!isMsRangeActive(time, undefined, { maxRange: 60 * DAY_MS })) {
-                delete quietDomains[matchedKey]
-                await storage.set('quietDomains', quietDomains)
-                matchedKey = null
-            }
         }
     }
     if (matchedKey) {
-        phase = quietDomains[matchedKey].phase || 'quiet'
-        payload = quietDomains[matchedKey].payload || {}
-        if (phase === 'activated') {
-            quietDomains[matchedKey].phase = 'quiet'
-            if (quietDomains[matchedKey].payload) delete quietDomains[matchedKey].payload
+        const { time } = quietDomains[matchedKey]
+        const isActive = isMsRangeActive(time, undefined, { maxRange: 60 * DAY_MS })        
+        if (!isActive) {
+            delete quietDomains[matchedKey]
             await storage.set('quietDomains', quietDomains)
+        } else {
+            phase = quietDomains[matchedKey].phase || 'quiet'
+            payload = quietDomains[matchedKey].payload || {}
+            if (phase === 'activated') {
+                quietDomains[matchedKey].phase = 'quiet'
+                if (quietDomains[matchedKey].payload) delete quietDomains[matchedKey].payload
+                await storage.set('quietDomains', quietDomains)
+            }
         }
     }
     

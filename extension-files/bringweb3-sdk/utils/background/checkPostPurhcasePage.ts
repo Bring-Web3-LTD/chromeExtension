@@ -33,7 +33,7 @@ const checkPostPurchasePage = async (url: string) => {
 
     if (!postPurchaseUrls || !postPurchaseUrls.length || !(postPurchaseUrls instanceof Uint8Array)) return falseResponse
 
-    const { matched, match } = searchCompressed(postPurchaseUrls, query, true, true)
+    const { matched, match } = searchCompressed(postPurchaseUrls, query)
 
     if (!matched) {
         return falseResponse

@@ -7,7 +7,7 @@ import { DAY_MS } from "../constants";
 import closeAllPopups from "./closeAllPopups";
 import { compress } from "./domainsListCompression";
 
-const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string) => {
+const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string, searchTermPattern?: string) => {
     const now = Date.now();
 
     const isSameExtension = extensionId === chrome.runtime.id
@@ -22,8 +22,8 @@ const handleActivate = async (domain: string, extensionId: string, source: strin
 
     const phase = isSameExtension ? 'activated' : 'quiet';
 
-
-    if (domain) addQuietDomain(domain, time || DAY_MS, { iframeUrl, token, flowId }, phase);
+    if (domain) await addQuietDomain(domain, time || DAY_MS, { iframeUrl, token, flowId }, phase);
+    if (searchTermPattern) await addQuietDomain(searchTermPattern, time || DAY_MS, { iframeUrl, token, flowId }, 'quiet');
 
     closeAllPopups(domain, tabId || -1, extensionId);
 

@@ -157,6 +157,7 @@ export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean
         const entrySlashIndex = curRev.indexOf('/');
         let entryDomain: string;
         let entryPath: string;
+        let regexFlags = '';
         if (entrySlashIndex === -1) {
             entryDomain = reverseStr(curRev);
             entryPath = '';
@@ -164,6 +165,11 @@ export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean
             const part = curRev.substring(0, entrySlashIndex);
             entryDomain = reverseStr(part);
             entryPath = curRev.substring(entrySlashIndex + 1);
+            const pipeIndex = entryPath.lastIndexOf('|');
+            if (pipeIndex > 0) {
+                regexFlags = entryPath.slice(pipeIndex + 1);
+                entryPath = entryPath.slice(0, pipeIndex);
+            }
         }
 
         // 4) query check
@@ -185,8 +191,7 @@ export const searchCompressed = (blob: Uint8Array, query: string, regex: boolean
                     }
                 }
             } else {
-                const pattern = `^${entryPath}${fullMatch ? '$' : ''}`;
-                if (new RegExp(pattern).test(queryPath)) {
+                if (new RegExp(`^${entryPath}${fullMatch ? '$' : ''}`, regexFlags).test(queryPath)) {
                     return {
                         matched: true,
                         match: `${entryDomain}${entrySlashIndex !== -1 ? `/${entryPath}` : ''}`

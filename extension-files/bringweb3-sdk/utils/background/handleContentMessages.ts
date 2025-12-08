@@ -18,8 +18,8 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
 
         switch (action) {
             case 'ACTIVATE': {
-                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
+                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, searchTermPattern } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl, searchTermPattern)
                     .then(() => sendResponse());
                 return true;
             }
@@ -39,9 +39,28 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'OPT_OUT_SPECIFIC': {
-                const { domain, time } = request
-
-                addOptOutDomain(domain, time).then(res => sendResponse(res))
+                const { domain, time, offerlineDomain } = request
+                addOptOutDomain(domain, time, offerlineDomain).then(res => sendResponse(res))
+                return true;
+            }
+            case 'OPT_OUT_SEARCH_TERM': {
+                const { time, searchTermPattern } = request
+                // For search term opt-out, the pattern IS the domain identifier
+                if (!searchTermPattern) {
+                    sendResponse({ error: 'Missing searchTermPattern' })
+                    return true
+                }
+                addOptOutDomain('', time, searchTermPattern).then(res => sendResponse(res))
+                return true;
+            }
+            case 'OPT_OUT_OFFER_LINE': {
+                const { time } = request                
+                // Add both domains sequentially to avoid race condition
+                addOptOutDomain('', time, 'google\\.com')
+                    .then(() => addOptOutDomain('', time, 'amazon\\.com'))
+                    .then(() => {
+                        sendResponse({ success: true })
+                    })
                 return true;
             }
             case 'GET_POPUP_ENABLED': {

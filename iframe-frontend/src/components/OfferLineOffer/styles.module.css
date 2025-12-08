@@ -1,0 +1,108 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+.details_txt {
+    display: flex;
+    height: 65px;
+    align-items: center;
+    margin-right: 30px;
+    margin-left: 20px;
+    color: var(--offerline-details-subtitle-f-c);
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-size: var(--offerline-details-subtitle-f-s);
+    font-style: normal;
+    font-weight: var(--offerline-details-subtitle-f-w);
+    line-height: 22px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.cashback_amount {
+    font-weight: var(--offerline-details-amount-f-w);
+    color: var(--offerline-details-amount-f-c);
+}
+
+.actions_container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1 0 0;
+    height: 65px;
+    gap: 20px;
+}
+
+.demo_container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: 1px solid var(--primary-f-c);
+    border-radius: 5px;
+}
+
+.demo_checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.demo_label {
+    color: var(--primary-f-c);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn {
+    background: var(--offerline-primary-btn-bg);
+    color: var(--offerline-primary-btn-f-c);
+    border-radius: var(--offerline-primary-btn-radius);
+    border-width: var(--offerline-primary-btn-border-w);
+    border-color: var(--offerline-primary-btn-border-c);
+    font-size: var(--offerline-primary-btn-f-s);
+    font-weight: var(--offerline-primary-btn-f-w);
+    border-style: solid;
+    cursor: pointer;
+    width: var(--offerline-primary-btn-width, 120px);
+    height: var(--offerline-btn-height, 36px);
+    flex: 0 1 147px;
+    padding: var(--offerline-btn-padding, 7px 16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--offerline-btn-gap, 6px);
+    white-space: nowrap;
+}
+
+.action_btn {
+    color: var(--offerline-secondary-btn-f-c);
+    background: var(--offerline-secondary-btn-bg);
+    border-width: var(--offerline-secondary-btn-border-w);
+    border-style: solid;
+    border-color: var(--offerline-secondary-btn-border-c);
+    border-radius: var(--offerline-secondary-btn-radius);
+    font-size: var(--offerline-secondary-btn-f-s);
+    font-weight: var(--offerline-secondary-btn-f-w);
+    width: var(--offerline-secondary-btn-width, 165px);
+    height: var(--offerline-btn-height, 36px);
+    flex: 0 1 147px;
+    padding: var(--offerline-btn-padding, 7px 16px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--offerline-btn-gap, 6px);
+    white-space: nowrap;
+}

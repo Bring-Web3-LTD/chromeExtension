@@ -10,6 +10,7 @@ interface Payload {
 }
 
 const addQuietDomain = async (domain: string, time: number, payload?: Payload, phase?: 'activated' | 'quiet') => {
+    if (!domain) return
     let quietDomains = await storage.get(storageKey)
 
     if (typeof quietDomains !== 'object' || quietDomains === null) {

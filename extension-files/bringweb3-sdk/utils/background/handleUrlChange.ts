@@ -73,7 +73,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         const address = await getWalletAddress(tabId);
 
-        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement } = await validateDomain({
+        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement, isOfferLine, searchTermPattern} = await validateDomain({
             body: {
                 domain: match,
                 phase,
@@ -83,7 +83,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         });
 
         if (isValid === false) {
-            addQuietDomain(match, time);
+            isOfferLine ? addQuietDomain(searchTermPattern, time) : addQuietDomain(match, time);
             return;
         }
 
@@ -98,6 +98,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             iframeUrl,
             userId,
             referrers: portalReferrers,
+            page: isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
             flowId,
             placement
         });

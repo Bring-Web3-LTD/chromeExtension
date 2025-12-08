@@ -1,3 +1,46 @@
+/**
+ * Casper (CSPR) Platform Theme
+ * Supports both popup and offerLine styles
+ */
+
+export const light = {
+    popupBg: '#F5F6F7',
+    offerlinePopupBg: '#FFFFFF',
+    offerlinePopupShadow: '0px 6px 20px 0px rgba(0, 0, 0, 0.10), 0px 1px 8px 0px rgba(0, 0, 0, 0.06)',
+    offerlinePlusIconColor: '#FFFFFF',
+    offerlineLogoBg: '#FF0012',
+    offerlineBtnHeight: '22px',
+    offerlineBtnPadding: '7px 14px',
+    offerlineBtnGap: '6.057px',
+    offerlinePrimaryBtnWidth: '82px',
+    offerlineSecondaryBtnWidth: '90px',
+    offerlineCloseFC: '#0A2EBF',  // Blue for OfferLine close button
+    offerlinePrimaryBtnBg: '#CC000F',
+    offerlinePrimaryBtnFS: '11px',
+    offerlinePrimaryBtnFW: '500',
+    offerlinePrimaryBtnFC: '#FFF',
+    offerlinePrimaryBtnBorderC: 'transparent',
+    offerlinePrimaryBtnBorderW: '0',
+    offerlinePrimaryBtnRadius: '3px',
+    offerlineSecondaryBtnBg: '#EDEEF0',
+    offerlineSecondaryBtnFS: '11px',
+    offerlineSecondaryBtnFW: '500',
+    offerlineSecondaryBtnFC: '#0A2EBF',
+    offerlineSecondaryBtnBorderC: 'transparent',
+    offerlineSecondaryBtnBorderW: '0px',
+    offerlineSecondaryBtnRadius: '3px',
+    offerlineDetailsSubtitleFS: '17px',
+    offerlineDetailsSubtitleFW: '400',
+    offerlineDetailsSubtitleFC: '#1A1919',
+    offerlineDetailsAmountFC: '#1A1919',
+    offerlineDetailsAmountFW: '700',
+    offerlineOptoutPauseFS: '17px',
+    offerlineOptoutPauseFW: '400',
+    offerlineOptoutPauseFC: '#1A1919',
+    offerlineOptoutSuccessFC: '#1A1919',
+    offerlineLoaderColor: '#FFF'
+}
+
 export const dark = {
     // font
     fontUrl: 'https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap',
@@ -57,7 +100,7 @@ export const dark = {
     detailsAmountFW: "500",
     // Logo
     logoBg: "white",
-    offerlineLogoBg: "white",
+    offerlineLogoBg: "#FF0012",
     logoRadius: "50%",
     logoTxtFS: "14px",
     logoTxtFW: "500",
@@ -125,37 +168,38 @@ export const dark = {
     // ========================================
     // OFFERLINE STYLES
     // ========================================
-    offerlinePopupBg: '#3154CB',
+
+    offerlinePopupBg: '#FFFFFF',
     offerlinePopupShadow: '0px 6px 20px 0px rgba(0, 0, 0, 0.10), 0px 1px 8px 0px rgba(0, 0, 0, 0.06)',
-    offerlinePlusIconColor: '#FFFFFF',
+    offerlinePlusIconColor: '#B9BBBF',
     offerlineBtnHeight: '22px',
     offerlineBtnPadding: '7px 14px',
-    offerlineBtnGap: '7.2px',
+    offerlineBtnGap: '6.057px',
     offerlinePrimaryBtnWidth: '82px',
     offerlineSecondaryBtnWidth: '90px',
-    offerlinePrimaryBtnBg: '#FFFFFF',
+    offerlineCloseFC: '#0A2EBF',  // Blue for OfferLine close button
+    offerlinePrimaryBtnBg: '#CC000F',
     offerlinePrimaryBtnFS: '11px',
     offerlinePrimaryBtnFW: '500',
-    offerlinePrimaryBtnFC: '#4B6DDE',
+    offerlinePrimaryBtnFC: '#FFF',
     offerlinePrimaryBtnBorderC: 'transparent',
     offerlinePrimaryBtnBorderW: '0',
-    offerlinePrimaryBtnRadius: '6px',
-    offerlineSecondaryBtnBg: 'transparent',
+    offerlinePrimaryBtnRadius: '3px',
+    offerlineSecondaryBtnBg: '#EDEEF0',
     offerlineSecondaryBtnFS: '11px',
     offerlineSecondaryBtnFW: '500',
-    offerlineSecondaryBtnFC: '#FFFFFF',
-    offerlineSecondaryBtnBorderC: '#FFFFFF',
-    offerlineSecondaryBtnBorderW: '2px',
-    offerlineSecondaryBtnRadius: '6px',
+    offerlineSecondaryBtnFC: '#0A2EBF',
+    offerlineSecondaryBtnBorderC: 'transparent',
+    offerlineSecondaryBtnBorderW: '0px',
+    offerlineSecondaryBtnRadius: '3px',
     offerlineDetailsSubtitleFS: '17px',
     offerlineDetailsSubtitleFW: '400',
-    offerlineDetailsSubtitleFC: '#FFFFFF',
-    offerlineDetailsAmountFC: '#FFFFFF',
+    offerlineDetailsSubtitleFC: '#1A1919',
+    offerlineDetailsAmountFC: '#1A1919',
     offerlineDetailsAmountFW: '700',
     offerlineOptoutPauseFS: '17px',
     offerlineOptoutPauseFW: '400',
-    offerlineOptoutPauseFC: '#FFFFFF',
-    offerlineOptoutSuccessFC: '#FFFFFF',
-    offerlineLoaderColor: '#4B6DDE'
+    offerlineOptoutPauseFC: '#1A1919',
+    offerlineOptoutSuccessFC: '#1A1919',
+    offerlineLoaderColor: '#FFF'
 }
-

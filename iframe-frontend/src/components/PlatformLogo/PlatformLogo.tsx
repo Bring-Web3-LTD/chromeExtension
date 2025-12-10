@@ -9,11 +9,12 @@ interface Props {
 
 const PlatformLogo = ({ platformName, size = 'md', width, height }: Props) => {
     const { themeMode } = useRouteLoaderData('root') as LoaderData
+    const logoSrc = `${import.meta.env.BASE_URL}${themeMode}/images/logos/${platformName.toUpperCase()}/${size}.svg`
 
     return (
         <img
             id="platform-logo"
-            src={`${import.meta.env.BASE_URL}${themeMode}/images/logos/${platformName.toUpperCase()}/${size}.svg`}
+            src={logoSrc}
             alt="platform logo"
             width={width || 'auto'}
             height={height}

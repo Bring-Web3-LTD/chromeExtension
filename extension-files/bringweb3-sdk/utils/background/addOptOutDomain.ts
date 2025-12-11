@@ -2,8 +2,9 @@ import storage from "../storage/storage"
 
 const STORAGE_KEY = 'optOutDomains'
 
-const addOptOutDomain = async (domain: string, time: number) => {
-    if (!domain) return
+const addOptOutDomain = async (domain: string | string[], time: number) => {
+    const domains = Array.isArray(domain) ? domain : [domain]
+    if (domains.length === 0 || !domains[0]) return
 
     let optOutDomains = await storage.get(STORAGE_KEY)
 
@@ -14,7 +15,9 @@ const addOptOutDomain = async (domain: string, time: number) => {
     const now = Date.now()
     const end = now + time
 
-    optOutDomains[domain] = [now, end]
+    domains.forEach(d => {
+        optOutDomains[d] = [now, end]
+    })
 
     await storage.set(STORAGE_KEY, optOutDomains)
 }

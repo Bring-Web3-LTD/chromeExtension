@@ -120,5 +120,40 @@ export const dark = {
     activateWalletNameFS: "12px",
     activateWalletNameFW: "400",
     activateWalletNameFC: "45deg, #17D1AA 0%, #1ACBAF 15%, #21B8BC 37%, #2E9BD3 62%, #3F71F1 89%, #475FFF 100%",
+
+    // ========================================
+    // OFFERLINE STYLES
+    // ========================================
+    offerlinePopupBg: '#3154CB',
+    offerlinePopupShadow: '0px 6px 20px 0px rgba(0, 0, 0, 0.10), 0px 1px 8px 0px rgba(0, 0, 0, 0.06)',
+    offerlinePlusIconColor: '#FFFFFF',
+    offerlineBtnHeight: '36px',
+    offerlineBtnPadding: '9.085px 20.189px',
+    offerlineBtnGap: '7.2px',
+    offerlinePrimaryBtnWidth: '120px',
+    offerlineSecondaryBtnWidth: '165px',
+    offerlinePrimaryBtnBg: '#FFFFFF',
+    offerlinePrimaryBtnFS: '15px',
+    offerlinePrimaryBtnFW: '600',
+    offerlinePrimaryBtnFC: '#4B6DDE',
+    offerlinePrimaryBtnBorderC: 'transparent',
+    offerlinePrimaryBtnBorderW: '0',
+    offerlinePrimaryBtnRadius: '8px',
+    offerlineSecondaryBtnBg: 'transparent',
+    offerlineSecondaryBtnFS: '15px',
+    offerlineSecondaryBtnFW: '500',
+    offerlineSecondaryBtnFC: '#FFFFFF',
+    offerlineSecondaryBtnBorderC: '#FFFFFF',
+    offerlineSecondaryBtnBorderW: '2px',
+    offerlineSecondaryBtnRadius: '8px',
+    offerlineDetailsSubtitleFS: '17px',
+    offerlineDetailsSubtitleFW: '400',
+    offerlineDetailsSubtitleFC: '#FFFFFF',
+    offerlineDetailsAmountFC: '#FFFFFF',
+    offerlineDetailsAmountFW: '700',
+    offerlineOptoutPauseFS: '18px',
+    offerlineOptoutPauseFW: '400',
+    offerlineOptoutPauseFC: '#FFFFFF',
+    offerlineOptoutSuccessFC: '#FFFFFF'
 }
 

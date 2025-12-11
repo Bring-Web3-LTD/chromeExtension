@@ -18,8 +18,8 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
 
         switch (action) {
             case 'ACTIVATE': {
-                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
+                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, searchTermPattern } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl, searchTermPattern)
                     .then(() => sendResponse());
                 return true;
             }
@@ -40,7 +40,10 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
             }
             case 'OPT_OUT_SPECIFIC': {
                 const { domain, time } = request
-
+                if (!domain || (Array.isArray(domain) && domain.length === 0)) {
+                    sendResponse({ error: 'Missing domain' })
+                    return true
+                }
                 addOptOutDomain(domain, time).then(res => sendResponse(res))
                 return true;
             }

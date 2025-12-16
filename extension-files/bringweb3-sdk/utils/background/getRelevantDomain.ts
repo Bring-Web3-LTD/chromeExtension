@@ -23,9 +23,7 @@ const getRelevantDomain = async (url: string | undefined): Promise<{ matched: bo
         }
     }
 
-    const { hostname, pathname } = urlObj
-
-    let query = hostname + pathname
+    let query = urlObj.toString().replace(`${urlObj.protocol}//`, '')
 
     for (const urlRemoveOption of urlRemoveOptions) {
         query = query.replace(urlRemoveOption, '')

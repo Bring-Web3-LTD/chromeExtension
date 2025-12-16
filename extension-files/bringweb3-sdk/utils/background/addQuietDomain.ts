@@ -6,9 +6,11 @@ interface Payload {
     iframeUrl?: string
     token?: string
     flowId?: string
+    placement?: PlacementConfig  // Optional placement configuration from server
 }
 
 const addQuietDomain = async (domain: string, time: number, payload?: Payload, phase?: 'activated' | 'quiet') => {
+    if (!domain) return
     let quietDomains = await storage.get(storageKey)
 
     if (typeof quietDomains !== 'object' || quietDomains === null) {

@@ -55,6 +55,7 @@ const TimePeriodSelector: React.FC<TimePeriodSelectorProps> = ({
 
     return (
         <div
+            id="time-period-selector"
             className={`${styles.container} ${className}`}
             role="radiogroup"
             aria-label="Time period selection"

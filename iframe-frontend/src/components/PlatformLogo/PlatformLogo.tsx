@@ -12,6 +12,7 @@ const PlatformLogo = ({ platformName, size = 'md', width, height }: Props) => {
 
     return (
         <img
+            id="platform-logo"
             src={`${import.meta.env.BASE_URL}${themeMode}/images/logos/${platformName.toUpperCase()}/${size}.svg`}
             alt="platform logo"
             width={width || 'auto'}

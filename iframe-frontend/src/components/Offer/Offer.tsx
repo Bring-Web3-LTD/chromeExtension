@@ -158,7 +158,7 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    {offerText || `Buy with any card and earn up to ${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} in ${cryptoSymbols[0]}`}
+                                    {offerText}
                                 </div>
                             </div>
                             <div id="offer-action-container" className={styles.action_container}>

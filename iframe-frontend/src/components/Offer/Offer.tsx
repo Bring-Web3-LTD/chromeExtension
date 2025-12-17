@@ -42,9 +42,6 @@ const Offer = ({ closeFn }: Props) => {
         isTester,
         version,
         domain,
-        maxCashback,
-        cashbackSymbol,
-        cashbackCurrency,
         variant,
         offerText
     } = useRouteLoaderData('root') as LoaderData

@@ -158,7 +158,7 @@ const OptOut = ({ onClose }: Props) => {
                                         {durationOptions.map((option) => (
                                             <button
                                                 key={option.id}
-                                                className={`${styles.option_btn} ${selection.duration.label === option.label ? styles.option_btn_active : ''}`}
+                                                className={`${styles.option_btn} ${selection.duration.value === option.value ? styles.option_btn_active : ''}`}
                                                 onClick={() => setSelection({ ...selection, duration: option })}
                                             >
                                                 {option.label}

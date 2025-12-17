@@ -139,7 +139,7 @@ const OptOut = ({ onClose }: Props) => {
                         {isTestB ? (
                             // Variant C: Button layout instead of radio buttons
                             <>
-                                <div className={styles.button_group}>
+                                <div className={styles.button_group_websites}>
                                     <div className={styles.button_options}>
                                         {websiteOptions.map((option) => (
                                             <button
@@ -152,7 +152,7 @@ const OptOut = ({ onClose }: Props) => {
                                         ))}
                                     </div>
                                 </div>
-                                <div className={styles.button_group}>
+                                <div className={styles.button_group_duration}>
                                     <div className={styles.radio_group_title}>For</div>
                                     <div className={styles.button_options}>
                                         {durationOptions.map((option) => (

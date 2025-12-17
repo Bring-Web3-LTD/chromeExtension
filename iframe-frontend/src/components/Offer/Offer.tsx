@@ -40,8 +40,7 @@ const Offer = ({ closeFn }: Props) => {
         cryptoSymbols,
         isTester,
         version,
-        domain,
-        variant,
+        domain,    
         offerText
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
@@ -183,40 +182,30 @@ const Offer = ({ closeFn }: Props) => {
                                 <div
                                     id="offer-action-btns-container"
                                     className={styles.btns_container}
-                                    style={variant === 'testB' ?{
-                                        justifyContent: 'center'
-                                    }:{}}
                                 >
                                     <button
                                         id="opt-out-btn"
                                         className={styles.action_btn}
                                         disabled={status !== 'idle'}
                                         onClick={() => setOptOutOpen(true)}
-                                        style={variant === 'testB' ? {
-                                            borderColor:'transparent',
-                                            textDecoration: 'underline',
-                                            color:'white',
-                                            width:'auto'
-                                        } : {}}
                                     >
                                         {toCaseString("Pause Cashback", textMode)}
                                     </button>
-                                    {variant !== 'testB' ?
-                                        <button
-                                            id="cancel-btn"
-                                            className={styles.action_btn}
-                                            disabled={status !== 'idle'}
-                                            onClick={async () => {
-                                                await sendGaEvent('popup_close', {
-                                                    category: 'user_action',
-                                                    action: 'click',
-                                                    details: 'extension'
-                                                })
-                                                closeFn()
-                                            }}
-                                        >
-                                            {variant === 'testA' ? toCaseString("Close", textMode) : toCaseString("Cancel", textMode)}
-                                        </button> : null}
+                                    <button
+                                        id="cancel-btn"
+                                        className={styles.action_btn}
+                                        disabled={status !== 'idle'}
+                                        onClick={async () => {
+                                            await sendGaEvent('popup_close', {
+                                                category: 'user_action',
+                                                action: 'click',
+                                                details: 'extension'
+                                            })
+                                            closeFn()
+                                        }}
+                                    >
+                                        {toCaseString("Close", textMode)}
+                                    </button>
                                 </div>
 
                                 <div id="offer-clarify-text" className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>

@@ -10,7 +10,6 @@ import splitWordMaxFive from '../../utils/splitWordMaxFive'
 import { useRouteLoaderData } from 'react-router-dom'
 import toCaseString from '../../utils/toCaseString'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
-import formatCashback from '../../utils/formatCashback'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ACTIVATE_QUIET_TIME } from '../../config'
 import parseTime from '../../utils/parseTime'
@@ -42,10 +41,8 @@ const Offer = ({ closeFn }: Props) => {
         isTester,
         version,
         domain,
-        maxCashback,
-        cashbackSymbol,
-        cashbackCurrency,
-        variant
+        variant,
+        offerText
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -157,7 +154,7 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}
+                                    {offerText}
                                 </div>
                             </div>
                             <div id="offer-action-container" className={styles.action_container}>

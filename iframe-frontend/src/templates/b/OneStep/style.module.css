@@ -237,6 +237,11 @@
     color: white;
 }
 
+.markdown a {
+    color: var(--markdown-f-c);
+    text-decoration: underline;
+}
+
 .markdown::-webkit-scrollbar {
     width: 4px;
 }

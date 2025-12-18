@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 // Components
 import CloseBtn from "../CloseBtn/CloseBtn"
 import Markdown from "react-markdown"
+import rehypeRaw from "rehype-raw"
 import TimePeriodSelector from "../../../components/TimePeriodSelector/TimePeriodSelector"
 import { Oval } from 'react-loader-spinner'
 // Functions
@@ -246,7 +247,7 @@ const OneStep = () => {
                             <img id="onestep-arrow-left-icon" src={`${iconsPath}/arrow-left.svg`} alt="arrow left" />
                         </button>
                         <h1 id="onestep-terms-header" className={styles.termsHeader}>Cashback terms:</h1>
-                        <Markdown className={styles.markdown}>
+                        <Markdown className={styles.markdown} rehypePlugins={[rehypeRaw]}>
                             {markdownContent}
                         </Markdown>
                     </motion.div>

@@ -6,6 +6,7 @@ import { useWalletAddress } from '../../hooks/useWalletAddress'
 import splitWordMaxFive from '../../utils/splitWordMaxFive'
 import toCapital from '../../utils/toCapital'
 import Markdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { iframeStyle } from '../../utils/iframeStyles'
 
@@ -61,7 +62,7 @@ const Activated = () => {
                 <p id="activated-text" className={styles.p}>Reward approval may take up to 48 hours.</p>
                 <div id="activated-backed-by" className={styles.backed_by}>Backed by {toCapital(platformName)} Wallet</div>
             </div>
-            <Markdown className={styles.markdown}>
+            <Markdown className={styles.markdown} rehypePlugins={[rehypeRaw]}>
                 {markdownContent}
             </Markdown>
         </div>

@@ -15,6 +15,7 @@ import { ACTIVATE_QUIET_TIME } from '../../config'
 import parseTime from '../../utils/parseTime'
 import { Oval } from 'react-loader-spinner'
 import CollaborationLogos from '../CollaborationLogos/CollaborationLogos'
+import formatCashback from '../../utils/formatCashback'
 
 interface BringEventData {
     from: string;
@@ -40,7 +41,10 @@ const Offer = ({ closeFn }: Props) => {
         cryptoSymbols,
         isTester,
         version,
-        domain,    
+        domain,
+        maxCashback,
+        cashbackSymbol,
+        cashbackCurrency,
         offerText
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
@@ -153,7 +157,9 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    {offerText}
+                                    {offerText || (
+                                        <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
+                                    )}
                                 </div>
                             </div>
                             <div id="offer-action-container" className={styles.action_container}>

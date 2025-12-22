@@ -10,12 +10,12 @@ import splitWordMaxFive from '../../utils/splitWordMaxFive'
 import { useRouteLoaderData } from 'react-router-dom'
 import toCaseString from '../../utils/toCaseString'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
-import formatCashback from '../../utils/formatCashback'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ACTIVATE_QUIET_TIME } from '../../config'
 import parseTime from '../../utils/parseTime'
 import { Oval } from 'react-loader-spinner'
 import CollaborationLogos from '../CollaborationLogos/CollaborationLogos'
+import formatCashback from '../../utils/formatCashback'
 
 interface BringEventData {
     from: string;
@@ -45,7 +45,7 @@ const Offer = ({ closeFn }: Props) => {
         maxCashback,
         cashbackSymbol,
         cashbackCurrency,
-        variant
+        offerText
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -157,7 +157,9 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}
+                                    {offerText || (
+                                        <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
+                                    )}
                                 </div>
                             </div>
                             <div id="offer-action-container" className={styles.action_container}>
@@ -186,40 +188,30 @@ const Offer = ({ closeFn }: Props) => {
                                 <div
                                     id="offer-action-btns-container"
                                     className={styles.btns_container}
-                                    style={variant === 'testB' ?{
-                                        justifyContent: 'center'
-                                    }:{}}
                                 >
                                     <button
                                         id="opt-out-btn"
                                         className={styles.action_btn}
                                         disabled={status !== 'idle'}
                                         onClick={() => setOptOutOpen(true)}
-                                        style={variant === 'testB' ? {
-                                            borderColor:'transparent',
-                                            textDecoration: 'underline',
-                                            color:'white',
-                                            width:'auto'
-                                        } : {}}
                                     >
                                         {toCaseString("Pause Cashback", textMode)}
                                     </button>
-                                    {variant !== 'testB' ?
-                                        <button
-                                            id="cancel-btn"
-                                            className={styles.action_btn}
-                                            disabled={status !== 'idle'}
-                                            onClick={async () => {
-                                                await sendGaEvent('popup_close', {
-                                                    category: 'user_action',
-                                                    action: 'click',
-                                                    details: 'extension'
-                                                })
-                                                closeFn()
-                                            }}
-                                        >
-                                            {variant === 'testA' ? toCaseString("Close", textMode) : toCaseString("Cancel", textMode)}
-                                        </button> : null}
+                                    <button
+                                        id="cancel-btn"
+                                        className={styles.action_btn}
+                                        disabled={status !== 'idle'}
+                                        onClick={async () => {
+                                            await sendGaEvent('popup_close', {
+                                                category: 'user_action',
+                                                action: 'click',
+                                                details: 'extension'
+                                            })
+                                            closeFn()
+                                        }}
+                                    >
+                                        {toCaseString("Close", textMode)}
+                                    </button>
                                 </div>
 
                                 <div id="offer-clarify-text" className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>

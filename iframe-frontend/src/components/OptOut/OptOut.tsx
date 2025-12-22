@@ -78,9 +78,17 @@ interface Props {
 }
 
 const OptOut = ({ onClose }: Props) => {
-    const { cryptoSymbols, platformName, textMode, domain, name } = useRouteLoaderData('root') as LoaderData
+    const { cryptoSymbols, platformName, textMode, domain, name, variant } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)
+    
+    // A/B Test variants:
+    // control = "Turn off" with radio buttons, subtitle, and forever option (current version)
+    // testA = "Pause" with radio buttons, NO subtitle, and forever option
+    // testB = "Pause" with separate buttons, NO subtitle, and forever option
+    const isControl = variant === 'control'
+    const isTestB = variant === 'testB'    
+    
     const [selection, setSelection] = useState<Selection>({
         websites: websiteOptions[0],
         duration: durationOptions[0]
@@ -124,22 +132,58 @@ const OptOut = ({ onClose }: Props) => {
             {!isOpted ?
                 <>
                     <div id="opt-out-card" className={styles.card}>
-                        <div id="opt-out-title" className={styles.title}>Turn off Cashback offers</div>
+                        <div id="opt-out-title" className={styles.title}>{isControl ? 'Turn off cashback offers' : 'Pause cashback offers'}</div>
                         <div id="opt-out-description" className={styles.description}>
                             With {toCapital(platformName)}'s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
                         </div>
-                        <RadioGroup
-                            options={websiteOptions}
-                            title={`Turn off cashback offers`}
-                            onChange={(option => setSelection({ ...selection, websites: option }))}
-                            defaultOption={websiteOptions[0]}
-                        />
-                        <RadioGroup
-                            options={durationOptions}
-                            title={`For`}
-                            onChange={(option => setSelection({ ...selection, duration: option }))}
-                            defaultOption={durationOptions[0]}
-                        />
+                        {isTestB ? (
+                            // Variant C: Button layout instead of radio buttons
+                            <>
+                                <div className={styles.button_group_websites}>
+                                    <div className={styles.button_options}>
+                                        {websiteOptions.map((option) => (
+                                            <button
+                                                key={option.id}
+                                                className={`${styles.option_btn} ${selection.websites.value === option.value ? styles.option_btn_active : ''}`}
+                                                onClick={() => setSelection({ ...selection, websites: option })}
+                                            >
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className={styles.button_group_duration}>
+                                    <div className={styles.radio_group_title}>For</div>
+                                    <div className={styles.button_options}>
+                                        {durationOptions.map((option) => (
+                                            <button
+                                                key={option.id}
+                                                className={`${styles.option_btn} ${selection.duration.value === option.value ? styles.option_btn_active : ''}`}
+                                                onClick={() => setSelection({ ...selection, duration: option })}
+                                            >
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            // Variants A (Control) and B (TestA): Radio button layout
+                            <>
+                                <RadioGroup
+                                    options={websiteOptions}
+                                    title={isControl ? 'Turn off cashback offers' : ''}
+                                    onChange={(option => setSelection({ ...selection, websites: option }))}
+                                    defaultOption={websiteOptions[0]}
+                                />
+                                <RadioGroup
+                                    options={durationOptions}
+                                    title={`For`}
+                                    onChange={(option => setSelection({ ...selection, duration: option }))}
+                                    defaultOption={durationOptions[0]}
+                                />
+                            </>
+                        )}
                     </div>
                     <button
                         id="opt-out-apply-btn"

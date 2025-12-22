@@ -76,6 +76,7 @@ const Activated = () => {
                             return (
                                 <span
                                     {...props}
+                                    className={styles.externalLink}
                                     onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: url.toString() })}
                                 >
                                     {children}

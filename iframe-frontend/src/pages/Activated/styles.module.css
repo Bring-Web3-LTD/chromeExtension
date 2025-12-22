@@ -120,8 +120,8 @@
     text-decoration: underline;
 }
 
-.markdown span[style] {
-    color: inherit;
+.externalLink {
+   color: var(--markdown-f-c);
     text-decoration: underline;
     cursor: pointer;
 }

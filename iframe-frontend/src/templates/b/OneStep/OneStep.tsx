@@ -16,7 +16,7 @@ import activate from "../../../api/activate"
 import formatCashback from "../../../utils/formatCashback"
 import splitStringWithDots from "../../../utils/splitStringWithDots"
 import { sendMessage, ACTIONS } from "../../../utils/sendMessage"
-import { ACTIVATE_QUIET_TIME } from "../../../config"
+import { ACTIVATE_QUIET_TIME, ENV } from "../../../config"
 import parseTime from '../../../utils/parseTime'
 
 
@@ -247,7 +247,29 @@ const OneStep = () => {
                             <img id="onestep-arrow-left-icon" src={`${iconsPath}/arrow-left.svg`} alt="arrow left" />
                         </button>
                         <h1 id="onestep-terms-header" className={styles.termsHeader}>Cashback terms:</h1>
-                        <Markdown className={styles.markdown} rehypePlugins={[rehypeRaw]}>
+                        <Markdown 
+                            className={styles.markdown} 
+                            rehypePlugins={[rehypeRaw]}
+                            components={{
+                                a: ({ href, children, ...props }) => {
+                                    if (href?.startsWith('http')) {
+                                        const url = new URL(href)
+                                        url.searchParams.set('platform', platformName.toUpperCase())
+                                        url.searchParams.set('address', walletAddress || 'null')
+                                        url.searchParams.set('env', ENV || 'prod')
+                                        return (
+                                            <span
+                                                {...props}
+                                                onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: url.toString() })}
+                                            >
+                                                {children}
+                                            </span>
+                                        )
+                                    }
+                                    return <a href={href} {...props}>{children}</a>
+                                }
+                            }}
+                        >
                             {markdownContent}
                         </Markdown>
                     </motion.div>

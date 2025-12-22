@@ -242,6 +242,12 @@
     text-decoration: underline;
 }
 
+.markdown span[style] {
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .markdown::-webkit-scrollbar {
     width: 4px;
 }

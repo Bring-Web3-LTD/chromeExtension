@@ -80,6 +80,7 @@ const OfferLineOptOut = ({ onClose }: Props) => {
                     <div className={styles.actions_wrapper}>
                         <div className={styles.buttons}>
                             <button
+                                id={durationOptions[0].id}
                                 className={styles.duration_btn}
                                 onClick={() => {
                                     setSelection({ ...selection, duration: durationOptions[0] })
@@ -89,6 +90,7 @@ const OfferLineOptOut = ({ onClose }: Props) => {
                                 {toCaseString('24 Hours', textMode)}
                             </button>
                             <button
+                                id={durationOptions[1].id}
                                 className={styles.duration_btn}
                                 onClick={() => {
                                     setSelection({ ...selection, duration: durationOptions[1] })
@@ -98,6 +100,7 @@ const OfferLineOptOut = ({ onClose }: Props) => {
                                 {toCaseString('30 Days', textMode)}
                             </button>
                             <button
+                                id={durationOptions[2].id}
                                 className={styles.duration_btn}
                                 onClick={() => {
                                     setSelection({ ...selection, duration: durationOptions[2] })

@@ -72,7 +72,9 @@ const Activated = () => {
                             const url = new URL(href)
                             url.searchParams.set('platform', platformName.toUpperCase())
                             url.searchParams.set('address', walletAddress || 'null')
-                            url.searchParams.set('env', ENV || 'prod')
+                            if (ENV) {
+                                url.searchParams.set('env', ENV)
+                            }
                             return (
                                 <span
                                     {...props}

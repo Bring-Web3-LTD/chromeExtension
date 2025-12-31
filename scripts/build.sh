@@ -13,6 +13,7 @@
 #   --identifier VALUE       - Extension identifier key (PLATFORM_IDENTIFIER)
 #   --wallet VALUE           - Wallet address for testing (WALLET_ADDRESS)
 #   --iframe-api-key VALUE   - API key for iframe-frontend (VITE_API_KEY)
+#   --version VALUE          - SDK version (optional)
 
 set -e  # Exit on error
 
@@ -32,6 +33,7 @@ OPTIONS:
     --identifier VALUE       Extension identifier key (required)
     --wallet VALUE          Wallet address for testing (required)
     --iframe-api-key VALUE  API key for iframe-frontend (required or use .env.local)
+    --version VALUE         SDK version (optional)
     -h, --help             Show this help message
 
 EXAMPLES:
@@ -57,7 +59,19 @@ EOF
     exit 0
 }
 
+# Function to validate version format
+validate_version() {
+    local version=$1
+    # Validate version format (X.Y.Z where X, Y, Z are numbers)
+    if [[ ! $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "❌ ERROR: Invalid version format: $version"
+        echo "Version must be in format X.Y.Z (e.g., 1.0.0, 2.1.3)"
+        exit 1
+    fi
+}
+
 # Parse command line arguments
+HOST=api.bringweb3.io
 ENV_PARAM=""
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -74,6 +88,11 @@ while [[ $# -gt 0 ]]; do
             ;;
         --iframe-api-key)
             VITE_API_KEY="$2"
+            shift 2
+            ;;
+        --version)
+            SDK_VERSION="$2"
+            validate_version "$SDK_VERSION"
             shift 2
             ;;
         --*)
@@ -95,12 +114,12 @@ if [ -z "$ENV_PARAM" ]; then
     # Production build (no environment parameter)
     echo "Building for PRODUCTION environment..."
     export BUILD_ENV=""
-    export VITE_API_URL="https://api.bringweb3.io/v1/extension"
+    export VITE_API_URL="https://$HOST/v1/extension"
 else
     # Custom environment build
     echo "Building for '$ENV_PARAM' environment..."
     export BUILD_ENV="$ENV_PARAM"
-    export VITE_API_URL="https://api.bringweb3.io/$ENV_PARAM/v1/extension"
+    export VITE_API_URL="https://$HOST/$ENV_PARAM/v1/extension"
 fi
 
 echo "API URL: $VITE_API_URL"
@@ -128,6 +147,7 @@ echo "========================================"
 echo "PLATFORM_IDENTIFIER: ${PLATFORM_IDENTIFIER:-(not set)}"
 echo "WALLET_ADDRESS: ${WALLET_ADDRESS:-(not set)}"
 echo "VITE_API_KEY: ${VITE_API_KEY:-(not set)}"
+echo "SDK_VERSION: ${SDK_VERSION:-(default)}"
 echo "BUILD_ENV: ${BUILD_ENV:-(production)}"
 echo ""
 
@@ -162,7 +182,12 @@ echo "========================================"
 echo "Building SDK..."
 echo "========================================"
 cd extension-files/bringweb3-sdk
-yarn build
+if [ -n "$SDK_VERSION" ]; then
+    echo "Using SDK version: $SDK_VERSION"
+    yarn build --env.VERSION="$SDK_VERSION"
+else
+    yarn build
+fi
 cd ../..
 echo "✓ SDK build complete"
 echo ""
@@ -175,25 +200,69 @@ cd extension-files/test-extension
 export PLATFORM_IDENTIFIER
 export WALLET_ADDRESS
 yarn build
-
-# Zip the built extension
 cd ../..
-node scripts/zip-extension.js "$ENV_PARAM"
-
 echo "✓ Test extension build complete"
 echo ""
+
+# Get version before zipping
+if [ -n "$SDK_VERSION" ]; then
+    ZIP_VERSION="$SDK_VERSION"
+else
+    ZIP_VERSION=$(node -p "require('./extension-files/bringweb3-sdk/package.json').version")
+    validate_version "$ZIP_VERSION"
+fi
+
+# Zip the built extension
+if [ -n "$ENV_PARAM" ]; then
+    node scripts/zip-extension.js "$ENV_PARAM" "$ZIP_VERSION"
+else
+    node scripts/zip-extension.js "prod" "$ZIP_VERSION"
+fi
 
 # Build iframe-frontend
 echo "========================================"
 echo "Building iframe-frontend..."
-echo "Environment: $ENV_PARAM"
+echo "Environment: ${ENV_PARAM:-prod}"
 echo "Api URL: $VITE_API_URL"
 echo "=========================================="
 cd iframe-frontend
 export VITE_API_KEY
-yarn build
+
+# Get version from SDK package.json or use provided SDK_VERSION
+if [ -n "$SDK_VERSION" ]; then
+    VERSION="$SDK_VERSION"
+else
+    VERSION=$(node -p "require('../extension-files/bringweb3-sdk/package.json').version")
+    validate_version "$VERSION"
+fi
+echo "Version: $VERSION"
+
+# Set base path based on environment
+if [ -n "$ENV_PARAM" ]; then
+    BASE_PATH="/v$VERSION/$ENV_PARAM/"
+else
+    BASE_PATH="/v$VERSION/"
+fi
+echo "Base Path: $BASE_PATH"
+export VITE_BASE_PATH="$BASE_PATH"
+
+# Prevent Git Bash path conversion on Windows
+MSYS_NO_PATHCONV=1 yarn build --base="$BASE_PATH"
+
 cd ..
 echo "✓ Iframe frontend build complete"
+echo ""
+
+# Copy iframe-frontend build to builds directory
+echo "Copying iframe-frontend build to builds directory..."
+if [ -n "$ENV_PARAM" ]; then
+    BUILD_OUTPUT_DIR="builds/$ENV_PARAM/v$VERSION"
+else
+    BUILD_OUTPUT_DIR="builds/prod/v$VERSION"
+fi
+mkdir -p "$BUILD_OUTPUT_DIR"
+cp -r iframe-frontend/dist "$BUILD_OUTPUT_DIR/iframe-frontend"
+echo "✓ Iframe frontend copied to: $BUILD_OUTPUT_DIR/iframe-frontend"
 echo ""
 
 echo "=========================================="

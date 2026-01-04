@@ -10,7 +10,7 @@ type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific
 interface GAEvent {
     category: "user_action" | "system";
     action?: "click" | "input" | "select" | "request";
-    details?: string;
+    details?: string | object;
     process?: "activate" | "initiate" | "submit";
 }
 
@@ -168,7 +168,10 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
             sendGaEvent('wallet_connected', {
                 category: 'user_action',
                 action: 'click',
-                details: `prevWalletAddress: ${previousWalletAddressRef.current || 'null'}, currentWalletAddress: ${walletAddress || 'null'}`
+                details: {
+                    prevWalletAddress: previousWalletAddressRef.current || 'null',
+                    currentWalletAddress: walletAddress || 'null'
+                }
             })
         }
         

@@ -176,6 +176,15 @@ if [ ${#MISSING_VARS[@]} -gt 0 ]; then
     echo ""
     exit 1
 fi
+# Start build timer
+BUILD_START_TIME=$(date +%s)
+# Run setup script to ensure project is properly configured
+echo "========================================"
+echo "Running setup script..."
+echo "========================================"
+bash scripts/setup.sh
+echo "✓ Setup complete"
+echo ""
 
 # Build SDK
 echo "========================================"
@@ -265,6 +274,17 @@ cp -r iframe-frontend/dist "$BUILD_OUTPUT_DIR/iframe-frontend"
 echo "✓ Iframe frontend copied to: $BUILD_OUTPUT_DIR/iframe-frontend"
 echo ""
 
+# Calculate and display build time
+BUILD_END_TIME=$(date +%s)
+BUILD_DURATION=$((BUILD_END_TIME - BUILD_START_TIME))
+BUILD_MINUTES=$((BUILD_DURATION / 60))
+BUILD_SECONDS=$((BUILD_DURATION % 60))
+
 echo "=========================================="
 echo "✓ All builds completed successfully!"
+if [ $BUILD_MINUTES -gt 0 ]; then
+    echo "⏱️  Total build time: ${BUILD_MINUTES}m ${BUILD_SECONDS}s"
+else
+    echo "⏱️  Total build time: ${BUILD_SECONDS}s"
+fi
 echo "========================================"

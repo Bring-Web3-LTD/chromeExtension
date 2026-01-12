@@ -1,16 +1,24 @@
 //All functions are written so they would be compatible with both Manifest V2 and V3.
 import StorageCache from "./cache";
 import helpers from "./helpers";
-import { decompress } from "../background/domainsListCompression";
 import { isValidTimestampRange } from "../background/timestampRange";
 
 const STORAGE_PREFIX = 'bring_';
 
 const cache = new StorageCache();
 
-const set = async (key: string, value: any, useCache: boolean = true) => {
+const set = async (key: string, value: any, useCache: boolean = true, flags?: string[]) => {
+    let cacheValue = value;
     if (useCache) {
-        cache.set(key, value);
+        // Build RegExp[] if relevantDomains + flags provided
+        if (key === 'relevantDomains' && Array.isArray(value) && flags) {
+            try {
+                cacheValue = value.map((pattern, i) => new RegExp(pattern, flags[i] || ''));
+            } catch (error) {
+                console.error('Error building RegExp array in set:', error);
+            }
+        }
+        cache.set(key, cacheValue);
     }
 
     return new Promise<void>((resolve, reject) => {
@@ -36,7 +44,7 @@ const get = async (key: string, useCache: boolean = true) => {
     }
 
     return new Promise<any>((resolve, reject) => {
-        chrome.storage.local.get([`${STORAGE_PREFIX}${key}`], (data) => {
+        chrome.storage.local.get([`${STORAGE_PREFIX}${key}`], async (data) => {
             if (chrome.runtime.lastError) {
                 reject(chrome.runtime.lastError);
             } else {
@@ -45,6 +53,22 @@ const get = async (key: string, useCache: boolean = true) => {
                 if (value && helpers[key]?.get) {
                     value = helpers[key].get(value);
                 }
+
+                // Build RegExp array for relevantDomains
+                if (key === 'relevantDomains' && Array.isArray(value)) {
+                    try {
+                        const flags = await get('flags', false);
+
+                        if (Array.isArray(flags)) {
+                            value = value.map((pattern, i) =>
+                                new RegExp(pattern, flags[i] || '')
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error building RegExp array:', error);
+                    }
+                }
+
                 // If the value is undefined, we don't want to cache it
                 if (useCache && value !== undefined) {
                     cache.set(key, value);
@@ -92,9 +116,7 @@ const initializeDebugCache = () => {
             get: async (key: string) => await get(key),
             getReadable: async (key: string) => {
                 let value = await get(key)
-                if (value instanceof Uint8Array) {
-                    value = decompress(value)
-                } else if (isValidTimestampRange(value)) {
+                if (isValidTimestampRange(value)) {
                     value = `[${new Date(value[0]).toLocaleString('en-GB')} - ${new Date(value[1]).toLocaleString('en-GB')}] Total of ${(value[1] - value[0]) / 1000 / 60} minutes`
                 }
                 return value;

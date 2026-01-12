@@ -61,9 +61,9 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         const address = await getWalletAddress(tabId);
         const quietDomains = await storage.get('quietDomains') || [];
 
-        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement, isOfferLine, searchTermPattern} = await validateDomain({
+        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement, isOfferLine, verifiedMatch } = await validateDomain({
             body: {
-                domain: match,
+                match: match,
                 phase,
                 url: tab.url!,
                 address,
@@ -73,7 +73,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         });
 
         if (isValid === false) {
-            isOfferLine ? addQuietDomain(searchTermPattern, time) : addQuietDomain(match, time);
+            addQuietDomain(verifiedMatch, time);
             return;
         }
 
@@ -96,7 +96,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         if (res?.action) {
             switch (res.action) {
                 case 'activate':
-                    handleActivate(match, chrome.runtime.id, 'popup', cashbackPagePath, time, tabId)
+                    handleActivate(verifiedMatch, chrome.runtime.id, 'popup', cashbackPagePath, time, tabId)
                     break;
                 default:
                     console.error(`Unknown action: ${res.action}`);

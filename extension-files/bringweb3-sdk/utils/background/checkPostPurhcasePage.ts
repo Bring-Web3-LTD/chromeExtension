@@ -1,5 +1,5 @@
 import storage from "../storage/storage"
-import { searchCompressed } from "./domainsListCompression"
+import { searchArray } from "./domainsListSearch"
 import analytics from "../api/analytics"
 
 const urlRemoveOptions = ['www.', 'www1.', 'www2.']
@@ -31,9 +31,9 @@ const checkPostPurchasePage = async (url: string) => {
 
     const postPurchaseUrls = await storage.get('postPurchaseUrls')
 
-    if (!postPurchaseUrls || !postPurchaseUrls.length || !(postPurchaseUrls instanceof Uint8Array)) return falseResponse
+    if (!Array.isArray(postPurchaseUrls) || !postPurchaseUrls?.length) return falseResponse
 
-    const { matched, match } = searchCompressed(postPurchaseUrls, query)
+    const { matched, match } = searchArray(postPurchaseUrls, query)
 
     if (!matched) {
         return falseResponse

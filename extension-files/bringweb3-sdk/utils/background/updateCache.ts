@@ -5,6 +5,16 @@ import { fetchWhitelist } from "../api/fetchWhitelist"
 import { ApiEndpoint } from "../apiEndpoint"
 import { isMsRangeExpired } from "./timestampRange"
 
+let pending: Promise<any> | null = null;
+const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
+    return Promise.race([
+        promise,
+        new Promise<T>((_, reject) =>
+            setTimeout(() => reject(new Error(`Operation timed out after ${ms}ms`)), ms)
+        )
+    ]);
+};
+
 export const updateCache = async () => {
     const relevantDomainsCheck = await storage.get('relevantDomainsCheck') // This is an array with two elements: [cacheStart, cacheEnd]
     const relevantDomainsList = await storage.get('relevantDomains')
@@ -17,8 +27,8 @@ export const updateCache = async () => {
     // Check all conditions that would require a fetch
     if (!relevantDomainsList) {
         trigger = `no domains in cache`
-    } else if (!(relevantDomainsList instanceof Uint8Array)) {
-        trigger = `domains list isn't an Uint8Array`
+    } else if (!Array.isArray(relevantDomainsList)) {
+        trigger = `domains list isn't valid format`
     } else if (!relevantDomainsCheck) {
         trigger = `no domains timestamp check found__value: ${safeStringify(relevantDomainsCheck)}`
     } else if (!Array.isArray(relevantDomainsCheck)) {
@@ -29,7 +39,7 @@ export const updateCache = async () => {
         trigger = `cache expired - range start is bigger than Date.now()__value: ${safeStringify(relevantDomainsCheck)}, now: ${now}`
     } else if (now >= relevantDomainsCheck[1]) {
         trigger = `cache expired - range end is smaller than Date.now()`
-    } else if (whitelistEndpoint && (!whitelist?.length || !(whitelist instanceof Uint8Array))) {
+    } else if (whitelistEndpoint && (!whitelist?.length || !Array.isArray(whitelist))) {
         trigger = `missing whitelist data`
     } else if (isMsRangeExpired(relevantDomainsCheck as [number, number], now)) {
         trigger = `cache expired - range is expired__range: ${safeStringify(relevantDomainsCheck)}, now: ${now}`
@@ -38,23 +48,38 @@ export const updateCache = async () => {
     if (!trigger) {
         return relevantDomainsList
     }
+    if (pending) return pending;
+    return pending = (async () => {
+        try {
 
-    const res = await fetchDomains(trigger)
-    const { nextUpdateTimestamp, relevantDomains, postPurchaseUrls } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
+            const res = await withTimeout(fetchDomains(trigger), 120000);
+            const { nextUpdateTimestamp, relevantDomains, postPurchaseUrls, flags, quietDomainsMaxLength } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
 
-    whitelist = await fetchWhitelist()
+            whitelist = await fetchWhitelist()
 
-    const storageUpdates = [
-        storage.set('relevantDomains', relevantDomains),
-        storage.set('relevantDomainsCheck', [now, now + nextUpdateTimestamp]),
-        storage.set('postPurchaseUrls', postPurchaseUrls)
-    ]
+            const storageUpdates = [
+                storage.set('relevantDomains', relevantDomains, true, flags),
+                storage.set('relevantDomainsCheck', [now, now + nextUpdateTimestamp]),
+                storage.set('postPurchaseUrls', postPurchaseUrls)
+            ]
 
-    if (whitelist) {
-        storageUpdates.push(storage.set('redirectsWhitelist', whitelist))
-    }
+            if (flags) {
+                storageUpdates.push(storage.set('flags', flags))
+            }
 
-    await Promise.all(storageUpdates)
+            if (quietDomainsMaxLength) {
+                storageUpdates.push(storage.set('quietDomainsMaxLength', quietDomainsMaxLength))
+            }
 
-    return relevantDomains
+            if (whitelist) {
+                storageUpdates.push(storage.set('redirectsWhitelist', whitelist))
+            }
+
+            await Promise.all(storageUpdates)
+
+            return await storage.get('relevantDomains')
+        } finally {
+            pending = null;
+        }
+    })();
 }

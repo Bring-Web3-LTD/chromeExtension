@@ -29,20 +29,24 @@ export const uint8ArrayToStr = (blob: Uint8Array): string => {
 
 const helpers: Helpers = {
     relevantDomains: {
-        get: strToUint8Array,
-        set: uint8ArrayToStr
+        get: (str: string) => JSON.parse(str),
+        set: (arr: string[]) => JSON.stringify(arr)
     },
     redirectsWhitelist: {
-        get: strToUint8Array,
-        set: uint8ArrayToStr
+        get: (str: string) => JSON.parse(str),
+        set: (arr: string[]) => JSON.stringify(arr)
     },
     portalRelevantDomains: {
-        get: strToUint8Array,
-        set: uint8ArrayToStr
+        get: (str: string) => JSON.parse(str),
+        set: (arr: string[]) => JSON.stringify(arr)
     },
     postPurchaseUrls: {
-        get: strToUint8Array,
-        set: uint8ArrayToStr
+        get: (str: string) => JSON.parse(str),
+        set: (arr: string[]) => JSON.stringify(arr)
+    },
+    flags: {
+        get: (str: string) => JSON.parse(str),
+        set: (arr: string[]) => JSON.stringify(arr)
     }
 }
 

@@ -20,8 +20,6 @@ const fetchDomains = async (trigger?: string | null) => {
 
     const res = await apiRequest(request)
 
-    res.relevantDomains = strToUint8Array(res.relevantDomains)
-    res.postPurchaseUrls = strToUint8Array(res.postPurchaseUrls)
 
     return res
 }

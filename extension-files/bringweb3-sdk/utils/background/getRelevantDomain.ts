@@ -1,15 +1,15 @@
 import storage from "../storage/storage"
-import { searchCompressed } from "./domainsListCompression"
+import { searchArray, searchRegexArray } from "./domainsListSearch"
 import { updateCache } from "./updateCache"
 
 const urlRemoveOptions = ['www.', 'www1.', 'www2.']
 
-const getRelevantDomain = async (url: string | undefined): Promise<{ matched: boolean, match: string }> => {
+const getRelevantDomain = async (url: string | undefined): Promise<{ matched: boolean, match: string | string[] }> => {
     const relevantDomains = await updateCache()
     const portalRelevantDomains = await storage.get('portalRelevantDomains')
     const falseResponse = { matched: false, match: '', phase: undefined }
 
-    if (!url || !relevantDomains || !relevantDomains.length || !(relevantDomains instanceof Uint8Array)) return falseResponse
+    if (!url || !relevantDomains || !relevantDomains.length) return falseResponse
 
     let urlObj = null
 
@@ -29,21 +29,25 @@ const getRelevantDomain = async (url: string | undefined): Promise<{ matched: bo
         query = query.replace(urlRemoveOption, '')
     }
     if (portalRelevantDomains) {
-        const search = searchCompressed(portalRelevantDomains, query)
+        const search = searchArray(portalRelevantDomains, query)
         if (search.matched) {
             await storage.remove('portalRelevantDomains')
             return search
         }
     }
 
-    const { matched, match } = searchCompressed(relevantDomains, query)
+    // Handle RegExp array from cache
+    if (Array.isArray(relevantDomains)) {
+        const result = searchRegexArray(relevantDomains, query)
 
-    if (!matched) return falseResponse
+        if (!result.matched) return falseResponse
 
-    return {
-        matched,
-        match
+        return {
+            matched: true,
+            match: result.match
+        }
     }
+    return falseResponse
 }
 
 export default getRelevantDomain;

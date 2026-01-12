@@ -1,7 +1,7 @@
 import { DAY_MS } from "../constants"
 import storage from "../storage/storage"
 import { isMsRangeActive } from "./timestampRange"
-import { searchArray } from "./domainsListCompression"
+import { searchArray } from "./domainsListSearch"
 
 type Phases = 'new' | 'activated' | 'quiet'
 

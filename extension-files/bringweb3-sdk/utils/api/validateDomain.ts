@@ -3,7 +3,7 @@ import apiRequest from "./apiRequest"
 interface ValidateDomainProps {
     body: {
         url: string,
-        domain: string,
+        match: string|string[],
         address: WalletAddress,
         country?: string
         phase?: 'new' | 'activated'

@@ -1,4 +1,5 @@
 import storage from "../storage/storage"
+import { cleanupQuietDomains } from "./cleanupDomains"
 
 const storageKey = 'quietDomains'
 
@@ -13,20 +14,29 @@ const addQuietDomain = async (domain: string, time: number, payload?: Payload, p
     if (!domain) return
     let quietDomains = await storage.get(storageKey)
 
-    if (typeof quietDomains !== 'object' || quietDomains === null) {
-        quietDomains = {}
+    if (!Array.isArray(quietDomains)) {
+        quietDomains = []
     }
+    const maxLength = await storage.get('quietDomainsMaxLength')
+    quietDomains = cleanupQuietDomains(quietDomains, maxLength)
 
     const now = Date.now()
     const end = now + time
 
-    quietDomains[domain] = {
+    const entry: any = {
+        domain,
         time: [now, end],
         phase: phase || 'quiet'
     }
 
     if (payload) {
-        quietDomains[domain].payload = payload
+        entry.payload = payload
+    }
+    const existingIndex = quietDomains.findIndex((d: any) => d.domain === domain)
+    if (existingIndex >= 0) {
+        quietDomains[existingIndex] = entry
+    } else {
+        quietDomains.push(entry)
     }
 
     await storage.set(storageKey, quietDomains)

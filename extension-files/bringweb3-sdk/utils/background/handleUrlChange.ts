@@ -14,7 +14,6 @@ import isWhitelisted from "./isWhitelisted";
 import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
-import checkOptOutDomain from "./checkOptOutDomain";
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false) => {
@@ -27,7 +26,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             return;
         };
 
-        const { phase, payload } = await getQuietDomain(match, url);
+        const { phase, payload } = await getQuietDomain(url);
 
         if (phase === 'new') {
             const now = Date.now();
@@ -38,10 +37,6 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 return;
             } else {
                 await storage.remove('optOut')
-            }
-
-            if (await checkOptOutDomain(match, url)) {
-                return;
             }
         } else if (phase === 'activated') {
             const userId = await getUserId()

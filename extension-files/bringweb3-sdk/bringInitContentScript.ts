@@ -118,6 +118,19 @@ const bringInitContentScript = async ({
                     .then(walletAddress => sendResponse({ status: 'success', walletAddress }))
                     .catch(err => sendResponse({ status: 'success', walletAddress: undefined }))
                 return true
+            case 'GET_PAGE_LINKS':
+                // Force DOM to flush before querying
+                requestAnimationFrame(() => {
+                    try {
+                        const links = Array.from(document.querySelectorAll('a[href]'))
+                            .map(a => (a as HTMLAnchorElement).href)
+                            .filter(href => href.startsWith('http'));
+                        sendResponse({ status: 'success', links });
+                    } catch (error) {
+                        sendResponse({ status: 'failed', links: [] });
+                    }
+                });
+                return true
             case 'CLOSE_POPUP':
                 if (iframeEl && iframePath === request.path && getDomain(location.href) === getDomain(request.domain)) {
                     iframeEl.parentNode?.removeChild(iframeEl)

@@ -1,5 +1,5 @@
 interface Message {
-    action: 'INJECT' | 'GET_WALLET_ADDRESS' | 'CLOSE_POPUP'
+    action: 'INJECT' | 'GET_WALLET_ADDRESS' | 'CLOSE_POPUP' | 'GET_PAGE_LINKS'
     domain?: string
     token?: string
     iframeUrl?: string

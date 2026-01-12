@@ -17,18 +17,10 @@ import { isMsRangeActive } from "./timestampRange";
 import checkOptOutDomain from "./checkOptOutDomain";
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
-    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-        if (!changeInfo.url || !tab?.url?.startsWith('http')) return
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false) => {
+        const url = parseUrl(urlToCheck);
 
-        const url = parseUrl(tab.url);
-
-        const isPopupEnabled = await storage.get('popupEnabled');
-
-        if (!isPopupEnabled) return;
-
-        await checkPostPurchasePage(tab.url);
-
-        const { matched, match } = await getRelevantDomain(tab.url);
+        const { matched, match } = await getRelevantDomain(urlToCheck);
 
         if (!matched) {
             await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
@@ -72,13 +64,16 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         }
 
         const address = await getWalletAddress(tabId);
+        const quietDomains = await storage.get('quietDomains') || [];
 
         const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement, isOfferLine, searchTermPattern} = await validateDomain({
             body: {
                 domain: match,
                 phase,
-                url: tab.url,
-                address
+                url: tab.url!,
+                address,
+                isInlineSearch,
+                quietDomains
             }
         });
 
@@ -94,7 +89,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         const res = await sendMessage(tabId, {
             action: 'INJECT',
             token,
-            domain: url,
+            domain: parseUrl(tab.url!),
             iframeUrl,
             userId,
             referrers: portalReferrers,
@@ -119,9 +114,39 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 type: 'no_popup',
                 userId,
                 walletAddress: address,
-                details: { url: tab.url, match, iframeUrl, reason: res?.message, status: res?.status },
+                details: { url: urlToCheck, match, iframeUrl, reason: res?.message, status: res?.status },
                 flowId
             })
+        }
+    };
+    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+        if (!tab?.url?.startsWith('http')) return
+
+        const isPopupEnabled = await storage.get('popupEnabled');
+
+        if (!isPopupEnabled) return;
+
+        if (changeInfo.url) {
+            await checkPostPurchasePage(tab.url);
+            validateAndInject(tab.url, tabId, tab, false);
+        }
+
+        if (changeInfo.status === 'complete') {
+            const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });
+
+            if (response?.status !== 'success' || !response.links?.length) return;
+
+            const uniqueLinks = [...new Set(response.links)] as string[];
+            
+            const tabDomain = new URL(tab.url).hostname.split('.').slice(-2).join('.');
+            const externalLinks = uniqueLinks.filter(link => {
+                try { return !new URL(link).hostname.endsWith(tabDomain); }
+                catch { return false; }
+            });
+
+            await Promise.allSettled(
+                externalLinks.map(link => validateAndInject(link, tabId, tab, true))
+            );
         }
     })
 }

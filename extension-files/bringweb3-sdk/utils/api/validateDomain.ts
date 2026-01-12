@@ -7,6 +7,8 @@ interface ValidateDomainProps {
         address: WalletAddress,
         country?: string
         phase?: 'new' | 'activated'
+        isInlineSearch?: boolean,
+        quietDomains?: any[]
     }
 }
 

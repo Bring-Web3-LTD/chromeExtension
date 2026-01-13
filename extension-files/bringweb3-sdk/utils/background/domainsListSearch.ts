@@ -29,7 +29,6 @@ export const searchRegexArray = (regexArray: RegExp[], url: string): SearchRegex
         if (matchResult && matchResult.index === 0 && matchResult[0]) {
             const rawGroups = [matchResult[0], ...Array.from(matchResult).slice(1)];
             const matchGroups = rawGroups.filter(g => g !== undefined) as string[];
-            console.log("match: ", matchGroups);
             return {
                 matched: true,
                 match: matchGroups

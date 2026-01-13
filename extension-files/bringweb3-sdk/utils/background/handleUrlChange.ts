@@ -1,6 +1,7 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
 import { DAY_MS } from "../constants";
+import getDomain from "../getDomain";
 import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
@@ -133,10 +134,17 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
             const uniqueLinks = [...new Set(response.links)] as string[];
             
-            const tabDomain = new URL(tab.url).hostname.split('.').slice(-2).join('.');
+            const tabDomain = getDomain(tab.url);
             const externalLinks = uniqueLinks.filter(link => {
-                try { return !new URL(link).hostname.endsWith(tabDomain); }
-                catch { return false; }
+                try {
+                    const linkDomain = getDomain(link);
+                    const isSameDomainOrSubdomain =
+                        linkDomain === tabDomain || linkDomain.endsWith(`.${tabDomain}`);
+                    return !isSameDomainOrSubdomain;
+                }
+                catch {
+                    return false;
+                }
             });
 
             await Promise.allSettled(

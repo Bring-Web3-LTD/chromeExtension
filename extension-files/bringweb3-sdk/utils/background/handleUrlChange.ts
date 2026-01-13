@@ -16,11 +16,33 @@ import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
 
+type UrlSearchStatus = 'pending' | 'injected' | 'rejected' | null;
+
+interface InlineSearchData {
+    token: string;
+    isValid: boolean;
+    iframeUrl: string;
+    networkUrl: string;
+    flowId: string;
+    time: number;
+    portalReferrers?: string[];
+    placement?: any;
+    isOfferLine: boolean;
+    verifiedMatch: string;
+}
+
+interface TabState {
+    urlSearch: UrlSearchStatus;
+    inlineSearch: InlineSearchData | null;
+}
+
+const tabStates = new Map<number, TabState>();
+
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
-    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false) => {
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[], urlMatch?: string | string[]) => {
         const url = parseUrl(urlToCheck);
 
-        const { matched, match } = await getRelevantDomain(urlToCheck);
+        const { matched, match, type } = isInlineSearch ? await getRelevantDomain(urlToCheck, "domain") : await getRelevantDomain(urlToCheck);
 
         if (!matched) {
             await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
@@ -62,42 +84,79 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         const address = await getWalletAddress(tabId);
         const quietDomains = await storage.get('quietDomains') || [];
 
-        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement, isOfferLine, verifiedMatch } = await validateDomain({
+        if (!tabStates.has(tabId)) {
+            tabStates.set(tabId, { urlSearch: null, inlineSearch: null });
+        }
+
+        if (!isInlineSearch) {
+            tabStates.get(tabId)!.urlSearch = 'pending';
+        }
+
+        let popupData = await validateDomain({
             body: {
-                match: match,
                 phase,
                 url: tab.url!,
                 address,
-                isInlineSearch,
-                quietDomains
+                type: isInlineSearch ? 'inline' : type,
+                quietDomains,
+                ...(isInlineSearch && {
+                    link: urlToCheck,
+                    linkMatch: match,
+                    urlMatch: urlMatch,
+                    inlineMatch: inlineMatch
+                }),
+                ...(!isInlineSearch && {
+                   urlMatch: match
+                })
             }
         });
+        
+        if (!popupData.time) popupData.time = DAY_MS;
 
-        if (isValid === false) {
-            addQuietDomain(verifiedMatch, time);
-            return;
+        if (popupData.isValid === false) {
+            addQuietDomain(popupData.verifiedMatch, popupData.time);
+            
+            if (isInlineSearch) return;
+            
+            const state = tabStates.get(tabId)!;
+            state.urlSearch = 'rejected';
+            
+            if (!state.inlineSearch) return;
+            
+            popupData = state.inlineSearch;
         }
 
-        if (!await isWhitelisted(networkUrl)) return;
+        if (!await isWhitelisted(popupData.networkUrl)) return;
+
+        if (!isInlineSearch) {
+            tabStates.get(tabId)!.urlSearch = 'injected';
+        } else {
+            const state = tabStates.get(tabId);
+            if (state?.urlSearch === 'injected') return;
+            if (state?.urlSearch === 'pending') {
+                state.inlineSearch = popupData;
+                return;
+            }
+        }
 
         const userId = await getUserId()
 
         const res = await sendMessage(tabId, {
             action: 'INJECT',
-            token,
+            token: popupData.token,
             domain: parseUrl(tab.url!),
-            iframeUrl,
+            iframeUrl: popupData.iframeUrl,
             userId,
-            referrers: portalReferrers,
-            page: isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
-            flowId,
-            placement
+            referrers: popupData.portalReferrers,
+            page: popupData.isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
+            flowId: popupData.flowId,
+            placement: popupData.placement
         });
 
         if (res?.action) {
             switch (res.action) {
                 case 'activate':
-                    handleActivate(verifiedMatch, chrome.runtime.id, 'popup', cashbackPagePath, time, tabId)
+                    handleActivate(popupData.verifiedMatch, chrome.runtime.id, 'popup', cashbackPagePath, popupData.time, tabId)
                     break;
                 default:
                     console.error(`Unknown action: ${res.action}`);
@@ -110,8 +169,8 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 type: 'no_popup',
                 userId,
                 walletAddress: address,
-                details: { url: urlToCheck, match, iframeUrl, reason: res?.message, status: res?.status },
-                flowId
+                details: { url: urlToCheck, match, iframeUrl: popupData.iframeUrl, reason: res?.message, status: res?.status },
+                flowId: popupData.flowId
             })
         }
     };
@@ -123,32 +182,25 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         if (!isPopupEnabled) return;
 
         if (changeInfo.url) {
+            tabStates.delete(tabId);
             await checkPostPurchasePage(tab.url);
             validateAndInject(tab.url, tabId, tab, false);
         }
 
         if (changeInfo.status === 'complete') {
+            const inlineSearchResult = await getRelevantDomain(tab.url, "inline");
+            if (!inlineSearchResult.matched) return;
+
+            const urlSearchResult = await getRelevantDomain(tab.url);
+
             const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });
 
             if (response?.status !== 'success' || !response.links?.length) return;
 
             const uniqueLinks = [...new Set(response.links)] as string[];
-            
-            const tabDomain = getDomain(tab.url);
-            const externalLinks = uniqueLinks.filter(link => {
-                try {
-                    const linkDomain = getDomain(link);
-                    const isSameDomainOrSubdomain =
-                        linkDomain === tabDomain || linkDomain.endsWith(`.${tabDomain}`);
-                    return !isSameDomainOrSubdomain;
-                }
-                catch {
-                    return false;
-                }
-            });
 
             await Promise.allSettled(
-                externalLinks.map(link => validateAndInject(link, tabId, tab, true))
+                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match, urlSearchResult.match))
             );
         }
     })

@@ -47,6 +47,10 @@ const helpers: Helpers = {
     flags: {
         get: (str: string) => JSON.parse(str),
         set: (arr: string[]) => JSON.stringify(arr)
+    },
+    domainsTypes: {
+        get: (str: string) => JSON.parse(str),
+        set: (arr: string[]) => JSON.stringify(arr)
     }
 }
 

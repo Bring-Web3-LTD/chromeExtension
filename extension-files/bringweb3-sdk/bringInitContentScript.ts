@@ -119,6 +119,10 @@ const bringInitContentScript = async ({
                     .catch(err => sendResponse({ status: 'success', walletAddress: undefined }))
                 return true
             case 'GET_PAGE_LINKS':
+                // Only respond from the main frame, not from iframes
+                if (window !== window.top) {
+                    return false;
+                }
                 // Force DOM to flush before querying
                 requestAnimationFrame(() => {
                     try {

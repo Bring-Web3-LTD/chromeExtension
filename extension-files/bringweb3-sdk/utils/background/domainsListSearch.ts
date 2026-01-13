@@ -1,13 +1,16 @@
+import storage from "../storage/storage";
 
 type SearchArrayResult =
     | { matched: false, match: undefined }
     | { matched: true, match: string }
 
 type SearchRegexResult =
-    | { matched: false, match: undefined }
-    | { matched: true, match: string[] }
+    | { matched: false, match: undefined, type: undefined }
+    | { matched: true, match: string[], type: string }
 
-export const searchRegexArray = (regexArray: RegExp[], url: string): SearchRegexResult => {
+export type SearchType = 'keyWord' | 'domain' | 'inline';
+
+export const searchRegexArray = async (regexArray: RegExp[], url: string, searchType?: SearchType): Promise<SearchRegexResult> => {
 
     if (!url.includes('/')) {
         url += '/';
@@ -23,21 +26,35 @@ export const searchRegexArray = (regexArray: RegExp[], url: string): SearchRegex
 
     const testStr = revHost + unescapedPath;
 
+    const domainsTypes = await storage.get('domainsTypes');
 
-    for (const regex of regexArray) {
+    for (let i = 0; i < regexArray.length; i++) {
+        const type = domainsTypes?.[i];
+
+        if (searchType) {
+            if (type !== searchType) continue;
+        } else {
+            if (type === 'inline') continue;
+        }
+
+        const regex = regexArray[i];
+        if (!regex) continue;
         const matchResult = regex.exec(testStr);
         if (matchResult && matchResult.index === 0 && matchResult[0]) {
             const rawGroups = [matchResult[0], ...Array.from(matchResult).slice(1)];
             const matchGroups = rawGroups.filter(g => g !== undefined) as string[];
+            console.log("match: ", matchGroups);
             return {
                 matched: true,
-                match: matchGroups
+                match: matchGroups,
+                type: type
             };
         }
     }
     return {
         matched: false,
-        match: undefined
+        match: undefined,
+        type: undefined
     };
 }
 

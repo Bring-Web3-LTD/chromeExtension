@@ -1,5 +1,6 @@
 .container {
     margin-top: 40px;
+   
 }
 
 .card {
@@ -10,6 +11,8 @@
     background: var(--optout-bg);
     padding: 16px;
     border-radius: var(--optout-radius);
+    min-height: 236px;
+
 }
 
 .title {
@@ -133,4 +136,61 @@
     justify-content: space-between;
     height: 353px;
     margin-top: 20px;
+}
+
+/* A/B Test Variant B: Button layout styles */
+.button_group_websites {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    padding: 0 16px;
+}
+
+.button_group_duration {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    padding: 0 16px;
+}
+
+.button_options {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.option_btn {
+    display: flex;
+    height: 32px;
+    padding: 9px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: var(--secondary-btn-radius);
+    border-width: var(--secondary-btn-border-w);
+    border-style: solid;
+    border-color: var(--secondary-btn-border-c);
+    background: transparent;
+    color: var(--secondary-btn-f-c);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+
+.option_btn_active {
+    background: var(--primary-btn-bg);
+    color: var(--primary-btn-f-c);
+    border-color: transparent;
 }

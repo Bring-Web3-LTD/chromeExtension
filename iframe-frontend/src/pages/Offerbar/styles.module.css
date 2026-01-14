@@ -1,0 +1,105 @@
+.offerbar {
+    background: var(--ob-bg, var(--popup-bg));
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-size: contain;
+    background-position: bottom right;
+    height: 100vh;
+    background-repeat: no-repeat;
+}
+
+.closeButton {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    top: 15px;
+    right: 11px;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.closeButton:hover {
+    background: var(--ob-close-btn-top-hover-bg);
+}
+
+.spacer {
+    height: 74px;
+}
+
+.offer_text_container {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+}
+
+.offer_text {
+    color: var(--ob-offer-text-f-c);
+    font-size: var(--ob-offer-text-f-s);
+    font-weight: var(--ob-offer-text-f-w);
+    line-height: var(--ob-offer-text-l-h);
+}
+
+.offer_amount {
+    color: var(--ob-offer-amount-f-c);
+    font-size: var(--ob-offer-amount-f-s);
+    font-weight: var(--ob-offer-amount-f-w);
+    line-height: var(--ob-offer-amount-l-h);
+}
+
+.activateButton {
+    margin-top: 19px;
+    border-radius: var(--ob-activate-btn-radius);
+    background: var(--ob-activate-btn-bg);
+    color: var(--ob-activate-btn-f-c);
+    font-size: var(--ob-activate-btn-f-s);
+    font-weight: var(--ob-activate-btn-f-w);
+    line-height: var(--ob-activate-btn-l-h);
+    border-color: var(--ob-activate-btn-border-c);
+    border-style: solid;
+    border-width: var(--ob-activate-btn-border-w);
+    width: 70px;
+    height: 23px;
+    cursor: pointer;
+}
+
+.optOutButton {
+    margin-top: 7px;
+    border-radius: var(--ob-opt-out-btn-radius);
+    background: var(--ob-opt-out-btn-bg);
+    color: var(--ob-opt-out-btn-f-c);
+    font-size: var(--ob-opt-out-btn-f-s);
+    line-height: var(--ob-opt-out-btn-l-h);
+    width: 70px;
+    height: 23px;
+    font-weight: var(--ob-opt-out-btn-f-w);
+    border-width: var(--ob-opt-out-btn-border-w);
+    border-style: solid;
+    border-color: var(--ob-opt-out-btn-border-c);
+    cursor: pointer;
+}
+
+.closeButtonBottom {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: var(--ob-close-btn-f-s);
+    font-weight: var(--ob-close-btn-f-w);
+    line-height: var(--ob-close-btn-l-h);
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: var(--ob-close-btn-f-c);
+    bottom: 66px;
+}

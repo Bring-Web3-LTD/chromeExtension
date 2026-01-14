@@ -30,6 +30,18 @@ export const iframeStyle: Styles = {
     }
 }
 
+export const offerbarStyle: Styles = {
+    default: {
+        animation: 'slideIn .3s ease-in-out',
+        width: '93px',
+        height: `482px`,
+        borderRadius: '100px 0 0 100px',
+        display: 'block',
+        top: '190px',
+        right: '0px'
+    }
+}
+
 export const notificationIframeStyle: Styles = {
     default: {
         iframe: {

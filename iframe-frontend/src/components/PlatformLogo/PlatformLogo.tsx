@@ -4,7 +4,7 @@ interface Props {
     platformName: string
     width?: number
     height?: number
-    size?: 'sm' | 'md'
+    size?: 'sm' | 'md' | 'ob'
 }
 
 const PlatformLogo = ({ platformName, size = 'md', width, height }: Props) => {

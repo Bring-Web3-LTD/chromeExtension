@@ -6,7 +6,7 @@ import rootLoader from './utils/loaders/rootLoader.ts'
 import removeTrailingSlash from './utils/removeTrailingSlash.ts'
 import { BASE_PATH } from './config.ts'
 import Activated from './pages/Activated/Activated.tsx'
-import OfferLine from './pages/OfferLine/OfferLine.tsx'
+import Offerbar from './pages/Offerbar/Offerbar.tsx'
 
 const router = createBrowserRouter([
     {
@@ -29,8 +29,8 @@ const router = createBrowserRouter([
                 element: <Activated />
             },
             {
-                path: '/offerline',
-                element: <OfferLine />
+                path: '/offerbar',
+                element: <Offerbar />
             }
         ],
     },

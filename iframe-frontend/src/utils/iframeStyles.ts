@@ -1,6 +1,6 @@
 
 interface Styles {
-    [key: string]: { [key: string]: string }
+    [key: string]: { [key: string]: { [key: string]: string } }
 }
 
 interface KeyFrames {
@@ -9,20 +9,24 @@ interface KeyFrames {
 
 export const iframeStyle: Styles = {
     default: {
-        animation: 'slideIn .3s ease-in-out',
-        width: '480px',
-        height: `435px`,
-        borderRadius: '8px',
-        display: 'block',
-        top: '10px'
+        iframe: {
+            animation: 'slideIn .3s ease-in-out',
+            width: '480px',
+            height: `435px`,
+            borderRadius: '8px',
+            display: 'block',
+            top: '10px'
+        }
     },
     argent: {
-        animation: 'slideIn .3s ease-in-out',
-        width: '360px',
-        height: `600px`,
-        borderRadius: '0px',
-        display: 'block',
-        top: '10px'
+        iframe: {
+            animation: 'slideIn .3s ease-in-out',
+            width: '360px',
+            height: `600px`,
+            borderRadius: '0px',
+            display: 'block',
+            top: '10px'
+        }
     }
 }
 
@@ -40,20 +44,25 @@ export const offerbarStyle: Styles = {
 
 export const notificationIframeStyle: Styles = {
     default: {
-        animation: 'slideIn .3s ease-in-out',
-        width: '480px',
-        height: `56px`,
-        borderRadius: '10px',
-        display: 'block',
-        top: '40px'
+        iframe: {
+            animation: 'slideIn .3s ease-in-out',
+            width: '480px',
+            height: `56px`,
+            borderRadius: '10px',
+            display: 'block',
+            top: '40px'
+        }
+
     },
     argent: {
-        animation: 'slideIn .3s ease-in-out',
-        width: '400px',
-        height: `50px`,
-        borderRadius: '10px',
-        display: 'block',
-        top: '40px'
+        iframe: {
+            animation: 'slideIn .3s ease-in-out',
+            width: '400px',
+            height: `50px`,
+            borderRadius: '10px',
+            display: 'block',
+            top: '40px'
+        }
     }
 }
 

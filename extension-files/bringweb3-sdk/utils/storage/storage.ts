@@ -7,24 +7,17 @@ const STORAGE_PREFIX = 'bring_';
 
 const cache = new StorageCache();
 
-const set = async (key: string, value: any, useCache: boolean = true, flags?: string[]) => {
-    let cacheValue = value;
+const set = async (key: string, value: any, useCache: boolean = true) => {
+    let cachedValue = value;
+    if (helpers[key]?.set) {
+        cachedValue = helpers[key].set(value);
+    }
+
     if (useCache) {
-        // Build RegExp[] if relevantDomains + flags provided
-        if (key === 'relevantDomains' && Array.isArray(value) && flags) {
-            try {
-                cacheValue = value.map((pattern, i) => new RegExp(pattern, flags[i] || ''));
-            } catch (error) {
-                console.error('Error building RegExp array in set:', error);
-            }
-        }
-        cache.set(key, cacheValue);
+        cache.set(key, cachedValue);
     }
 
     return new Promise<void>((resolve, reject) => {
-        if (helpers[key]?.set) {
-            value = helpers[key].set(value);
-        }
         chrome.storage.local.set({ [`${STORAGE_PREFIX}${key}`]: value }, () => {
             if (chrome.runtime.lastError) {
                 reject(chrome.runtime.lastError);
@@ -52,21 +45,6 @@ const get = async (key: string, useCache: boolean = true) => {
 
                 if (value && helpers[key]?.get) {
                     value = helpers[key].get(value);
-                }
-
-                // Build RegExp array for relevantDomains
-                if (key === 'relevantDomains' && Array.isArray(value)) {
-                    try {
-                        const flags = await get('flags', false);
-
-                        if (Array.isArray(flags)) {
-                            value = value.map((pattern, i) =>
-                                new RegExp(pattern, flags[i] || '')
-                            );
-                        }
-                    } catch (error) {
-                        console.error('Error building RegExp array:', error);
-                    }
                 }
 
                 // If the value is undefined, we don't want to cache it

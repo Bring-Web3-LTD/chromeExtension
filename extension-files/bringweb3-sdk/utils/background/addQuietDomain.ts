@@ -10,33 +10,41 @@ interface Payload {
     placement?: PlacementConfig  // Optional placement configuration from server
 }
 
-const addQuietDomain = async (domain: string, time: number, payload?: Payload, phase?: 'activated' | 'quiet') => {
-    if (!domain) return
-    let quietDomains = await storage.get(storageKey)
+const addQuietDomain = async (domain: string | string[], time: number, payload?: Payload, phase?: 'activated' | 'quiet') => {
+    if(!domain) return
+    const domains = Array.isArray(domain) ? domain : [domain]
+    
+    let [quietDomains, maxLength] = await Promise.all([
+        storage.get(storageKey),
+        storage.get('quietDomainsMaxLength')
+    ])
 
     if (!Array.isArray(quietDomains)) {
         quietDomains = []
     }
-    const maxLength = await storage.get('quietDomainsMaxLength')
     quietDomains = cleanupQuietDomains(quietDomains, maxLength)
 
     const now = Date.now()
     const end = now + time
 
-    const entry: any = {
-        domain,
-        time: [now, end],
-        phase: phase || 'quiet'
-    }
+    for (const singleDomain of domains) {
+        if (!singleDomain) continue
 
-    if (payload) {
-        entry.payload = payload
-    }
-    const existingIndex = quietDomains.findIndex((d: any) => d.domain === domain)
-    if (existingIndex >= 0) {
-        quietDomains[existingIndex] = entry
-    } else {
-        quietDomains.push(entry)
+        const entry: any = {
+            domain: singleDomain,
+            time: [now, end],
+            phase: phase || 'quiet'
+        }
+
+        if (payload) {
+            entry.payload = payload
+        }
+        const existingIndex = quietDomains.findIndex((d: any) => d.domain === singleDomain)
+        if (existingIndex >= 0) {
+            quietDomains[existingIndex] = entry
+        } else {
+            quietDomains.push(entry)
+        }
     }
 
     await storage.set(storageKey, quietDomains)

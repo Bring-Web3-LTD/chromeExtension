@@ -16,9 +16,12 @@ const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
 };
 
 export const updateCache = async () => {
-    const relevantDomainsCheck = await storage.get('relevantDomainsCheck') // This is an array with two elements: [cacheStart, cacheEnd]
-    const relevantDomainsList = await storage.get('relevantDomains')
-    let whitelist = await storage.get('redirectsWhitelist')
+    const [relevantDomainsCheck, relevantDomainsList, whitelistRaw] = await Promise.all([
+        storage.get('relevantDomainsCheck'),
+        storage.get('relevantDomains'),
+        storage.get('redirectsWhitelist')
+    ])
+    let whitelist = whitelistRaw
     const whitelistEndpoint = ApiEndpoint.getInstance().getWhitelistEndpoint()
 
     let trigger: string | null = null
@@ -58,18 +61,11 @@ export const updateCache = async () => {
             whitelist = await fetchWhitelist()
 
             const storageUpdates = [
-                storage.set('relevantDomains', relevantDomains, true, flags),
+                storage.set('relevantDomains', { regexes: relevantDomains, flags }),
                 storage.set('relevantDomainsCheck', [now, now + nextUpdateTimestamp]),
-                storage.set('postPurchaseUrls', postPurchaseUrls)
+                storage.set('postPurchaseUrls', postPurchaseUrls),
+                storage.set('domainsTypes', types)
             ]
-
-            if (flags) {
-                storageUpdates.push(storage.set('flags', flags))
-            }
-
-            if (types) {
-                storageUpdates.push(storage.set('domainsTypes', types))
-            }
 
             if (quietDomainsMaxLength) {
                 storageUpdates.push(storage.set('quietDomainsMaxLength', quietDomainsMaxLength))

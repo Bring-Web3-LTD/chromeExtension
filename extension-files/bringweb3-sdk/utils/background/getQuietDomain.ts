@@ -1,7 +1,7 @@
 import { DAY_MS } from "../constants"
 import storage from "../storage/storage"
 import { isMsRangeActive } from "./timestampRange"
-import { searchArray } from "./domainsListSearch"
+import { searchSingle } from "./domainsListSearch"
 
 type Phases = 'new' | 'activated' | 'quiet'
 
@@ -21,28 +21,27 @@ const getQuietDomain = async (url: string): Promise<Response> => {
 
     let phase: Phases = 'new'
     let payload: Payload = {}
-    let matchedKey: string | null = null
 
-    const keys = quietDomains.map((d: any) => d.domain)
-    const result = searchArray(keys, url)
-    if (result.matched) {
-        matchedKey = result.match
-    }
-    if (matchedKey) {
-        const entry = quietDomains.find((d: any) => d.domain === matchedKey)
-        const { time } = entry
-        const isActive = isMsRangeActive(time, undefined, { maxRange: 60 * DAY_MS })        
-        if (!isActive) {
-            const filtered = quietDomains.filter((d: any) => d.domain !== matchedKey)
-            await storage.set('quietDomains', filtered)
-        } else {
-            phase = entry.phase || 'quiet'
-            payload = entry.payload || {}
-            if (phase === 'activated') {
-                entry.phase = 'quiet'
-                if (entry.payload) delete entry.payload
+    for (let i = 0; i < quietDomains.length; i++) {
+        const entry = quietDomains[i]
+        
+        if (searchSingle(entry.domain, url)) {
+            const { time } = entry
+            const isActive = isMsRangeActive(time, undefined, { maxRange: 60 * DAY_MS })
+            
+            if (!isActive) {
+                quietDomains.splice(i, 1)
                 await storage.set('quietDomains', quietDomains)
+            } else {
+                phase = entry.phase || 'quiet'
+                payload = entry.payload || {}
+                if (phase === 'activated') {
+                    entry.phase = 'quiet'
+                    if (entry.payload) delete entry.payload
+                    await storage.set('quietDomains', quietDomains)
+                }
             }
+            break
         }
     }
     

@@ -29,28 +29,22 @@ export const uint8ArrayToStr = (blob: Uint8Array): string => {
 
 const helpers: Helpers = {
     relevantDomains: {
-        get: (str: string) => JSON.parse(str),
-        set: (arr: string[]) => JSON.stringify(arr)
-    },
-    redirectsWhitelist: {
-        get: (str: string) => JSON.parse(str),
-        set: (arr: string[]) => JSON.stringify(arr)
-    },
-    portalRelevantDomains: {
-        get: (str: string) => JSON.parse(str),
-        set: (arr: string[]) => JSON.stringify(arr)
-    },
-    postPurchaseUrls: {
-        get: (str: string) => JSON.parse(str),
-        set: (arr: string[]) => JSON.stringify(arr)
-    },
-    flags: {
-        get: (str: string) => JSON.parse(str),
-        set: (arr: string[]) => JSON.stringify(arr)
-    },
-    domainsTypes: {
-        get: (str: string) => JSON.parse(str),
-        set: (arr: string[]) => JSON.stringify(arr)
+        get: (obj: { regexes: string[], flags: string[] }) => {
+            try {
+                return obj.regexes.map((pattern, i) => new RegExp(pattern, obj.flags[i] || ''))
+            } catch (error) {
+                console.error('Error building RegExp array in helper.get:', error)
+                return null
+            }
+        },
+        set: (obj: { regexes: string[], flags: string[] }) => {
+            try {
+                return obj.regexes.map((pattern, i) => new RegExp(pattern, obj.flags[i] || ''))
+            } catch (error) {
+                console.error('Error building RegExp array in helper.set:', error)
+                return null
+            }
+        }
     }
 }
 

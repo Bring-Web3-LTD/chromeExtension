@@ -40,6 +40,9 @@ const tabStates = new Map<number, TabState>();
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[], urlMatch?: string | string[]) => {
+
+        if (isInlineSearch && tabStates.get(tabId)?.urlSearch == 'injected') return;
+
         const url = parseUrl(urlToCheck);
 
         const { matched, match, type } = isInlineSearch ? await getRelevantDomain(urlToCheck, "domain") : await getRelevantDomain(urlToCheck);
@@ -106,23 +109,23 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                     inlineMatch: inlineMatch
                 }),
                 ...(!isInlineSearch && {
-                   urlMatch: match
+                    urlMatch: match
                 })
             }
         });
-        
+
         if (!popupData.time) popupData.time = DAY_MS;
 
         if (popupData.isValid === false) {
             addQuietDomain(popupData.verifiedMatch, popupData.time);
-            
+
             if (isInlineSearch) return;
-            
+
             const state = tabStates.get(tabId)!;
             state.urlSearch = 'rejected';
-            
+
             if (!state.inlineSearch) return;
-            
+
             popupData = state.inlineSearch;
         }
 

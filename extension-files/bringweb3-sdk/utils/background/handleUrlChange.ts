@@ -19,16 +19,19 @@ import { isMsRangeActive } from "./timestampRange";
 type UrlSearchStatus = 'pending' | 'injected' | 'rejected' | null;
 
 interface InlineSearchData {
-    token: string;
-    isValid: boolean;
-    iframeUrl: string;
-    networkUrl: string;
-    flowId: string;
-    time: number;
-    portalReferrers?: string[];
-    placement?: any;
-    isOfferLine: boolean;
-    verifiedMatch: string;
+    status: "matched" | null;
+    popupData: {
+        token: string;
+        isValid: boolean;
+        iframeUrl: string;
+        networkUrl: string;
+        flowId: string;
+        time: number;
+        portalReferrers?: string[];
+        placement?: any;
+        isOfferLine: boolean;
+        verifiedMatch: string;
+    } | null;
 }
 
 interface TabState {
@@ -51,6 +54,18 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
             return;
         };
+
+        if (isInlineSearch) {
+            const state = tabStates.get(tabId);
+            if (state?.inlineSearch?.status === "matched") {
+                return;
+            }
+            if (!state) {
+                tabStates.set(tabId, { urlSearch: null, inlineSearch: { status: "matched", popupData: null } });
+            } else {
+                state.inlineSearch = { status: "matched", popupData: null };
+            }
+        }
 
         const { phase, payload } = await getQuietDomain(url);
 
@@ -124,9 +139,9 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             const state = tabStates.get(tabId)!;
             state.urlSearch = 'rejected';
 
-            if (!state.inlineSearch) return;
+            if (!state.inlineSearch?.popupData) return;
 
-            popupData = state.inlineSearch;
+            popupData = state.inlineSearch.popupData;
         }
 
         if (!await isWhitelisted(popupData.networkUrl)) return;
@@ -137,7 +152,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             const state = tabStates.get(tabId);
             if (state?.urlSearch === 'injected') return;
             if (state?.urlSearch === 'pending') {
-                state.inlineSearch = popupData;
+                state.inlineSearch = { status: "matched", popupData };
                 return;
             }
         }

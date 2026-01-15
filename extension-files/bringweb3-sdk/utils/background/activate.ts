@@ -5,7 +5,6 @@ import getCashbackUrl from "./getCashbackUrl";
 import isWhitelisted from "./isWhitelisted";
 import { DAY_MS } from "../constants";
 import closeAllPopups from "./closeAllPopups";
-import { compress } from "./domainsListCompression";
 
 const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string) => {
     const now = Date.now();
@@ -15,7 +14,7 @@ const handleActivate = async (domain: string, extensionId: string, source: strin
     if (isSameExtension) {
         const storageOps = [storage.set('lastActivation', now)];
 
-        if (source === 'portal') storageOps.push(storage.set('portalRelevantDomains', compress([domain])))
+        if (source === 'portal') storageOps.push(storage.set('portalRelevantDomains', [domain]))
 
         await Promise.all(storageOps);
     }

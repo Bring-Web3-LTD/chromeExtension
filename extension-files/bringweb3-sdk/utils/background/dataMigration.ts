@@ -1,7 +1,7 @@
 import storage from "../storage/storage"
 import { v4 as uuidv4, validate } from "uuid";
 
-const CURRENT_MIGRATION_VERSION = 3;
+const CURRENT_MIGRATION_VERSION = 4;
 
 const migrateObject = async (key: string, now: number) => {
     const obj = await storage.get(key);
@@ -78,6 +78,36 @@ const runMigrationThree = async () => {
     }
 }
 
+const runMigrationFour = async () => {
+    try {
+        // Step 1: Merge optOutDomains into quietDomains
+        const quietDomains = await storage.get('quietDomains') || {}
+        const optOutDomains = await storage.get('optOutDomains') || {}
+        
+        for (const [domain, time] of Object.entries(optOutDomains)) {
+            if (!quietDomains[domain]) {
+                quietDomains[domain] = { 
+                    time, 
+                    phase: 'quiet' 
+                }
+            }
+        }
+        
+        await storage.remove('optOutDomains')
+        
+        // Step 2: Convert dictionary to array
+        const array = Object.entries(quietDomains).map(([domain, value]) => ({
+            domain,
+            ...(value as any)
+        }))
+        
+        await storage.set('quietDomains', array)
+        return true
+    } catch (error) {
+        return false
+    }
+}
+
 export const checkAndRunMigration = async () => {
     const migrationVersion = await storage.get('migrationVersion') || 0;
 
@@ -89,9 +119,12 @@ export const checkAndRunMigration = async () => {
         const isSucceed = await runMigrationTwo();
         if (isSucceed) await storage.set('migrationVersion', 2);
     }
-
-    if (migrationVersion < CURRENT_MIGRATION_VERSION) {
+    if (migrationVersion < 3) {
         const isSucceed = await runMigrationThree();
+        if (isSucceed) await storage.set('migrationVersion', 3);
+    }
+    if (migrationVersion < CURRENT_MIGRATION_VERSION) {
+        const isSucceed = await runMigrationFour();
         if (isSucceed) await storage.set('migrationVersion', CURRENT_MIGRATION_VERSION);
     }
 }

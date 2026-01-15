@@ -80,7 +80,8 @@ declare global {
         flowId?: string
         platformName?: string
         searchTermPattern?: string
-        offerlineDomain?: string
+        offerlineDomain?: string,
+        type?: string | string[]
     }
 
     interface GoogleAnalyticsContextType {

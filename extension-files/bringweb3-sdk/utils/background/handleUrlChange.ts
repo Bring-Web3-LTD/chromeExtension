@@ -1,6 +1,7 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
 import { DAY_MS } from "../constants";
+import getDomain from "../getDomain";
 import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
@@ -14,28 +15,59 @@ import isWhitelisted from "./isWhitelisted";
 import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
-import checkOptOutDomain from "./checkOptOutDomain";
+
+type UrlSearchStatus = 'pending' | 'injected' | 'rejected' | null;
+
+interface InlineSearchData {
+    status: "matched" | null;
+    popupData: {
+        token: string;
+        isValid: boolean;
+        iframeUrl: string;
+        networkUrl: string;
+        flowId: string;
+        time: number;
+        portalReferrers?: string[];
+        placement?: any;
+        isOfferLine: boolean;
+        verifiedMatch: string;
+    } | null;
+}
+
+interface TabState {
+    urlSearch: UrlSearchStatus;
+    inlineSearch: InlineSearchData | null;
+}
+
+const tabStates = new Map<number, TabState>();
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
-    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-        if (!changeInfo.url || !tab?.url?.startsWith('http')) return
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[], urlMatch?: string | string[]) => {
 
-        const url = parseUrl(tab.url);
+        if (isInlineSearch && tabStates.get(tabId)?.urlSearch == 'injected') return;
 
-        const isPopupEnabled = await storage.get('popupEnabled');
+        const url = parseUrl(urlToCheck);
 
-        if (!isPopupEnabled) return;
-
-        await checkPostPurchasePage(tab.url);
-
-        const { matched, match } = await getRelevantDomain(tab.url);
+        const { matched, match, type } = isInlineSearch ? await getRelevantDomain(urlToCheck, "domain") : await getRelevantDomain(urlToCheck);
 
         if (!matched) {
             await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
             return;
         };
 
-        const { phase, payload } = await getQuietDomain(match, url);
+        if (isInlineSearch) {
+            const state = tabStates.get(tabId);
+            if (state?.inlineSearch?.status === "matched") {
+                return;
+            }
+            if (!state) {
+                tabStates.set(tabId, { urlSearch: null, inlineSearch: { status: "matched", popupData: null } });
+            } else {
+                state.inlineSearch = { status: "matched", popupData: null };
+            }
+        }
+
+        const { phase, payload } = await getQuietDomain(url);
 
         if (phase === 'new') {
             const now = Date.now();
@@ -46,10 +78,6 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 return;
             } else {
                 await storage.remove('optOut')
-            }
-
-            if (await checkOptOutDomain(match, url)) {
-                return;
             }
         } else if (phase === 'activated') {
             const userId = await getUserId()
@@ -72,41 +100,81 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         }
 
         const address = await getWalletAddress(tabId);
+        const quietDomains = await storage.get('quietDomains') || [];
 
-        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement, isOfferLine, searchTermPattern} = await validateDomain({
+        if (!tabStates.has(tabId)) {
+            tabStates.set(tabId, { urlSearch: null, inlineSearch: null });
+        }
+
+        if (!isInlineSearch) {
+            tabStates.get(tabId)!.urlSearch = 'pending';
+        }
+
+        let popupData = await validateDomain({
             body: {
-                domain: match,
                 phase,
-                url: tab.url,
-                address
+                url: tab.url!,
+                address,
+                type: isInlineSearch ? 'inline' : type,
+                quietDomains,
+                ...(isInlineSearch && {
+                    link: urlToCheck,
+                    linkMatch: match,
+                    urlMatch: urlMatch,
+                    inlineMatch: inlineMatch
+                }),
+                ...(!isInlineSearch && {
+                    urlMatch: match
+                })
             }
         });
 
-        if (isValid === false) {
-            isOfferLine ? addQuietDomain(searchTermPattern, time) : addQuietDomain(match, time);
-            return;
+        if (!popupData.time) popupData.time = DAY_MS;
+
+        if (popupData.isValid === false) {
+            addQuietDomain(popupData.verifiedMatch, popupData.time);
+
+            if (isInlineSearch) return;
+
+            const state = tabStates.get(tabId)!;
+            state.urlSearch = 'rejected';
+
+            if (!state.inlineSearch?.popupData) return;
+
+            popupData = state.inlineSearch.popupData;
         }
 
-        if (!await isWhitelisted(networkUrl)) return;
+        if (!await isWhitelisted(popupData.networkUrl)) return;
+
+        if (!isInlineSearch) {
+            tabStates.get(tabId)!.urlSearch = 'injected';
+        } else {
+            const state = tabStates.get(tabId);
+            if (state?.urlSearch === 'injected') return;
+            if (state?.urlSearch === 'pending') {
+                state.inlineSearch = { status: "matched", popupData };
+                return;
+            }
+        }
 
         const userId = await getUserId()
 
         const res = await sendMessage(tabId, {
             action: 'INJECT',
-            token,
-            domain: url,
-            iframeUrl,
+            token: popupData.token,
+            domain: parseUrl(tab.url!),
+            iframeUrl: popupData.iframeUrl,
             userId,
-            referrers: portalReferrers,
-            page: isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
-            flowId,
-            placement
+            referrers: popupData.portalReferrers,
+            page: popupData.isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
+            flowId: popupData.flowId,
+            placement: popupData.placement
         });
 
         if (res?.action) {
             switch (res.action) {
                 case 'activate':
-                    handleActivate(match, chrome.runtime.id, 'popup', cashbackPagePath, time, tabId)
+                    handleActivate(popupData.verifiedMatch, chrome.runtime.id, 'popup', cashbackPagePath, popupData.time, tabId)
                     break;
                 default:
                     console.error(`Unknown action: ${res.action}`);
@@ -119,11 +187,48 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 type: 'no_popup',
                 userId,
                 walletAddress: address,
-                details: { url: tab.url, match, iframeUrl, reason: res?.message, status: res?.status },
-                flowId
+                details: { url: urlToCheck, match, iframeUrl: popupData.iframeUrl, reason: res?.message, status: res?.status },
+                flowId: popupData.flowId
             })
         }
+    };
+    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+        if (!tab?.url?.startsWith('http')) return
+
+        const isPopupEnabled = await storage.get('popupEnabled');
+
+        if (!isPopupEnabled) return;
+
+        if (changeInfo.url) {
+            tabStates.delete(tabId);
+            await checkPostPurchasePage(tab.url);
+            validateAndInject(tab.url, tabId, tab, false);
+        }
+
+        if (changeInfo.status === 'complete') {
+            const inlineSearchResult = await getRelevantDomain(tab.url, "inline");
+            if (!inlineSearchResult.matched) return;
+
+            const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "inline");
+            if (quietInlineSearch.phase === 'quiet') return;
+
+            const urlSearchResult = await getRelevantDomain(tab.url);
+
+            const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });
+
+            if (response?.status !== 'success' || !response.links?.length) return;
+
+            const uniqueLinks = [...new Set(response.links)] as string[];
+
+            await Promise.allSettled(
+                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match, urlSearchResult.match))
+            );
+        }
     })
+
+    chrome.tabs.onRemoved.addListener((tabId) => {
+        tabStates.delete(tabId);
+    });
 }
 
 export default handleUrlChange;

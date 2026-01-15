@@ -40,6 +40,7 @@ interface BringEvent {
         token?: string
         flowId?: string
         platformName?: string
-        searchTermPattern?: string
+        searchTermPattern?: string,
+        type
     }
 }

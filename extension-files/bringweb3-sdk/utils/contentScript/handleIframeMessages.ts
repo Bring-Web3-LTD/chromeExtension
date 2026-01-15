@@ -26,7 +26,7 @@ const UNION_ACTIONS = [ACTIONS.ACTIVATE]
 const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
     if (!event?.data) return
 
-    const { from, action, style, keyFrames, time, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName, searchTermPattern } = event.data
+    const { from, action, style, keyFrames, time, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName, searchTermPattern, type } = event.data
     if (from !== 'bringweb3') return
 
     // If the event comes from another extension that installed our package, ignore it (unless it ACTIVATE action)
@@ -63,7 +63,7 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
             chrome.runtime.sendMessage({ action, time, from: "bringweb3" })
             break;
         case ACTIONS.OPT_OUT_SPECIFIC:
-            chrome.runtime.sendMessage({ action, domain, time, from: "bringweb3" })
+            chrome.runtime.sendMessage({ action, domain, time, type, from: "bringweb3" })
             break;
         case ACTIONS.ERASE_NOTIFICATION:
             chrome.runtime.sendMessage({ action, from: "bringweb3" })

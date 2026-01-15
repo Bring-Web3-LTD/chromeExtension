@@ -1,6 +1,5 @@
 import storage from "../storage/storage"
 import handleActivate from "./activate"
-import addOptOutDomain from "./addOptOutDomain"
 import addQuietDomain from "./addQuietDomain"
 import checkNotifications from "./checkNotifications"
 import getCashbackUrl from "./getCashbackUrl"
@@ -39,12 +38,12 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'OPT_OUT_SPECIFIC': {
-                const { domain, time } = request
+                const { domain, time, type } = request
                 if (!domain || (Array.isArray(domain) && domain.length === 0)) {
                     sendResponse({ error: 'Missing domain' })
                     return true
                 }
-                addOptOutDomain(domain, time).then(res => sendResponse(res))
+                addQuietDomain(domain, time, undefined, undefined, type).then(res => sendResponse(res))
                 return true;
             }
             case 'GET_POPUP_ENABLED': {

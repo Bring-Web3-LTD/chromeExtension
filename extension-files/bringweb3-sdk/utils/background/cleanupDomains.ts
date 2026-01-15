@@ -2,8 +2,10 @@ import { DAY_MS } from "../constants"
 import { isMsRangeActive } from "./timestampRange"
 
 interface QuietDomainEntry {
+    domain: string
     time: [number, number]
     phase: 'activated' | 'quiet'
+    type?: string
     payload?: {
         iframeUrl?: string
         token?: string

@@ -48,7 +48,8 @@ const OfferLineOptOut = ({ onClose }: Props) => {
 
         const event: Message = {
             action: ACTIONS.OPT_OUT_SPECIFIC,
-            domain: ['google.com', 'amazon.com'],
+            domain: ['google.com', 'amazon.com','google.com'],
+            type:["domain", "domain", "inline"],
             time: +duration.value,
             key: dict[duration.label as keyof typeof dict]
         }

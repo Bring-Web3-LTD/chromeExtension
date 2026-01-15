@@ -209,6 +209,9 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             const inlineSearchResult = await getRelevantDomain(tab.url, "inline");
             if (!inlineSearchResult.matched) return;
 
+            const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "inline");
+            if (quietInlineSearch.phase === 'quiet') return;
+
             const urlSearchResult = await getRelevantDomain(tab.url);
 
             const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });

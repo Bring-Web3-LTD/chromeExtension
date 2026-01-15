@@ -222,6 +222,10 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             );
         }
     })
+
+    chrome.tabs.onRemoved.addListener((tabId) => {
+        tabStates.delete(tabId);
+    });
 }
 
 export default handleUrlChange;

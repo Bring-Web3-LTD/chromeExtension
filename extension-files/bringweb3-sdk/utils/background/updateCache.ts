@@ -6,14 +6,6 @@ import { ApiEndpoint } from "../apiEndpoint"
 import { isMsRangeExpired } from "./timestampRange"
 
 let pending: Promise<any> | null = null;
-const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
-    return Promise.race([
-        promise,
-        new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error(`Operation timed out after ${ms}ms`)), ms)
-        )
-    ]);
-};
 
 export const updateCache = async () => {
     const [relevantDomainsCheck, relevantDomainsList, whitelistRaw] = await Promise.all([
@@ -54,8 +46,8 @@ export const updateCache = async () => {
     if (pending) return pending;
     return pending = (async () => {
         try {
-
-            const res = await withTimeout(fetchDomains(trigger), 120000);
+            console.log("pending");
+            const res = await fetchDomains(trigger, 120000);
             const { nextUpdateTimestamp, relevantDomains, postPurchaseUrls, flags, types, quietDomainsMaxLength } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
 
             whitelist = await fetchWhitelist()

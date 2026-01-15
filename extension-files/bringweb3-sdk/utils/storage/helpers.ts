@@ -27,24 +27,19 @@ export const uint8ArrayToStr = (blob: Uint8Array): string => {
     return btoa(arr.join(''))
 }
 
+const buildRegExpArray = (obj: { regexes: string[], flags: string[] }) => {
+    try {
+        return obj.regexes.map((pattern, i) => new RegExp(pattern, obj.flags[i] || ''))
+    } catch (error) {
+        console.error('Error building RegExp array:', error)
+        return null
+    }
+}
+
 const helpers: Helpers = {
     relevantDomains: {
-        get: (obj: { regexes: string[], flags: string[] }) => {
-            try {
-                return obj.regexes.map((pattern, i) => new RegExp(pattern, obj.flags[i] || ''))
-            } catch (error) {
-                console.error('Error building RegExp array in helper.get:', error)
-                return null
-            }
-        },
-        set: (obj: { regexes: string[], flags: string[] }) => {
-            try {
-                return obj.regexes.map((pattern, i) => new RegExp(pattern, obj.flags[i] || ''))
-            } catch (error) {
-                console.error('Error building RegExp array in helper.set:', error)
-                return null
-            }
-        }
+        get: buildRegExpArray,
+        set: buildRegExpArray
     }
 }
 

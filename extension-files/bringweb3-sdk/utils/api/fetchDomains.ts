@@ -2,7 +2,7 @@ import { ApiEndpoint } from "../apiEndpoint"
 import { strToUint8Array } from "../storage/helpers"
 import apiRequest from "./apiRequest"
 
-const fetchDomains = async (trigger?: string | null) => {
+const fetchDomains = async (trigger?: string | null, timeout?: number) => {
     const whitelistEndpoint = ApiEndpoint.getInstance().getWhitelistEndpoint()
 
     const request: Parameters<typeof apiRequest>[0] = {
@@ -18,7 +18,7 @@ const fetchDomains = async (trigger?: string | null) => {
 
     if (trigger) request.params.trigger = trigger
 
-    const res = await apiRequest(request)
+    const res = await apiRequest(request, timeout)
 
 
     return res

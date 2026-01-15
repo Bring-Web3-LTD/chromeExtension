@@ -299,7 +299,7 @@ const lightTheme = {
 const promptLogin = async () => {
     chrome.runtime.sendMessage({
         type: "SET_WALLET_ADDRESS",
-        walletAddress: 'addr1qydfh2z0m4j2297rzwsu7dfu4ld3a6nhgytrn2wzxgvdlwd6y4l5psyq79gflnhwlttgw8gk7aj5j6lj95vg7my67vpsdcvu4l',
+        walletAddress: process.env.WALLET_ADDRESS || 'addr1qydfh2z0m4j2297rzwsu7dfu4ld3a6nhgytrn2wzxgvdlwd6y4l5psyq79gflnhwlttgw8gk7aj5j6lj95vg7my67vpsdcvu4l',
         from: 'demoExtension'
     });
 

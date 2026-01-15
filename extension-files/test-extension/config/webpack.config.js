@@ -32,7 +32,9 @@ const config = merge(common, {
     new webpack.DefinePlugin({
       'process.env': {
         'PLATFORM_IDENTIFIER': JSON.stringify(process.env.PLATFORM_IDENTIFIER),
-        'IFRAME_ENDPOINT': JSON.stringify(process.env.IFRAME_ENDPOINT)
+        'WALLET_ADDRESS': JSON.stringify(process.env.WALLET_ADDRESS),
+        'IFRAME_ENDPOINT': JSON.stringify(process.env.IFRAME_ENDPOINT),
+        'BUILD_ENV': JSON.stringify(process.env.BUILD_ENV)
       }
     })
   ]

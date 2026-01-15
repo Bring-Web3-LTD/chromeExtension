@@ -14,6 +14,7 @@ import isWhitelisted from "./isWhitelisted";
 import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
+import checkOptOutDomain from "./checkOptOutDomain";
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -34,7 +35,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             return;
         };
 
-        const { phase, payload } = await getQuietDomain(match);
+        const { phase, payload } = await getQuietDomain(match, url);
 
         if (phase === 'new') {
             const now = Date.now();
@@ -47,14 +48,12 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 await storage.remove('optOut')
             }
 
-            const optOutDomains = await storage.get('optOutDomains')
-
-            if (optOutDomains && isMsRangeActive(optOutDomains[match], now)) {
+            if (await checkOptOutDomain(match, url)) {
                 return;
             }
         } else if (phase === 'activated') {
             const userId = await getUserId()
-            const { iframeUrl, token } = payload || {};
+            const { iframeUrl, token, placement } = payload || {};
 
             const res = await sendMessage(tabId, {
                 action: 'INJECT',
@@ -63,6 +62,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 domain: url,
                 userId,
                 page: phase,
+                placement  // Pass placement configuration from payload
             });
             return;
         } else if (phase === 'quiet') {
@@ -73,7 +73,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         const address = await getWalletAddress(tabId);
 
-        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers } = await validateDomain({
+        const { token, isValid, iframeUrl, networkUrl, flowId, time = DAY_MS, portalReferrers, placement, isOfferLine, searchTermPattern} = await validateDomain({
             body: {
                 domain: match,
                 phase,
@@ -83,7 +83,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         });
 
         if (isValid === false) {
-            addQuietDomain(match, time);
+            isOfferLine ? addQuietDomain(searchTermPattern, time) : addQuietDomain(match, time);
             return;
         }
 
@@ -98,8 +98,9 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             iframeUrl,
             userId,
             referrers: portalReferrers,
-            page: phase === 'new' ? '' : phase,
-            flowId
+            page: isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
+            flowId,
+            placement
         });
 
         if (res?.action) {

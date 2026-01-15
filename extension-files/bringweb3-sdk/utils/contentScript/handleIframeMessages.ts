@@ -1,5 +1,6 @@
 import applyStyles from "./applyStyles"
 import addKeyframes from "./addKeyFrames"
+import { OFFERLINE_CONTAINER_ID } from "../constants"
 
 interface Props {
     event: BringEvent
@@ -25,7 +26,7 @@ const UNION_ACTIONS = [ACTIONS.ACTIVATE]
 const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
     if (!event?.data) return
 
-    const { from, action, style, keyFrames, time, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName } = event.data
+    const { from, action, style, keyFrames, time, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName, searchTermPattern } = event.data
     if (from !== 'bringweb3') return
 
     // If the event comes from another extension that installed our package, ignore it (unless it ACTIVATE action)
@@ -33,10 +34,23 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
 
     switch (action) {
         case ACTIONS.OPEN:
-            applyStyles(iframeEl, style)
+            const container = document.getElementById(OFFERLINE_CONTAINER_ID);
+            if (container && style && 'parent' in style) {
+                applyStyles(container, style.parent);
+            }
+            if (style && 'iframe' in style) {
+                applyStyles(iframeEl, style.iframe);
+            }
             break;
         case ACTIONS.CLOSE:
-            if (iframeEl) iframeEl.parentNode?.removeChild(iframeEl)
+            if (iframeEl) {
+                const container = document.getElementById(OFFERLINE_CONTAINER_ID);
+                if (container && container.contains(iframeEl)) {
+                    container.parentNode?.removeChild(container);
+                } else {
+                    iframeEl.parentNode?.removeChild(iframeEl);
+                }
+            }
             if (time) chrome.runtime.sendMessage({ action, time, domain, from: "bringweb3" })
             break;
         case ACTIONS.PROMPT_LOGIN:

@@ -166,7 +166,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             iframeUrl: popupData.iframeUrl,
             userId,
             referrers: popupData.portalReferrers,
-            page: popupData.isOfferLine ? 'offerline' : (phase === 'new' ? '' : phase),
+            page: popupData.isOfferLine ? 'offerbar' : (phase === 'new' ? '' : phase),
             flowId: popupData.flowId,
             placement: popupData.placement
         });

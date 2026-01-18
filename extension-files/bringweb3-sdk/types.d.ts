@@ -41,6 +41,7 @@ interface BringEvent {
         flowId?: string
         platformName?: string
         searchTermPattern?: string,
-        type
+        type?: string | string[],
+        quietDomainType?: string
     }
 }

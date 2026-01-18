@@ -43,7 +43,7 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                     sendResponse({ error: 'Missing domain' })
                     return true
                 }
-                addQuietDomain(domain, time, undefined, undefined, type).then(res => sendResponse(res))
+                addQuietDomain(domain, time, type).then(res => sendResponse(res))
                 return true;
             }
             case 'GET_POPUP_ENABLED': {
@@ -63,9 +63,9 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'CLOSE': {
-                const { time, domain } = request
+                const { time, domain, quietDomainType } = request
                 if (!domain) return true;
-                addQuietDomain(domain, time)
+                addQuietDomain(domain, time, quietDomainType)
                 sendResponse({ message: 'domain added to quiet list' })
                 return true;
             }

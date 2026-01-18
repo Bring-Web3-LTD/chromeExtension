@@ -8,7 +8,7 @@ type SearchRegexResult =
     | { matched: false, match: undefined, type: undefined }
     | { matched: true, match: string[], type: string }
 
-export type SearchType = 'keyWord' | 'domain' | 'inline';
+export type SearchType = 'k' | 'd' | 'i';
 
 export const searchRegexArray = async (regexArray: RegExp[], url: string, searchType?: SearchType): Promise<SearchRegexResult> => {
 
@@ -34,7 +34,7 @@ export const searchRegexArray = async (regexArray: RegExp[], url: string, search
         if (searchType) {
             if (type !== searchType) continue;
         } else {
-            if (type === 'inline') continue;
+            if (type === 'i') continue;
         }
 
         const regex = regexArray[i];

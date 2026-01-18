@@ -10,7 +10,7 @@ interface Payload {
     placement?: PlacementConfig  // Optional placement configuration from server
 }
 
-const addQuietDomain = async (domain: string | string[], time: number, payload?: Payload, phase?: 'activated' | 'quiet', type?: string | string[]) => {
+const addQuietDomain = async (domain: string | string[], time: number, type: string | string[], payload?: Payload, phase?: 'activated' | 'quiet') => {
     if(!domain) return
     const domains = Array.isArray(domain) ? domain : [domain]
     const types = type ? (Array.isArray(type) ? type : [type]) : undefined

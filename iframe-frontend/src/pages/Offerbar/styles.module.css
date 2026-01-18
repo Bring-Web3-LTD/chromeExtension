@@ -103,3 +103,7 @@
     color: var(--ob-close-btn-f-c);
     bottom: 66px;
 }
+
+.closeButtonBottom:hover img {
+    opacity: 0.8;
+}

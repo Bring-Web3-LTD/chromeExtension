@@ -68,7 +68,7 @@ const Optout = ({ closeFn }: Props) => {
                             </button>
                         ))}
                         <button id="optout-back-btn" className={styles.backBtn} onClick={closeFn} disabled={isOpted}>
-                            {toCaseString('Back', textMode)}
+                            Back
                         </button>
                     </div>
                 </> :

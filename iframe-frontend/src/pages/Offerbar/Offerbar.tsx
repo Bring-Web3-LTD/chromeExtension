@@ -131,7 +131,7 @@ const Offerbar = () => {
         </>
       }
       <button id="offerbar-close-btn-bottom" className={styles.closeButtonBottom} onClick={close}>
-        <img src={`${iconsPath}/close-icon.svg`} alt="" />
+        <img id='offerbar-close-btn-bottom-icon' src={`${iconsPath}/close-icon.svg`} alt="" />
         <span id="offerbar-close-text">
           {toCaseString('Close', textMode)}
         </span>

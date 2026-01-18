@@ -16,24 +16,29 @@ import { ACTIVATE_QUIET_TIME } from '../../config'
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const Offerbar = () => {
-  const { 
-    platformName, 
-    iconsPath, 
-    textMode, 
-    domain, 
-    cryptoSymbols, 
-    maxCashback, 
-    cashbackSymbol, 
-    cashbackCurrency, 
+  const {
+    platformName,
+    iconsPath,
+    textMode,
+    domain,
+    cryptoSymbols,
+    maxCashback,
+    cashbackSymbol,
+    cashbackCurrency,
     version,
     flowId,
     name,
     userId,
     retailerId,
     url,
+    offerlineDomain,
+    offerlineSearch,
+    networkUrl,
+    isOfferLine,
+    searchTermPattern
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
-  const [isActivating, setIsActivating] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
   const { sendGaEvent } = useGoogleAnalytics()
   const { walletAddress } = useWalletAddress()
 
@@ -47,29 +52,27 @@ const Offerbar = () => {
   }
 
   const handleActivate = useCallback(async () => {
-    if (isActivating || !walletAddress) {
-      if (!walletAddress) {
-        sendMessage({ action: ACTIONS.PROMPT_LOGIN })
-      }
-      return
-    }
-
-    setIsActivating(true)
+    setStatus('activating')
 
     const body: Parameters<typeof activate>[0] = {
       walletAddress,
       platformName,
       retailerId,
-      url,
+      url: networkUrl,
       userId,
       tokenSymbol: cryptoSymbols[0],
       flowId,
+      isOfferLine,
+      networkUrl,
+      offerlineDomain,
+      offerlinePageUrl: url,
+      offerlineSearch
     }
 
     const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
 
     if (status !== 200) {
-      setIsActivating(false)
+      setStatus('idle')
       return
     }
 
@@ -77,6 +80,7 @@ const Offerbar = () => {
       action: ACTIONS.ACTIVATE,
       url,
       domain,
+      searchTermPattern,
       time: parseTime(ACTIVATE_QUIET_TIME, version),
       redirectUrl,
       iframeUrl,
@@ -91,8 +95,7 @@ const Offerbar = () => {
       details: name
     })
 
-    setIsActivating(false)
-  }, [isActivating, walletAddress, platformName, retailerId, url, userId, cryptoSymbols, flowId, domain, version, sendGaEvent, name])
+  }, [cryptoSymbols, domain, offerlineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferLine, offerlineSearch, searchTermPattern])
 
   useEffect(() => {
     sendMessage({ action: ACTIONS.OPEN, style: offerbarStyle[platformName.toLowerCase()] || offerbarStyle['default'] })
@@ -117,8 +120,8 @@ const Offerbar = () => {
             <div id="offerbar-crypto-symbol" className={styles.offer_amount}>{cryptoSymbols[0]}</div>
             <div id="offerbar-offer-text-cashback" className={styles.offer_text}>Cashback</div>
           </div>
-          <button id="offerbar-activate-btn" className={styles.activateButton} onClick={handleActivate} disabled={isActivating}>
-            {toCaseString(isActivating ? 'Activating...' : 'Activate', textMode)}
+          <button id="offerbar-activate-btn" className={styles.activateButton} onClick={handleActivate} disabled={status !== 'idle'}>
+            {toCaseString('Activate', textMode)}
           </button>
           <button
             id="offerbar-opt-out-btn"

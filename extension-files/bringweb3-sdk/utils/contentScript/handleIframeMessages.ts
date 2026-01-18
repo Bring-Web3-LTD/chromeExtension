@@ -1,6 +1,6 @@
 import applyStyles from "./applyStyles"
 import addKeyframes from "./addKeyFrames"
-import { OFFERLINE_CONTAINER_ID } from "../constants"
+import { OFFERBAR_CONTAINER_ID } from "../constants"
 
 interface Props {
     event: BringEvent
@@ -34,7 +34,7 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
 
     switch (action) {
         case ACTIONS.OPEN:
-            const container = document.getElementById(OFFERLINE_CONTAINER_ID);
+            const container = document.getElementById(OFFERBAR_CONTAINER_ID);
             if (container && style && 'parent' in style) {
                 applyStyles(container, style.parent);
             }
@@ -44,7 +44,7 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
             break;
         case ACTIONS.CLOSE:
             if (iframeEl) {
-                const container = document.getElementById(OFFERLINE_CONTAINER_ID);
+                const container = document.getElementById(OFFERBAR_CONTAINER_ID);
                 if (container && container.contains(iframeEl)) {
                     container.parentNode?.removeChild(container);
                 } else {
@@ -67,6 +67,7 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
             break;
         case ACTIONS.ERASE_NOTIFICATION:
             chrome.runtime.sendMessage({ action, from: "bringweb3" })
+            break;
         case ACTIONS.ADD_KEYFRAMES:
             addKeyframes(keyFrames)
             break;

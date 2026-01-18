@@ -1,6 +1,6 @@
 'use strict';
 import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";
-import { dark } from "./themes/yoroi";
+import { dark, obTheme } from "./themes/yoroi";
 import * as casper from "./themes/casper";
 import * as ecko from "./themes/ecko";
 import * as fuel from "./themes/fuel";
@@ -321,7 +321,7 @@ bringInitContentScript({
     text: 'upper',
     switchWallet: true,
     lightTheme: fuel.light,
-    darkTheme: fuel.dark
+    darkTheme: { ...dark, ...obTheme }
 });
 
 window.addEventListener('message', async event => {

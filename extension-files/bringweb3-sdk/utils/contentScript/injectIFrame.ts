@@ -1,7 +1,7 @@
 import { ENV_IFRAME_URL } from "../config";
 import getQueryParams from "../getQueryParams";
 import getVersion from "../getVersion";
-import { OFFERLINE_CONTAINER_ID, IFRAME_ID_PREFIX } from "../constants";
+import { OFFERBAR_CONTAINER_ID, IFRAME_ID_PREFIX } from "../constants";
 interface Query {
     [key: string]: string
 }
@@ -52,7 +52,7 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
  * @param page - The page type
  */
 function injectIframeWithPlacement(iframe: HTMLIFrameElement, placement?: PlacementConfig, page?: string) {
-    if (page === 'offerline') {
+    if (page === 'offerbar') {
         const existingIframe = document.querySelector(`iframe[id^="${IFRAME_ID_PREFIX}-"]`);
         if (existingIframe) return;
     }
@@ -60,11 +60,11 @@ function injectIframeWithPlacement(iframe: HTMLIFrameElement, placement?: Placem
     let elementToInject: HTMLElement = iframe;
 
     if (placement?.parent) {
-        let container = document.getElementById(OFFERLINE_CONTAINER_ID) as HTMLElement | null;
+        let container = document.getElementById(OFFERBAR_CONTAINER_ID) as HTMLElement | null;
         
         if (!container) {
             container = document.createElement(placement.parent);
-            container.id = OFFERLINE_CONTAINER_ID;
+            container.id = OFFERBAR_CONTAINER_ID;
         }
         
         container.appendChild(iframe);

@@ -24,6 +24,7 @@
 .retailer_logo{
     width: 68px;
     height: 68px;
+    background:var(--ob-retailer-logo-bg);
     border-radius: 50%;
     object-fit: cover;
     object-position: center;

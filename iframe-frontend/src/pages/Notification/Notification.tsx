@@ -106,8 +106,8 @@ const Notification = () => {
         const style = notificationIframeStyle[platformName.toLowerCase()] || notificationIframeStyle['default']
 
         if (promptPairing) {
-            style.width = '699px';
-            style.height = '70px';
+            style.iframe.width = '699px';
+            style.iframe.height = '70px';
         }
 
         sendMessage({ action: ACTIONS.OPEN, style })

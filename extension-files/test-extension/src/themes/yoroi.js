@@ -191,6 +191,7 @@ export const obTheme = Object.freeze({
   obCloseBtnFC: "#FFF",
   obCloseBtnLH: "12px",
   obPlatformLogosBg: "#2A51D0",
+  obRetailerLogoBg: "#FFF",
   obPlatformWalletLogoBg: "#FFF",
   obOptOutTitleFS: "14px",
   obOptOutTitleFW: "500",

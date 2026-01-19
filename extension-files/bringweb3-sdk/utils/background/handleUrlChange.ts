@@ -42,16 +42,16 @@ interface TabState {
 const tabStates = new Map<number, TabState>();
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
-    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[], urlMatch?: string | string[]) => {
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[]) => {
 
         if (isInlineSearch && tabStates.get(tabId)?.urlSearch == 'injected') return;
 
         const url = parseUrl(urlToCheck);
 
-        const { matched, match, type } = isInlineSearch ? await getRelevantDomain(urlToCheck, "d") : await getRelevantDomain(urlToCheck);
+        const { matched, match, type } = isInlineSearch ? await getRelevantDomain(urlToCheck, "d") : await getRelevantDomain(urlToCheck, "kd");
 
         if (!matched) {
-            await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
+            if (!isInlineSearch) await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
             return;
         };
 
@@ -120,8 +120,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 ...(isInlineSearch && {
                     link: urlToCheck,
                     linkMatch: match,
-                    urlMatch: urlMatch,
-                    inlineMatch: inlineMatch
+                    urlMatch: inlineMatch
                 }),
                 ...(!isInlineSearch && {
                     urlMatch: match
@@ -212,8 +211,6 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "i");
             if (quietInlineSearch.phase === 'quiet') return;
 
-            const urlSearchResult = await getRelevantDomain(tab.url);
-
             const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });
 
             if (response?.status !== 'success' || !response.links?.length) return;
@@ -221,7 +218,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             const uniqueLinks = [...new Set(response.links)] as string[];
 
             await Promise.allSettled(
-                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match, urlSearchResult.match))
+                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match))
             );
         }
     })

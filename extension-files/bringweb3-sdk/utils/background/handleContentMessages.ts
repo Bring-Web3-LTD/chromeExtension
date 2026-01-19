@@ -17,8 +17,8 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
 
         switch (action) {
             case 'ACTIVATE': {
-                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
+                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, quietDomainType } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, quietDomainType, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
                     .then(() => sendResponse());
                 return true;
             }
@@ -63,9 +63,9 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'CLOSE': {
-                const { time, domain, quietDomainType } = request
+                const { time, domain, type } = request
                 if (!domain) return true;
-                addQuietDomain(domain, time, quietDomainType)
+                addQuietDomain(domain, time, type)
                 sendResponse({ message: 'domain added to quiet list' })
                 return true;
             }

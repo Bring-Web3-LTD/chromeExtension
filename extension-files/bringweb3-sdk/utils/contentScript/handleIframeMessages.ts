@@ -51,13 +51,13 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
                     iframeEl.parentNode?.removeChild(iframeEl);
                 }
             }
-            if (time) chrome.runtime.sendMessage({ action, time, domain, quietDomainType, from: "bringweb3" })
+            if (time) chrome.runtime.sendMessage({ action, time, domain, type, from: "bringweb3" })
             break;
         case ACTIONS.PROMPT_LOGIN:
             promptLogin()
             break;
         case ACTIONS.ACTIVATE:
-            chrome.runtime.sendMessage({ action, from: "bringweb3", domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, platformName })
+            chrome.runtime.sendMessage({ action, from: "bringweb3", domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, platformName, quietDomainType })
             break;
         case ACTIONS.OPT_OUT:
             chrome.runtime.sendMessage({ action, time, from: "bringweb3" })

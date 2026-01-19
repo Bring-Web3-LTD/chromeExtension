@@ -1,11 +1,10 @@
 import storage from "../storage/storage"
 import { searchArray, searchRegexArray } from "./domainsListSearch"
 import { updateCache } from "./updateCache"
-import { SearchType } from "./domainsListSearch"
 
 const urlRemoveOptions = ['www.', 'www1.', 'www2.']
 
-const getRelevantDomain = async (url: string | undefined, searchType?: SearchType): Promise<{ matched: boolean, match: string | string[], type?: string }> => {
+const getRelevantDomain = async (url: string | undefined, searchType: string): Promise<{ matched: boolean, match: string | string[], type?: string }> => {
     const relevantDomains = await updateCache()
     const portalRelevantDomains = await storage.get('portalRelevantDomains')
     const falseResponse = { matched: false, match: '', phase: undefined, type: undefined }

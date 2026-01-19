@@ -8,9 +8,8 @@ type SearchRegexResult =
     | { matched: false, match: undefined, type: undefined }
     | { matched: true, match: string[], type: string }
 
-export type SearchType = 'k' | 'd' | 'i';
 
-export const searchRegexArray = async (regexArray: RegExp[], url: string, searchType?: SearchType): Promise<SearchRegexResult> => {
+export const searchRegexArray = async (regexArray: RegExp[], url: string, searchType?: string): Promise<SearchRegexResult> => {
 
     if (!url.includes('/')) {
         url += '/';
@@ -32,7 +31,7 @@ export const searchRegexArray = async (regexArray: RegExp[], url: string, search
         const type = domainsTypes?.[i];
 
         if (searchType) {
-            if (type !== searchType) continue;
+            if (!searchType.includes(type)) continue;
         } else {
             if (type === 'i') continue;
         }

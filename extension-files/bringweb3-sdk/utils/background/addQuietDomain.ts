@@ -11,10 +11,10 @@ interface Payload {
 }
 
 const addQuietDomain = async (domain: string | string[], time: number, type: string | string[], payload?: Payload, phase?: 'activated' | 'quiet') => {
-    if(!domain) return
+    if (!domain) return
     const domains = Array.isArray(domain) ? domain : [domain]
-    const types = type ? (Array.isArray(type) ? type : [type]) : undefined
-    
+    const types = type ? (Array.isArray(type) ? type : [type]) : ['kd']
+
     let [quietDomains, maxLength] = await Promise.all([
         storage.get(storageKey),
         storage.get('quietDomainsMaxLength')

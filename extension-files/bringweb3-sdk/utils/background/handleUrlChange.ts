@@ -168,7 +168,8 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             referrers: popupData.portalReferrers,
             page: popupData.isOfferLine ? 'offerbar' : (phase === 'new' ? '' : phase),
             flowId: popupData.flowId,
-            placement: popupData.placement
+            placement: popupData.placement,
+            framed: popupData.framed
         });
 
         if (res?.action) {

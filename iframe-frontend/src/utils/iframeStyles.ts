@@ -44,6 +44,22 @@ export const offerbarStyle: Styles = {
     }
 }
 
+export const offerbarFramedStyle: Styles = {
+    default: {
+        iframe: {
+            position: 'fixed',
+            animation: 'slideIn .3s ease-in-out',
+            height: '100vh',
+            width: `100vw`,
+            borderRadius: '0px',
+            background: 'red',
+            display: 'block',
+            top: '0px',
+            right: '0px'
+        }
+    }
+}
+
 export const notificationIframeStyle: Styles = {
     default: {
         iframe: {

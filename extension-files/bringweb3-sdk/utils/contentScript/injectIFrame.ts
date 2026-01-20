@@ -2,10 +2,18 @@ import { ENV_IFRAME_URL } from "../config";
 import getQueryParams from "../getQueryParams";
 import getVersion from "../getVersion";
 import { OFFERBAR_CONTAINER_ID, IFRAME_ID_PREFIX } from "../constants";
+import insertStyleElement from "./insertStyleElement";
+import injectFramedIframe from "./injectFramedIframe";
+import { getStylesheet } from "./frame-overlay";
+import { contentScriptCleanup } from "./cleanupManager";
 interface Query {
     [key: string]: string
 }
-
+type ScaleOptions = 'w' | 'h' | 'n'
+interface Scales {
+    x: [ScaleOptions, string]
+    y: [ScaleOptions, string]
+}
 interface Props {
     query: Query
     theme?: Style
@@ -15,9 +23,13 @@ interface Props {
     page: string | undefined
     switchWallet: boolean
     placement?: PlacementConfig  // Optional placement configuration from server
+    stylesheet?: string
+    framed: FrameModeOptions | null
 }
 
-const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWallet, placement }: Props): HTMLIFrameElement => {
+const STYLESHEET_ID = 'bring-iframe-stylesheet';
+
+const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWallet, placement, stylesheet, framed }: Props): HTMLIFrameElement => {
     const extensionId = chrome.runtime.id;
     const iframeId = `${IFRAME_ID_PREFIX}-${extensionId}`;
     const element = document.getElementById(iframeId)
@@ -40,6 +52,10 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
     iframe.style.border = "none";
     iframe.style.cssText += `z-index: 99999999999999 !important;`;
     if (theme?.popupShadow) iframe.style.boxShadow = theme.popupShadow;
+
+    insertStyleElement(stylesheet, STYLESHEET_ID);
+
+    if (framed) injectFramedIframe(framed);
     // Inject iframe with placement configuration
     injectIframeWithPlacement(iframe, placement, page);
     return iframe
@@ -56,20 +72,36 @@ function injectIframeWithPlacement(iframe: HTMLIFrameElement, placement?: Placem
         const existingIframe = document.querySelector(`iframe[id^="${IFRAME_ID_PREFIX}-"]`);
         if (existingIframe) return;
     }
-    
+
     let elementToInject: HTMLElement = iframe;
 
     if (placement?.parent) {
         let container = document.getElementById(OFFERBAR_CONTAINER_ID) as HTMLElement | null;
-        
+
         if (!container) {
             container = document.createElement(placement.parent);
             container.id = OFFERBAR_CONTAINER_ID;
         }
-        
+
         container.appendChild(iframe);
         elementToInject = container;
     }
+
+    // Register cleanup function early, before any injection
+    contentScriptCleanup.add(() => {
+        // Remove the iframe
+        if (iframe && iframe.parentNode) {
+            iframe.remove();
+        }
+
+        // Remove the container if it was created
+        if (placement?.parent) {
+            const container = document.getElementById(OFFERBAR_CONTAINER_ID);
+            if (container) {
+                container.remove();
+            }
+        }
+    });
 
     // Default to end of document if no placement specified
     if (!placement || placement.location === 'end') {

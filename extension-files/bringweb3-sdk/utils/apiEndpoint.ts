@@ -2,7 +2,7 @@ export type EndpointName = string
 
 export class ApiEndpoint {
   private static instance: ApiEndpoint | null = null;
-  private readonly baseDomain: string = 'https://api.bring.network';
+  private readonly baseDomain: string = 'https://api.bringweb3.io';
   private readonly apiPath: string = 'v1/extension';
   private endpoint: EndpointName | '' = ''
   private whitelistEndpoint: string = '';

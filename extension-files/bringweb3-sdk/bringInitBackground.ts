@@ -4,6 +4,7 @@ import { checkAndRunMigration } from './utils/background/dataMigration';
 import handleContentMessages from './utils/background/handleContentMessages';
 import handleUrlChange from './utils/background/handleUrlChange';
 import { ENV_ENDPOINT } from "./utils/config.js";
+import { updateCache } from "./utils/background/updateCache.js";
 
 interface Configuration {
     identifier: string
@@ -77,6 +78,8 @@ const bringInitBackground = async ({ identifier, apiEndpoint, cashbackPagePath, 
     await checkAndRunMigration();
 
     handleContentMessages(cashbackPagePath, showNotifications)
+
+    if (popupEnabled) await updateCache()
 
     handleUrlChange(cashbackPagePath, showNotifications, notificationCallback)
 }

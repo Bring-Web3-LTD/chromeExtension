@@ -1,12 +1,13 @@
 import { ApiEndpoint } from "../apiEndpoint"
 import apiRequest from "./apiRequest"
 
-const fetchDomains = async (trigger?: string | null) => {
+const fetchDomains = async (trigger?: string | null, timeout?: number) => {
     const whitelistEndpoint = ApiEndpoint.getInstance().getWhitelistEndpoint()
 
     const request: Parameters<typeof apiRequest>[0] = {
         path: '/domains',
         method: 'GET',
+        timeout
     }
 
     request.params = {}

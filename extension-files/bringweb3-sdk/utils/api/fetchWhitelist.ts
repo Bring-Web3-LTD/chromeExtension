@@ -1,6 +1,6 @@
 import { ApiEndpoint } from "../apiEndpoint"
 
-export const fetchWhitelist = async () => {
+export const fetchWhitelist = async (timeout?: number) => {
     try {
         const endpoint = ApiEndpoint.getInstance().getWhitelistEndpoint()
 
@@ -14,7 +14,8 @@ export const fetchWhitelist = async () => {
             headers: {
                 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
                 'Pragma': 'no-cache'
-            }
+            },
+            signal: timeout && 'timeout' in AbortSignal ? AbortSignal.timeout(timeout) : undefined
         })
 
         if (!response.ok) {

@@ -7,11 +7,12 @@ interface Request {
     path: string
     method: 'POST' | 'GET'
     params?: { [key: string]: any }
+    timeout?: number
 }
 
 
 const apiRequest = async (req: Request) => {
-    let { path, method, params } = req
+    let { path, method, params, timeout } = req
     if (!req || !path || !method || (!params && method === 'POST')) throw new Error('Missing endpoint or method')
 
     const apiEndpointInstance = ApiEndpoint.getInstance()
@@ -58,6 +59,7 @@ const apiRequest = async (req: Request) => {
             'x-api-key': apiKey
         },
         body: method === 'POST' ? JSON.stringify(params) : undefined,
+        signal: timeout && 'timeout' in AbortSignal ? AbortSignal.timeout(timeout) : undefined
     })
     const json = await res.json()
     return json

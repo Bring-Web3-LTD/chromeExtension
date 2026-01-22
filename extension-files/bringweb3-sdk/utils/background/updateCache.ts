@@ -6,7 +6,6 @@ import { ApiEndpoint } from "../apiEndpoint"
 import { isMsRangeExpired } from "./timestampRange"
 
 let pending: Promise<any> | null = null;
-let pendingStartTime: number | null = null;
 
 export const updateCache = async () => {
     const [relevantDomainsCheck, relevantDomainsList, whitelistRaw] = await Promise.all([
@@ -45,25 +44,15 @@ export const updateCache = async () => {
         return relevantDomainsList
     }
 
-    const MAX_PENDING_TIME = 120000; // 120 seconds
-
-    // Check if pending is stuck
-    if (pending && pendingStartTime && (now - pendingStartTime > MAX_PENDING_TIME)) {
-        console.error('Pending fetch stuck, resetting');
-        pending = null;
-        pendingStartTime = null;
-    }
-
     if (pending) return pending;
 
-    pendingStartTime = now;
     return pending = (async () => {
         try {
-            const res = await fetchDomains(trigger);
+            const res = await fetchDomains(trigger, 30000);
             const { nextUpdateTimestamp, relevantDomains, postPurchaseUrls, flags, types, quietDomainsMaxLength } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
 
             try {
-                whitelist = await fetchWhitelist()
+                whitelist = await fetchWhitelist(30000)
             } catch (error) {
                 console.error('Failed to fetch whitelist:', error);
             }
@@ -88,7 +77,6 @@ export const updateCache = async () => {
             return await storage.get('relevantDomains')
         } finally {
             pending = null;
-            pendingStartTime = null;
         }
     })();
 }

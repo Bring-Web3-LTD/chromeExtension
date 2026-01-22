@@ -175,6 +175,24 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const sendPageViewEvent = (): void => {
+
+        if (window.origin.includes('localhost')) {
+            return
+        }
+        if (!ReactGA.isInitialized) {
+            console.warn('BRING: Google Analytics is not initialized');
+            return
+        }
+        ReactGA.send({
+            hitType: 'pageview',
+            page_location: window.location.href,
+            page_path: window.location.pathname,
+            page_title: document.title,
+            retailer: retailerName
+        });
+    };
+
     const sendGaEvent = useCallback(async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
         if (window.origin.includes('localhost')) return
 
@@ -202,24 +220,6 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         ReactGA.event(name, params)
         return
     }, [sendBackendEvent, platform, testVariant, walletAddress])
-
-    const sendPageViewEvent = (): void => {
-
-        if (window.origin.includes('localhost')) {
-            return
-        }
-        if (!ReactGA.isInitialized) {
-            console.warn('BRING: Google Analytics is not initialized');
-            return
-        }
-        ReactGA.send({
-            hitType: 'pageview',
-            page_location: window.location.href,
-            page_path: window.location.pathname,
-            page_title: document.title,
-            retailer: retailerName
-        });
-    };
 
     return (
         <GoogleAnalyticsContext.Provider value={{ sendGaEvent, sendPageViewEvent }}>

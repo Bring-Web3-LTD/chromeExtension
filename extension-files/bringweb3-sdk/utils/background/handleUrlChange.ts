@@ -1,7 +1,6 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
 import { DAY_MS } from "../constants";
-import getDomain from "../getDomain";
 import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
@@ -30,7 +29,8 @@ interface InlineSearchData {
         portalReferrers?: string[];
         placement?: any;
         isOfferBar: boolean;
-        verifiedMatch: string;
+        verifiedMatch: string,
+        quietDomainType: string | string[];
     } | null;
 }
 
@@ -48,7 +48,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
 
         const url = parseUrl(urlToCheck);
 
-        const { matched, match, type } = isInlineSearch ? await getRelevantDomain(urlToCheck, "d") : await getRelevantDomain(urlToCheck, "kd");
+        const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 'd' : 'kd');
 
         if (!matched) {
             if (!isInlineSearch) await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)

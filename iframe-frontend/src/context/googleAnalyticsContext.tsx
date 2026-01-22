@@ -169,14 +169,15 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
                 category: 'user_action',
                 action: 'click',
                 details: {
-                    prevWalletAddress: previousWalletAddressRef.current || 'null',
-                    currentWalletAddress: walletAddress || 'null'
+                    prevWalletAddress: previousWalletAddressRef.current ?? null,
+                    currentWalletAddress: walletAddress ?? null
                 }
             })
         }
         
         previousWalletAddressRef.current = walletAddress
-    }, [walletAddress, sendGaEvent])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [walletAddress])
 
     useEffect(() => {
         if (window.origin.includes('localhost')) {

@@ -122,34 +122,6 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
 
     }, [measurementId, platform, testVariant, walletAddress]);
 
-    const sendGaEvent = useCallback(async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
-        if (window.origin.includes('localhost')) return
-
-        const backendResult = await sendBackendEvent(name, event)
-
-        // If the event was skipped (already sent) or failed, don't send to GA
-        if (backendResult.skipped || !backendResult.success) return
-
-        if (!ReactGA.isInitialized) {
-            console.warn('BRING: Google Analytics is not initialized');
-            return
-        }
-
-        if (disableGA) return
-
-        const params: { [key: string]: unknown } = {
-            ...event,
-            platform,
-            testId: TEST_ID,
-            testVariant,
-            source: 'extension'
-        }
-
-        if (walletAddress) params.walletAddress = walletAddress
-        ReactGA.event(name, params)
-        return
-    }, [sendBackendEvent, platform, testVariant, walletAddress])
-
     // Track wallet address changes
     useEffect(() => {
         if (window.origin.includes('localhost')) {
@@ -202,6 +174,34 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         effectRan.current = true
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const sendGaEvent = useCallback(async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
+        if (window.origin.includes('localhost')) return
+
+        const backendResult = await sendBackendEvent(name, event)
+
+        // If the event was skipped (already sent) or failed, don't send to GA
+        if (backendResult.skipped || !backendResult.success) return
+
+        if (!ReactGA.isInitialized) {
+            console.warn('BRING: Google Analytics is not initialized');
+            return
+        }
+
+        if (disableGA) return
+
+        const params: { [key: string]: unknown } = {
+            ...event,
+            platform,
+            testId: TEST_ID,
+            testVariant,
+            source: 'extension'
+        }
+
+        if (walletAddress) params.walletAddress = walletAddress
+        ReactGA.event(name, params)
+        return
+    }, [sendBackendEvent, platform, testVariant, walletAddress])
 
     const sendPageViewEvent = (): void => {
 

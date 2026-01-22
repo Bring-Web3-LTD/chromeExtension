@@ -17,8 +17,8 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
 
         switch (action) {
             case 'ACTIVATE': {
-                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
+                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, quietDomainType } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, quietDomainType, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
                     .then(() => sendResponse());
                 return true;
             }
@@ -43,7 +43,7 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                     sendResponse({ error: 'Missing domain' })
                     return true
                 }
-                addQuietDomain(domain, time, undefined, undefined, type).then(res => sendResponse(res))
+                addQuietDomain(domain, time, type).then(res => sendResponse(res))
                 return true;
             }
             case 'GET_POPUP_ENABLED': {
@@ -63,9 +63,9 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'CLOSE': {
-                const { time, domain } = request
+                const { time, domain, type } = request
                 if (!domain) return true;
-                addQuietDomain(domain, time)
+                addQuietDomain(domain, time, type)
                 sendResponse({ message: 'domain added to quiet list' })
                 return true;
             }

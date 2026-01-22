@@ -24,18 +24,9 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
 
     for (let i = 0; i < quietDomains.length; i++) {
         const entry = quietDomains[i]
-        
+
+        if (!entry.type?.includes(type)) continue
         if (searchSingle(entry.domain, url)) {
-            // Type filtering
-            if (type) {
-                if (!entry.type || entry.type !== type) {
-                    continue
-                }
-            } else {
-                if (entry.type === 'inline') {
-                    continue
-                }
-            }
 
             const { time } = entry
             const isActive = isMsRangeActive(time, undefined, { maxRange: 60 * DAY_MS })

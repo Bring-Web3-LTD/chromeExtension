@@ -1,7 +1,6 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
 import { DAY_MS } from "../constants";
-import getDomain from "../getDomain";
 import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
@@ -29,8 +28,9 @@ interface InlineSearchData {
         time: number;
         portalReferrers?: string[];
         placement?: any;
-        isOfferLine: boolean;
-        verifiedMatch: string;
+        isOfferBar: boolean;
+        verifiedMatch: string,
+        quietDomainType: string | string[];
     } | null;
 }
 
@@ -42,16 +42,16 @@ interface TabState {
 const tabStates = new Map<number, TabState>();
 
 const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
-    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[], urlMatch?: string | string[]) => {
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[]) => {
 
         if (isInlineSearch && tabStates.get(tabId)?.urlSearch == 'injected') return;
 
         const url = parseUrl(urlToCheck);
 
-        const { matched, match, type } = isInlineSearch ? await getRelevantDomain(urlToCheck, "domain") : await getRelevantDomain(urlToCheck);
+        const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 'd' : 'kd');
 
         if (!matched) {
-            await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
+            if (!isInlineSearch) await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
             return;
         };
 
@@ -67,7 +67,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             }
         }
 
-        const { phase, payload } = await getQuietDomain(url);
+        const { phase, payload } = await getQuietDomain(url, type);
 
         if (phase === 'new') {
             const now = Date.now();
@@ -115,13 +115,12 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 phase,
                 url: tab.url!,
                 address,
-                type: isInlineSearch ? 'inline' : type,
+                type: isInlineSearch ? 'i' : type,
                 quietDomains,
                 ...(isInlineSearch && {
                     link: urlToCheck,
                     linkMatch: match,
-                    urlMatch: urlMatch,
-                    inlineMatch: inlineMatch
+                    urlMatch: inlineMatch
                 }),
                 ...(!isInlineSearch && {
                     urlMatch: match
@@ -132,7 +131,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         if (!popupData.time) popupData.time = DAY_MS;
 
         if (popupData.isValid === false) {
-            addQuietDomain(popupData.verifiedMatch, popupData.time);
+            addQuietDomain(popupData.verifiedMatch, popupData.time, popupData.quietDomainType);
 
             if (isInlineSearch) return;
 
@@ -166,7 +165,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             iframeUrl: popupData.iframeUrl,
             userId,
             referrers: popupData.portalReferrers,
-            page: popupData.isOfferLine ? 'offerbar' : (phase === 'new' ? '' : phase),
+            page: popupData.isOfferBar ? 'offerbar' : (phase === 'new' ? '' : phase),
             flowId: popupData.flowId,
             placement: popupData.placement
         });
@@ -174,7 +173,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         if (res?.action) {
             switch (res.action) {
                 case 'activate':
-                    handleActivate(popupData.verifiedMatch, chrome.runtime.id, 'popup', cashbackPagePath, popupData.time, tabId)
+                    handleActivate(popupData.verifiedMatch, chrome.runtime.id, 'popup', cashbackPagePath, popupData.quietDomainType, popupData.time, tabId)
                     break;
                 default:
                     console.error(`Unknown action: ${res.action}`);
@@ -206,13 +205,11 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         }
 
         if (changeInfo.status === 'complete') {
-            const inlineSearchResult = await getRelevantDomain(tab.url, "inline");
+            const inlineSearchResult = await getRelevantDomain(tab.url, "i");
             if (!inlineSearchResult.matched) return;
 
-            const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "inline");
+            const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "i");
             if (quietInlineSearch.phase === 'quiet') return;
-
-            const urlSearchResult = await getRelevantDomain(tab.url);
 
             const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });
 
@@ -221,7 +218,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             const uniqueLinks = [...new Set(response.links)] as string[];
 
             await Promise.allSettled(
-                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match, urlSearchResult.match))
+                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match))
             );
         }
     })

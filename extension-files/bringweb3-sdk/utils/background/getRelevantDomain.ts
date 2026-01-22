@@ -23,7 +23,11 @@ const getRelevantDomain = async (url: string | undefined, searchType: string): P
         }
     }
 
-    let query = urlObj.toString().replace(`${urlObj.protocol}//`, '')
+    let query = urlObj.toString();
+    const protocolPrefix = `${urlObj.protocol}//`;
+    if (query.startsWith(protocolPrefix)) {
+        query = query.substring(protocolPrefix.length);
+    }
 
     for (const urlRemoveOption of urlRemoveOptions) {
         query = query.replace(urlRemoveOption, '')

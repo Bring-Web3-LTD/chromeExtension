@@ -5,7 +5,7 @@ import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
 import addQuietDomain from "./addQuietDomain";
-import checkPostPurchasePage from "./checkPostPurhcasePage";
+import checkPostPurchasePage from "./checkPostPurchasePage";
 import getQuietDomain from "./getQuietDomain";
 import getRelevantDomain from "./getRelevantDomain";
 import getUserId from "./getUserId";
@@ -15,7 +15,7 @@ import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
 
-type UrlSearchStatus = 'pending' | 'injected' | 'rejected' | null;
+type UrlSearchStatus = 'pending' | 'succeeded' | 'failed' | null;
 
 interface InlineSearchData {
     status: "matched" | null;
@@ -35,16 +35,16 @@ interface InlineSearchData {
 }
 
 interface TabState {
-    urlSearch: UrlSearchStatus;
+    urlSearchStatus: UrlSearchStatus;
     inlineSearch: InlineSearchData | null;
 }
 
 const tabStates = new Map<number, TabState>();
 
-const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
+const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[]) => {
 
-        if (isInlineSearch && tabStates.get(tabId)?.urlSearch == 'injected') return;
+        if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') return;
 
         const url = parseUrl(urlToCheck);
 
@@ -61,7 +61,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 return;
             }
             if (!state) {
-                tabStates.set(tabId, { urlSearch: null, inlineSearch: { status: "matched", popupData: null } });
+                tabStates.set(tabId, { urlSearchStatus: null, inlineSearch: { status: "matched", popupData: null } });
             } else {
                 state.inlineSearch = { status: "matched", popupData: null };
             }
@@ -103,11 +103,11 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         const quietDomains = await storage.get('quietDomains') || [];
 
         if (!tabStates.has(tabId)) {
-            tabStates.set(tabId, { urlSearch: null, inlineSearch: null });
+            tabStates.set(tabId, { urlSearchStatus: null, inlineSearch: null });
         }
 
         if (!isInlineSearch) {
-            tabStates.get(tabId)!.urlSearch = 'pending';
+            tabStates.get(tabId)!.urlSearchStatus = 'pending';
         }
 
         let popupData = await validateDomain({
@@ -136,7 +136,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             if (isInlineSearch) return;
 
             const state = tabStates.get(tabId)!;
-            state.urlSearch = 'rejected';
+            state.urlSearchStatus = 'failed';
 
             if (!state.inlineSearch?.popupData) return;
 
@@ -146,11 +146,11 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         if (!await isWhitelisted(popupData.networkUrl)) return;
 
         if (!isInlineSearch) {
-            tabStates.get(tabId)!.urlSearch = 'injected';
+            tabStates.get(tabId)!.urlSearchStatus = 'succeeded';
         } else {
             const state = tabStates.get(tabId);
-            if (state?.urlSearch === 'injected') return;
-            if (state?.urlSearch === 'pending') {
+            if (state?.urlSearchStatus === 'succeeded') return;
+            if (state?.urlSearchStatus === 'pending') {
                 state.inlineSearch = { status: "matched", popupData };
                 return;
             }
@@ -228,4 +228,4 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
     });
 }
 
-export default handleUrlChange;
+export default handleTabEvents;

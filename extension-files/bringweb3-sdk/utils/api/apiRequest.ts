@@ -10,7 +10,7 @@ interface Request {
 }
 
 
-const apiRequest = async (req: Request, timeout?: number) => {
+const apiRequest = async (req: Request) => {
     let { path, method, params } = req
     if (!req || !path || !method || (!params && method === 'POST')) throw new Error('Missing endpoint or method')
 
@@ -58,7 +58,6 @@ const apiRequest = async (req: Request, timeout?: number) => {
             'x-api-key': apiKey
         },
         body: method === 'POST' ? JSON.stringify(params) : undefined,
-        signal: timeout ? AbortSignal.timeout(timeout) : undefined
     })
     const json = await res.json()
     return json

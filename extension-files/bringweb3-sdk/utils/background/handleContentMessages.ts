@@ -39,7 +39,7 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
             }
             case 'OPT_OUT_SPECIFIC': {
                 const { domain, time, type } = request
-                if (!domain || (Array.isArray(domain) && domain.length === 0)) {
+                if (!domain?.length) {
                     sendResponse({ error: 'Missing domain' })
                     return true
                 }

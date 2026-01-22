@@ -1,9 +1,8 @@
-export type EndpointName = string
+export type EndpointName = 'prod' | 'sandbox' | 'dev'
 
 export class ApiEndpoint {
   private static instance: ApiEndpoint | null = null;
-  private readonly baseDomain: string = 'https://api.bringweb3.io';
-  private readonly apiPath: string = 'v1/extension';
+  private apiEndpoint: string = '';
   private endpoint: EndpointName | '' = ''
   private whitelistEndpoint: string = '';
   private apiKey: string = '';
@@ -22,7 +21,7 @@ export class ApiEndpoint {
     this.whitelistEndpoint = endpoint;
   }
 
-  public setApiEndpoint(endpoint: string): void {
+  public setApiEndpoint(endpoint: 'prod' | 'sandbox' | 'dev'): void {
     this.endpoint = endpoint;
 
     switch (endpoint) {
@@ -33,7 +32,7 @@ export class ApiEndpoint {
         this.apiEndpoint = 'https://sandbox-api.bringweb3.io/v1/extension';
         break;
       case 'dev':
-        this.apiEndpoint = 'https://sandbox-api.bringweb3.io/v1/extension'
+        this.apiEndpoint = 'https://dev-api.bringweb3.io/v1/extension'
         break;
       default:
         this.apiEndpoint = 'https://sandbox-api.bringweb3.io/v1/extension';
@@ -49,12 +48,11 @@ export class ApiEndpoint {
     return this.whitelistEndpoint;
   }
 
-  public getBaseDomain(): string {
-    return this.baseDomain;
-  }
-
-  public getApiPath(): string {
-    return this.apiPath;
+  public getApiEndpoint(): string {
+    if (!this.apiEndpoint) {
+      throw new Error('API endpoint not set. Call setApiEndpoint first.');
+    }
+    return this.apiEndpoint;
   }
 
   public getEndpoint(): EndpointName {

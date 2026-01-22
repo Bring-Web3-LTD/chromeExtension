@@ -35,7 +35,7 @@ export class ApiEndpoint {
         this.apiEndpoint = 'https://sandbox-api.bringweb3.io/v1/extension'
         break;
       default:
-        this.apiEndpoint = 'https://api.bringweb3.io/henyag/v1/extension';
+        this.apiEndpoint = 'https://sandbox-api.bringweb3.io/v1/extension';
         break;
     }
   }

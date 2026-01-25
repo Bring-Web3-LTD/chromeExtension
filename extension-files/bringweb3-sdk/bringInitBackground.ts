@@ -81,7 +81,7 @@ const bringInitBackground = async ({ identifier, apiEndpoint, cashbackPagePath, 
 
     if (popupEnabled) await updateCache()
 
-    handleUrlChange(cashbackPagePath, showNotifications, notificationCallback)
+    handleTabEvents(cashbackPagePath, showNotifications, notificationCallback)
 }
 
 export default bringInitBackground

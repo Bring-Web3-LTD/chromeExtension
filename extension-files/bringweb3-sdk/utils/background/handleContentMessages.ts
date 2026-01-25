@@ -23,8 +23,8 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'PORTAL_ACTIVATE': {
-                const { domain, extensionId, time, iframeUrl, token, flowId } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId)
+                const { domain, extensionId, time, iframeUrl, token, flowId, type, isRegex } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications,type, isRegex, time, sender.tab?.id, iframeUrl, token, flowId)
                     .then(() => sendResponse());
                 return true;
             }

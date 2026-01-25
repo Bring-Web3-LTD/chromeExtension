@@ -15,7 +15,7 @@ declare global {
     }
 
     interface Styles {
-       [key: string]: { [key: string]: { [key: string]: string } }
+        [key: string]: { [key: string]: { [key: string]: string } }
     }
 
     type WalletAddress = string | undefined
@@ -37,7 +37,9 @@ declare global {
         cryptoSymbols: string[]
         iconUrl: string
         url: string
-        domain: string
+        domain: string,
+        quietDomainType: string,
+        isRegex: boolean,
         offerlineDomain?: string
         flowId: string
         isTester?: boolean
@@ -81,7 +83,9 @@ declare global {
         platformName?: string
         searchTermPattern?: string
         offerlineDomain?: string,
-        type?: string | string[]
+        quietDomainType?: string,
+        type?: string | string[], 
+        isRegex?: boolean | boolean[]
     }
 
     interface GoogleAnalyticsContextType {

@@ -9,7 +9,6 @@ interface Notification {
     token: string,
     iframeUrl: string,
     showNotification: boolean
-    placement?: PlacementConfig  // Optional placement configuration from server
 }
 
 const show = async (tabId: number, notification: Notification, domain: string) => {

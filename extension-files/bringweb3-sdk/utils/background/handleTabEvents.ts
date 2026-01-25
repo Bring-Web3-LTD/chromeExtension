@@ -1,12 +1,11 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
 import { DAY_MS } from "../constants";
-import getDomain from "../getDomain";
 import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
 import addQuietDomain from "./addQuietDomain";
-import checkPostPurchasePage from "./checkPostPurhcasePage";
+import checkPostPurchasePage from "./checkPostPurchasePage";
 import getQuietDomain from "./getQuietDomain";
 import getRelevantDomain from "./getRelevantDomain";
 import getUserId from "./getUserId";
@@ -16,7 +15,7 @@ import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
 
-type UrlSearchStatus = 'pending' | 'injected' | 'rejected' | null;
+type UrlSearchStatus = 'pending' | 'succeeded' | 'failed' | null;
 
 interface InlineSearchData {
     status: "matched" | null;
@@ -29,29 +28,30 @@ interface InlineSearchData {
         time: number;
         portalReferrers?: string[];
         placement?: any;
-        isOfferLine: boolean;
-        verifiedMatch: string;
+        isOfferBar: boolean;
+        verifiedMatch: { match: string, isRegex: boolean },
+        quietDomainType: string | string[];
     } | null;
 }
 
 interface TabState {
-    urlSearch: UrlSearchStatus;
+    urlSearchStatus: UrlSearchStatus;
     inlineSearch: InlineSearchData | null;
 }
 
 const tabStates = new Map<number, TabState>();
 
-const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
-    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[], urlMatch?: string | string[]) => {
+const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[]) => {
 
-        if (isInlineSearch && tabStates.get(tabId)?.urlSearch == 'injected') return;
+        if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') return;
 
         const url = parseUrl(urlToCheck);
 
-        const { matched, match, type } = isInlineSearch ? await getRelevantDomain(urlToCheck, "domain") : await getRelevantDomain(urlToCheck);
+        const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 'd' : 'kd');
 
         if (!matched) {
-            await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
+            if (!isInlineSearch) await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
             return;
         };
 
@@ -61,13 +61,13 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 return;
             }
             if (!state) {
-                tabStates.set(tabId, { urlSearch: null, inlineSearch: { status: "matched", popupData: null } });
+                tabStates.set(tabId, { urlSearchStatus: null, inlineSearch: { status: "matched", popupData: null } });
             } else {
                 state.inlineSearch = { status: "matched", popupData: null };
             }
         }
 
-        const { phase, payload } = await getQuietDomain(url);
+        const { phase, payload } = await getQuietDomain(url, type);
 
         if (phase === 'new') {
             const now = Date.now();
@@ -103,11 +103,11 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         const quietDomains = await storage.get('quietDomains') || [];
 
         if (!tabStates.has(tabId)) {
-            tabStates.set(tabId, { urlSearch: null, inlineSearch: null });
+            tabStates.set(tabId, { urlSearchStatus: null, inlineSearch: null });
         }
 
         if (!isInlineSearch) {
-            tabStates.get(tabId)!.urlSearch = 'pending';
+            tabStates.get(tabId)!.urlSearchStatus = 'pending';
         }
 
         let popupData = await validateDomain({
@@ -115,13 +115,12 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
                 phase,
                 url: tab.url!,
                 address,
-                type: isInlineSearch ? 'inline' : type,
+                type: isInlineSearch ? 'i' : type,
                 quietDomains,
                 ...(isInlineSearch && {
                     link: urlToCheck,
                     linkMatch: match,
-                    urlMatch: urlMatch,
-                    inlineMatch: inlineMatch
+                    urlMatch: inlineMatch
                 }),
                 ...(!isInlineSearch && {
                     urlMatch: match
@@ -132,12 +131,12 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         if (!popupData.time) popupData.time = DAY_MS;
 
         if (popupData.isValid === false) {
-            addQuietDomain(popupData.verifiedMatch, popupData.time);
+            addQuietDomain(popupData.verifiedMatch.match, popupData.time, popupData.quietDomainType, popupData.verifiedMatch.isRegex);
 
             if (isInlineSearch) return;
 
             const state = tabStates.get(tabId)!;
-            state.urlSearch = 'rejected';
+            state.urlSearchStatus = 'failed';
 
             if (!state.inlineSearch?.popupData) return;
 
@@ -147,11 +146,11 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         if (!await isWhitelisted(popupData.networkUrl)) return;
 
         if (!isInlineSearch) {
-            tabStates.get(tabId)!.urlSearch = 'injected';
+            tabStates.get(tabId)!.urlSearchStatus = 'succeeded';
         } else {
             const state = tabStates.get(tabId);
-            if (state?.urlSearch === 'injected') return;
-            if (state?.urlSearch === 'pending') {
+            if (state?.urlSearchStatus === 'succeeded') return;
+            if (state?.urlSearchStatus === 'pending') {
                 state.inlineSearch = { status: "matched", popupData };
                 return;
             }
@@ -176,7 +175,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         if (res?.action) {
             switch (res.action) {
                 case 'activate':
-                    handleActivate(popupData.verifiedMatch, chrome.runtime.id, 'popup', cashbackPagePath, popupData.time, tabId)
+                    handleActivate(popupData.verifiedMatch.match, chrome.runtime.id, 'popup', cashbackPagePath, popupData.quietDomainType, popupData.verifiedMatch.isRegex, popupData.time, tabId)
                     break;
                 default:
                     console.error(`Unknown action: ${res.action}`);
@@ -208,13 +207,11 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
         }
 
         if (changeInfo.status === 'complete') {
-            const inlineSearchResult = await getRelevantDomain(tab.url, "inline");
+            const inlineSearchResult = await getRelevantDomain(tab.url, "i");
             if (!inlineSearchResult.matched) return;
 
-            const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "inline");
+            const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "i");
             if (quietInlineSearch.phase === 'quiet') return;
-
-            const urlSearchResult = await getRelevantDomain(tab.url);
 
             const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });
 
@@ -223,7 +220,7 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
             const uniqueLinks = [...new Set(response.links)] as string[];
 
             await Promise.allSettled(
-                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match, urlSearchResult.match))
+                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match))
             );
         }
     })
@@ -233,4 +230,4 @@ const handleUrlChange = (cashbackPagePath: string | undefined, showNotifications
     });
 }
 
-export default handleUrlChange;
+export default handleTabEvents;

@@ -10,7 +10,7 @@ bringInitBackground({
     identifier: process.env.PLATFORM_IDENTIFIER,
     apiEndpoint: 'sandbox', // 'sandbox' || 'prod'
     whitelistEndpoint: 'https://media.bringweb3.io/tests/redirects.json',
-    isEnabledByDefault: false,
+    isEnabledByDefault: true,
     cashbackPagePath: '/main_window.html#/cashback',
     showNotifications: true,
     notificationCallback: () => { console.log('notificationCallback running from the extension') },

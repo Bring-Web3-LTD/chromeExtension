@@ -1,5 +1,4 @@
 import { ApiEndpoint } from "../apiEndpoint"
-import { strToUint8Array } from "../storage/helpers"
 import apiRequest from "./apiRequest"
 
 const fetchDomains = async (trigger?: string | null, timeout?: number) => {
@@ -8,6 +7,7 @@ const fetchDomains = async (trigger?: string | null, timeout?: number) => {
     const request: Parameters<typeof apiRequest>[0] = {
         path: '/domains',
         method: 'GET',
+        timeout
     }
 
     request.params = {}
@@ -18,7 +18,7 @@ const fetchDomains = async (trigger?: string | null, timeout?: number) => {
 
     if (trigger) request.params.trigger = trigger
 
-    const res = await apiRequest(request, timeout)
+    const res = await apiRequest(request)
 
 
     return res

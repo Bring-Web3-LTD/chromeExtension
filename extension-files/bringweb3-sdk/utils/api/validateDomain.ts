@@ -4,6 +4,8 @@ interface ValidateDomainProps {
     body: {
         url: string,
         urlMatch?: string|string[],
+        linkMatch?: string|string[],
+        link?: string,
         address: WalletAddress,
         country?: string
         phase?: 'new' | 'activated'

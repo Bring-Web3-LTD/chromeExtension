@@ -4,16 +4,11 @@ import getVersion from "../getVersion";
 import { OFFERBAR_CONTAINER_ID, IFRAME_ID_PREFIX } from "../constants";
 import insertStyleElement from "./insertStyleElement";
 import injectFramedIframe from "./injectFramedIframe";
-import { getStylesheet } from "./frame-overlay";
 import { contentScriptCleanup } from "./cleanupManager";
 interface Query {
     [key: string]: string
 }
-type ScaleOptions = 'w' | 'h' | 'n'
-interface Scales {
-    x: [ScaleOptions, string]
-    y: [ScaleOptions, string]
-}
+
 interface Props {
     query: Query
     theme?: Style
@@ -68,6 +63,7 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
  * @param page - The page type
  */
 function injectIframeWithPlacement(iframe: HTMLIFrameElement, placement?: PlacementConfig, page?: string) {
+    console.log({page});
     if (page === 'offerbar') {
         const existingIframe = document.querySelector(`iframe[id^="${IFRAME_ID_PREFIX}-"]`);
         if (existingIframe) return;

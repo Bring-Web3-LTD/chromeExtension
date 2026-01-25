@@ -29,7 +29,7 @@ interface InlineSearchData {
         portalReferrers?: string[];
         placement?: any;
         isOfferBar: boolean;
-        verifiedMatch: string,
+        verifiedMatch: { match: string, isRegex: boolean },
         quietDomainType: string | string[];
     } | null;
 }
@@ -131,7 +131,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         if (!popupData.time) popupData.time = DAY_MS;
 
         if (popupData.isValid === false) {
-            addQuietDomain(popupData.verifiedMatch, popupData.time, popupData.quietDomainType);
+            addQuietDomain(popupData.verifiedMatch.match, popupData.time, popupData.quietDomainType, popupData.verifiedMatch.isRegex);
 
             if (isInlineSearch) return;
 
@@ -173,7 +173,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         if (res?.action) {
             switch (res.action) {
                 case 'activate':
-                    handleActivate(popupData.verifiedMatch, chrome.runtime.id, 'popup', cashbackPagePath, popupData.quietDomainType, popupData.time, tabId)
+                    handleActivate(popupData.verifiedMatch.match, chrome.runtime.id, 'popup', cashbackPagePath, popupData.quietDomainType, popupData.verifiedMatch.isRegex, popupData.time, tabId)
                     break;
                 default:
                     console.error(`Unknown action: ${res.action}`);

@@ -26,7 +26,7 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
         const entry = quietDomains[i]
 
         if (!entry.type?.includes(type)) continue
-        if (searchSingle(entry.domain, url)) {
+        if (searchSingle(entry.domain, url, entry.regex)) {
 
             const { time } = entry
             const isActive = isMsRangeActive(time, undefined, { maxRange: 60 * DAY_MS })

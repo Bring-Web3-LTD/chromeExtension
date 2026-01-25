@@ -17,8 +17,8 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
 
         switch (action) {
             case 'ACTIVATE': {
-                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, quietDomainType } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, quietDomainType, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
+                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, quietDomainType, isRegex } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, quietDomainType, isRegex, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
                     .then(() => sendResponse());
                 return true;
             }
@@ -38,12 +38,12 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'OPT_OUT_SPECIFIC': {
-                const { domain, time, type } = request
+                const { domain, time, type, isRegex } = request
                 if (!domain?.length) {
                     sendResponse({ error: 'Missing domain' })
                     return true
                 }
-                addQuietDomain(domain, time, type).then(res => sendResponse(res))
+                addQuietDomain(domain, time, type, isRegex).then(res => sendResponse(res))
                 return true;
             }
             case 'GET_POPUP_ENABLED': {
@@ -63,9 +63,9 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'CLOSE': {
-                const { time, domain, type } = request
+                const { time, domain, type, isRegex } = request
                 if (!domain) return true;
-                addQuietDomain(domain, time, type)
+                addQuietDomain(domain, time, type, isRegex)
                 sendResponse({ message: 'domain added to quiet list' })
                 return true;
             }

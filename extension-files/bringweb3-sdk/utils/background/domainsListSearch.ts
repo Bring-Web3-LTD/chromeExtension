@@ -56,14 +56,14 @@ export const searchRegexArray = async (regexArray: RegExp[], url: string, search
     };
 }
 
-export const searchSingle = (entry: string, query: string): boolean => {
+export const searchSingle = (entry: string, query: string, regex?: boolean): boolean => {
     const slashIndex = query.indexOf('/');
     const queryDomain = slashIndex === -1 ? query : query.substring(0, slashIndex);
     const queryPath = slashIndex === -1 ? '' : query.substring(slashIndex + 1);
 
     const entrySlashIndex = entry.indexOf('/');
     const entryDomain = entrySlashIndex === -1 ? entry : entry.substring(0, entrySlashIndex);
-    const entryPath = entrySlashIndex === -1 ? '' : entry.substring(entrySlashIndex + 1);
+    let entryPath = entrySlashIndex === -1 ? '' : entry.substring(entrySlashIndex + 1);
 
     // Domain matching (exact + wildcard)
     let domainMatches = false;
@@ -85,28 +85,35 @@ export const searchSingle = (entry: string, query: string): boolean => {
 
     const decodedQueryPath = decodeURIComponent(queryPath.replace(/\+/g, ' '));
 
-    // Try exact match first
-    if (decodedQueryPath.startsWith(entryPath)) {
-        return true;
-    }
-
-    // Try regex
-    try {
-        const regex = new RegExp(entryPath);
-        if (regex.test(decodedQueryPath)) {
+    if (!regex) {
+        if (entryPath && !entryPath.endsWith('/')) entryPath += '/';
+        if (decodedQueryPath.startsWith(entryPath)) {
             return true;
         }
-    } catch (error) {
-        // Not a valid regex pattern - continue
     }
+
+    else {
+        // Try regex
+        try {
+            const regex = new RegExp(entryPath);
+            if (regex.test(decodedQueryPath)) {
+                return true;
+            }
+        } catch (error) {
+            // Not a valid regex pattern - continue
+        }
+    }
+
 
     return false;
 }
 
-export const searchArray = (entries: string[], query: string): SearchArrayResult => {
+export const searchArray = (entries: string[] | { domain: string, regex: boolean }[], query: string): SearchArrayResult => {
     for (const entry of entries) {
-        if (searchSingle(entry, query)) {
-            return { matched: true, match: entry };
+        const domain = typeof entry === 'string' ? entry : entry.domain;
+        const regex = typeof entry === 'string' ? false : entry.regex;
+        if (searchSingle(domain, query, regex)) {
+            return { matched: true, match: domain };
         }
     }
     return { matched: false, match: undefined };

@@ -32,6 +32,7 @@ const Optout = ({ closeFn }: Props) => {
             action: ACTIONS.OPT_OUT_SPECIFIC,
             domain: ['google.com', 'amazon.com'],
             type: ["ki", "ki"],
+            isRegex: [false, false],
             time: +duration.value,
             key: dict[duration.label as keyof typeof dict]
         }

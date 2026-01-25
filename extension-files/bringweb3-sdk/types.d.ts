@@ -42,6 +42,7 @@ interface BringEvent {
         platformName?: string
         searchTermPattern?: string,
         type?: string | string[],
-        quietDomainType?: string
+        quietDomainType?: string, 
+        isRegex?: boolean | boolean[]
     }
 }

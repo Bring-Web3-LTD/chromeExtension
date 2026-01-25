@@ -51,11 +51,7 @@ export const updateCache = async () => {
             const res = await fetchDomains(trigger, 30000);
             const { nextUpdateTimestamp, relevantDomains, postPurchaseUrls, flags, types, quietDomainsMaxLength } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
 
-            try {
-                whitelist = await fetchWhitelist(30000)
-            } catch (error) {
-                console.error('Failed to fetch whitelist:', error);
-            }
+            whitelist = await fetchWhitelist(30000)
 
             const storageUpdates = [
                 storage.set('relevantDomains', { regexes: relevantDomains, flags }),

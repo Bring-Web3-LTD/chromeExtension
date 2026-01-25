@@ -36,7 +36,8 @@ const Offerbar = () => {
     networkUrl,
     isOfferLine,
     searchTermPattern,
-    quietDomainType
+    quietDomainType, 
+    isRegex
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
@@ -49,7 +50,7 @@ const Offerbar = () => {
       action: 'click',
       details: 'extension'
     })
-    sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com', 'amazon.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['ki', 'ki'] })
+    sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com', 'amazon.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['ki', 'ki'], isRegex: [false, false] })
   }
 
   const handleActivate = useCallback(async () => {
@@ -88,7 +89,8 @@ const Offerbar = () => {
       token,
       flowId,
       platformName,
-      quietDomainType
+      quietDomainType,
+      isRegex
     })
 
     sendGaEvent('retailer_shop', {

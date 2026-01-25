@@ -39,6 +39,7 @@ declare global {
         url: string
         domain: string,
         quietDomainType: string,
+        isRegex: boolean,
         offerlineDomain?: string
         flowId: string
         isTester?: boolean
@@ -83,7 +84,8 @@ declare global {
         searchTermPattern?: string
         offerlineDomain?: string,
         quietDomainType?: string,
-        type?: string | string[]
+        type?: string | string[], 
+        isRegex?: boolean | boolean[]
     }
 
     interface GoogleAnalyticsContextType {

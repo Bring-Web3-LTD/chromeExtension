@@ -1,6 +1,7 @@
 import applyStyles from "./applyStyles"
 import addKeyframes from "./addKeyFrames"
 import { OFFERBAR_CONTAINER_ID } from "../constants"
+import { contentScriptCleanup } from "./cleanupManager"
 
 interface Props {
     event: BringEvent
@@ -43,14 +44,7 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
             }
             break;
         case ACTIONS.CLOSE:
-            if (iframeEl) {
-                const container = document.getElementById(OFFERBAR_CONTAINER_ID);
-                if (container && container.contains(iframeEl)) {
-                    container.parentNode?.removeChild(container);
-                } else {
-                    iframeEl.parentNode?.removeChild(iframeEl);
-                }
-            }
+            contentScriptCleanup.cleanup()
             if (time) chrome.runtime.sendMessage({ action, time, domain, type, isRegex, from: "bringweb3" })
             break;
         case ACTIONS.PROMPT_LOGIN:

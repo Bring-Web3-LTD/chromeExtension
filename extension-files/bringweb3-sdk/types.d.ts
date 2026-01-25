@@ -46,3 +46,16 @@ interface BringEvent {
         isRegex?: boolean | boolean[]
     }
 }
+type ScaleOptions = 'w' | 'h' | 'n'
+
+interface Scales {
+    x: [ScaleOptions, string]
+    y: [ScaleOptions, string]
+}
+
+interface FrameModeOptions {
+    scroller: string | null
+    sides: [number, number, number, number]
+    scales: Scales
+    resize: boolean
+}

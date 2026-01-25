@@ -167,7 +167,9 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             referrers: popupData.portalReferrers,
             page: popupData.isOfferBar ? 'offerbar' : (phase === 'new' ? '' : phase),
             flowId: popupData.flowId,
-            placement: popupData.placement
+            stylesheet: popupData.stylesheet,
+            placement: popupData.placement,
+            framed: popupData.framed
         });
 
         if (res?.action) {

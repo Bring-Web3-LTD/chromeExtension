@@ -165,7 +165,7 @@ const bringInitContentScript = async ({
                         return true
                     }
 
-                    const { token, iframeUrl, userId, placement } = request;
+                    const { token, iframeUrl, userId, placement, framed, stylesheet } = request;
 
                     const query: { [key: string]: string } = { token }
                     if (userId) query['userId'] = userId
@@ -178,7 +178,9 @@ const bringInitContentScript = async ({
                         text,
                         switchWallet,
                         page: request.page,
-                        placement  // Pass placement configuration from server
+                        placement,  // Pass placement configuration from server
+                        stylesheet,
+                        framed
                     });
                     isIframeOpen = true
                     iframePath = `/${request.page || ''}`

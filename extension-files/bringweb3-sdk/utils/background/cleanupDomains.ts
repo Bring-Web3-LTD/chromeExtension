@@ -16,9 +16,10 @@ interface QuietDomainEntry {
 
 export const cleanupQuietDomains = (quietDomains: any, maxLength: number = 50) => {
     const now = Date.now()
+    const maxRange = { maxRange: 60 * DAY_MS }
     
     const validEntries = quietDomains.filter((entry: QuietDomainEntry) => {
-        return isMsRangeActive(entry.time, now, { maxRange: 60 * DAY_MS })
+        return isMsRangeActive(entry.time, now, maxRange)
     })
     
     if (validEntries.length > maxLength) {

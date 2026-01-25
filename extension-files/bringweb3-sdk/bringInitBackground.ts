@@ -2,7 +2,7 @@ import { ApiEndpoint, EndpointName } from "./utils/apiEndpoint.js"
 import storage from "./utils/storage/storage.js"
 import { checkAndRunMigration } from './utils/background/dataMigration';
 import handleContentMessages from './utils/background/handleContentMessages';
-import handleUrlChange from './utils/background/handleUrlChange';
+import handleTabEvents from './utils/background/handleTabEvents';
 import { ENV_ENDPOINT } from "./utils/config.js";
 import { updateCache } from "./utils/background/updateCache.js";
 

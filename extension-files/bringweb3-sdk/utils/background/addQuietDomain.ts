@@ -10,11 +10,12 @@ interface Payload {
     placement?: PlacementConfig  // Optional placement configuration from server
 }
 
-const addQuietDomain = async (domain: string | string[], time: number, payload?: Payload, phase?: 'activated' | 'quiet', type?: string | string[]) => {
-    if(!domain) return
+const addQuietDomain = async (domain: string | string[], time: number, type: string | string[], isRegex: boolean | boolean[], payload?: Payload, phase?: 'activated' | 'quiet') => {
+    if (!domain) return
     const domains = Array.isArray(domain) ? domain : [domain]
-    const types = type ? (Array.isArray(type) ? type : [type]) : undefined
-    
+    const types = type ? (Array.isArray(type) ? type : [type]) : ['kd']
+    const regexes = isRegex ? (Array.isArray(isRegex) ? isRegex : [isRegex]) : [false]
+
     let [quietDomains, maxLength] = await Promise.all([
         storage.get(storageKey),
         storage.get('quietDomainsMaxLength')
@@ -42,10 +43,14 @@ const addQuietDomain = async (domain: string | string[], time: number, payload?:
             entry.type = types[i]
         }
 
+        if (regexes && regexes[i] !== undefined) {
+            entry.regex = regexes[i]
+        }
+
         if (payload) {
             entry.payload = payload
         }
-        const existingIndex = quietDomains.findIndex((d: any) => 
+        const existingIndex = quietDomains.findIndex((d: any) =>
             d.domain === singleDomain && d.type === entry.type
         )
         if (existingIndex >= 0) {

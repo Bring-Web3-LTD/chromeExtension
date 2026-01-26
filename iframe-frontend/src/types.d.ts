@@ -40,14 +40,15 @@ declare global {
         domain: string,
         quietDomainType: string,
         isRegex: boolean,
-        offerlineDomain?: string
+        searchEngineDomain?: string
         flowId: string
         isTester?: boolean
-        searchTermPattern?: string
-        isOfferLine?: boolean
+        searchTermPattern?: string,
+        isOfferBar?: boolean
         offerText?: string
         networkUrl?: string
-        offerlineSearch?: string
+        offerBarSearch?: string
+        offerBarPageUrl?: string
     }
 
     interface LoaderData extends Info {

@@ -31,10 +31,11 @@ const Offerbar = () => {
     userId,
     retailerId,
     url,
-    offerlineDomain,
-    offerlineSearch,
+    searchEngineDomain,
+    offerBarSearch,
+    offerBarPageUrl,
     networkUrl,
-    isOfferLine,
+    isOfferBar,
     searchTermPattern,
     quietDomainType, 
     isRegex
@@ -64,11 +65,11 @@ const Offerbar = () => {
       userId,
       tokenSymbol: cryptoSymbols[0],
       flowId,
-      isOfferLine,
+      isOfferBar,
       networkUrl,
-      offerlineDomain,
-      offerlinePageUrl: url,
-      offerlineSearch
+      searchEngineDomain,
+      offerBarPageUrl: url,
+      offerBarSearch
     }
 
     const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
@@ -99,7 +100,7 @@ const Offerbar = () => {
       details: name
     })
 
-  }, [cryptoSymbols, domain, offerlineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferLine, offerlineSearch, searchTermPattern])
+  }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
     sendMessage({ action: ACTIONS.OPEN, style: offerbarStyle[platformName.toLowerCase()] || offerbarStyle['default'] })

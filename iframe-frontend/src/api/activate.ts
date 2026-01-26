@@ -11,10 +11,11 @@ interface ActivateProps {
     timestamp?: number
     isDemo?: boolean
     isOfferLine?: boolean
+    isOfferBar?: boolean
     networkUrl?: string
-    offerlineDomain?: string
-    offerlinePageUrl?: string
-    offerlineSearch?: string
+    searchEngineDomain?: string
+    offerBarPageUrl?: string
+    offerBarSearch?: string
 }
 
 interface ActivateResponse {

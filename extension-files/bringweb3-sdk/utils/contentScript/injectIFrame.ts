@@ -64,7 +64,7 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
  */
 function injectIframeWithPlacement(iframe: HTMLIFrameElement, placement?: PlacementConfig, page?: string) {
     console.log({page});
-    if (page === 'offerbar') {
+    if (['offerbar','framed'].includes(page || '')) {
         const existingIframe = document.querySelector(`iframe[id^="${IFRAME_ID_PREFIX}-"]`);
         if (existingIframe) return;
     }

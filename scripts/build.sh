@@ -71,7 +71,7 @@ validate_version() {
 }
 
 # Parse command line arguments
-HOST=api.bring.network
+HOST=api.bringweb3.io
 ENV_PARAM=""
 while [[ $# -gt 0 ]]; do
     case $1 in

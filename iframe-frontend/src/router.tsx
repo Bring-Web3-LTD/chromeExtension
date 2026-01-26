@@ -7,6 +7,7 @@ import removeTrailingSlash from './utils/removeTrailingSlash.ts'
 import { BASE_PATH } from './config.ts'
 import Activated from './pages/Activated/Activated.tsx'
 import Offerbar from './pages/Offerbar/Offerbar.tsx'
+import Framed from './pages/Framed/Framed.tsx'
 
 const router = createBrowserRouter([
     {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
             {
                 path: '/offerbar',
                 element: <Offerbar />
+            },
+            {
+                path: '/framed',
+                element: <Framed />
             }
         ],
     },

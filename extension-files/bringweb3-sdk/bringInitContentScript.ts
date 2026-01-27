@@ -3,6 +3,7 @@ import handleIframeMessages from "./utils/contentScript/handleIframeMessages.js"
 import startListenersForWalletAddress from "./utils/contentScript/startLIstenersForWalletAddress.js";
 import getDomain from "./utils/getDomain.js";
 import removeTrailingSlash from "./utils/background/removeTrailingSlash.js";
+import { contentScriptCleanup } from "./utils/contentScript/cleanupManager.js";
 
 let iframeEl: IFrame = null
 let iframePath: `/${string}` | undefined = undefined
@@ -200,6 +201,10 @@ const bringInitContentScript = async ({
                 break;
         }
     });
+    
+    window.addEventListener('pagehide', () => {
+        contentScriptCleanup?.cleanup()
+    })
 }
 
 export default bringInitContentScript;

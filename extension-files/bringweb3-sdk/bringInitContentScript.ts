@@ -22,6 +22,13 @@ interface Configuration {
     switchWallet: boolean
 }
 
+const removeElements = () => {
+    isIframeOpen = false
+    iframePath = undefined
+    iframeEl = null
+    contentScriptCleanup?.cleanup()
+}
+
 /**
  * Initializes the content script for the Bring extension.
  * 
@@ -138,9 +145,7 @@ const bringInitContentScript = async ({
                 return true
             case 'CLOSE_POPUP':
                 if (iframeEl && iframePath === request.path && getDomain(location.href) === getDomain(request.domain)) {
-                    iframeEl.parentNode?.removeChild(iframeEl)
-                    isIframeOpen = false
-                    iframePath = undefined
+                    removeElements();
                     sendResponse({ status: 'success', message: 'Popup closed', location: window.document.location.href, flowId })
                 } else {
                     sendResponse({ status: 'failed', message: 'Domain mismatch or iframe not open' })
@@ -201,9 +206,9 @@ const bringInitContentScript = async ({
                 break;
         }
     });
-    
+
     window.addEventListener('pagehide', () => {
-        contentScriptCleanup?.cleanup()
+        removeElements()
     })
 }
 

@@ -1,7 +1,7 @@
 import { ApiEndpoint } from "../apiEndpoint";
 import getDomain from "../getDomain";
 import storage from "../storage/storage";
-import { searchCompressed } from "./domainsListCompression";
+import { searchArray } from "./domainsListSearch";
 import { updateCache } from "./updateCache";
 
 const isWhitelisted = async (url: string): Promise<boolean> => {
@@ -14,7 +14,7 @@ const isWhitelisted = async (url: string): Promise<boolean> => {
 
         let whitelist = await storage.get('redirectsWhitelist');
 
-        if (!(whitelist instanceof Uint8Array) || !whitelist?.length) {
+        if (!Array.isArray(whitelist) || !whitelist?.length) {
             await updateCache()
             whitelist = await storage.get('redirectsWhitelist')
         }
@@ -23,7 +23,7 @@ const isWhitelisted = async (url: string): Promise<boolean> => {
 
         const domain = getDomain(url)
 
-        const { matched } = searchCompressed(whitelist, domain)
+        const { matched } = searchArray(whitelist, domain)
 
         return matched;
 

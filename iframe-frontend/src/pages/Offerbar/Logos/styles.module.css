@@ -1,0 +1,31 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--ob-platform-logos-bg);
+    padding: 5px 4px;
+    border-radius: 108px;
+}
+
+.platform_logo_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ob-platform-wallet-logo-bg);
+    border-radius: 50%;
+    height: 68px;
+    width: 68px;
+    border: 2px solid var(--ob-platform-logos-bg);
+    margin-bottom: -8px;
+    z-index: 1;
+}
+
+.retailer_logo{
+    width: 68px;
+    height: 68px;
+    background:var(--ob-retailer-logo-bg);
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+}

@@ -3,10 +3,14 @@ import apiRequest from "./apiRequest"
 interface ValidateDomainProps {
     body: {
         url: string,
-        domain: string,
+        urlMatch?: string|string[],
+        linkMatch?: string|string[],
+        link?: string,
         address: WalletAddress,
         country?: string
         phase?: 'new' | 'activated'
+        type?: string,
+        quietDomains?: any[]
     }
 }
 

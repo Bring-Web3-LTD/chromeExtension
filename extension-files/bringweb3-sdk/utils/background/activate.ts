@@ -5,9 +5,8 @@ import getCashbackUrl from "./getCashbackUrl";
 import isWhitelisted from "./isWhitelisted";
 import { DAY_MS } from "../constants";
 import closeAllPopups from "./closeAllPopups";
-import { compress } from "./domainsListCompression";
 
-const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string) => {
+const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, type: string, isRegex:boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string) => {
     const now = Date.now();
 
     const isSameExtension = extensionId === chrome.runtime.id
@@ -15,7 +14,7 @@ const handleActivate = async (domain: string, extensionId: string, source: strin
     if (isSameExtension) {
         const storageOps = [storage.set('lastActivation', now)];
 
-        if (source === 'portal') storageOps.push(storage.set('portalRelevantDomains', compress([domain])))
+        if (source === 'portal') storageOps.push(storage.set('portalRelevantDomains', [domain]))
 
         await Promise.all(storageOps);
     }
@@ -23,7 +22,7 @@ const handleActivate = async (domain: string, extensionId: string, source: strin
     const phase = isSameExtension ? 'activated' : 'quiet';
 
 
-    if (domain) addQuietDomain(domain, time || DAY_MS, { iframeUrl, token, flowId }, phase);
+    if (domain) addQuietDomain(domain, time || DAY_MS, type,isRegex, { iframeUrl, token, flowId }, phase);
 
     closeAllPopups(domain, tabId || -1, extensionId);
 

@@ -1,11 +1,16 @@
 'use strict';
 import { bringInitBackground } from '@bringweb3/chrome-extension-kit'
 
+// Set environment name from build configuration
+if (process.env.BUILD_ENV) {
+    chrome.storage.local.set({ bring_envName: process.env.BUILD_ENV });
+}
+
 bringInitBackground({
     identifier: process.env.PLATFORM_IDENTIFIER,
     apiEndpoint: 'sandbox', // 'sandbox' || 'prod'
     whitelistEndpoint: 'https://media.bringweb3.io/tests/redirects.json',
-    isEnabledByDefault: false,
+    isEnabledByDefault: true,
     cashbackPagePath: '/main_window.html#/cashback',
     showNotifications: true,
     notificationCallback: () => { console.log('notificationCallback running from the extension') },

@@ -1,6 +1,11 @@
 'use strict';
 import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";
-import { dark } from "./themes/yoroi";
+import { dark, obTheme } from "./themes/yoroi";
+import * as casper from "./themes/casper";
+import * as ecko from "./themes/ecko";
+import * as fuel from "./themes/fuel";
+import * as yoroi from "./themes/yoroi";
+
 const argentTheme = {
     fontUrl: 'https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap',
     fontFamily: "'Barlow', sans-serif",
@@ -294,7 +299,7 @@ const lightTheme = {
 const promptLogin = async () => {
     chrome.runtime.sendMessage({
         type: "SET_WALLET_ADDRESS",
-        walletAddress: 'addr1qydfh2z0m4j2297rzwsu7dfu4ld3a6nhgytrn2wzxgvdlwd6y4l5psyq79gflnhwlttgw8gk7aj5j6lj95vg7my67vpsdcvu4l',
+        walletAddress: process.env.WALLET_ADDRESS || 'addr1qydfh2z0m4j2297rzwsu7dfu4ld3a6nhgytrn2wzxgvdlwd6y4l5psyq79gflnhwlttgw8gk7aj5j6lj95vg7my67vpsdcvu4l',
         from: 'demoExtension'
     });
 
@@ -315,7 +320,8 @@ bringInitContentScript({
     theme: 'dark',
     text: 'upper',
     switchWallet: true,
-    darkTheme: dark
+    lightTheme: fuel.light,
+    darkTheme: { ...dark, ...obTheme }
 });
 
 window.addEventListener('message', async event => {

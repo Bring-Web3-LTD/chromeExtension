@@ -217,9 +217,6 @@ jobs:
       id-token: write
       contents: read
     environment: ${{ github.event.inputs.target_environment || (github.ref_name == 'sandbox' && 'sandbox' || 'production') }}
-    defaults:
-      run:
-        working-directory: iframe-frontend
     
     steps:
       - uses: actions/checkout@v4
@@ -252,6 +249,19 @@ jobs:
           echo "Branch: ${{ github.ref_name }}"
           echo "Target environment: $ENV"
           
+          # Set ENV_PARAM and VITE_API_URL following build.sh pattern
+          HOST="api.bringweb3.io"
+          if [ "$ENV" = "production" ]; then
+            ENV_PARAM=""
+            VITE_API_URL="https://$HOST/v1/extension"
+          else
+            ENV_PARAM="$ENV"
+            VITE_API_URL="https://$HOST/$ENV/v1/extension"
+          fi
+          
+          echo "ENV_PARAM: $ENV_PARAM"
+          echo "VITE_API_URL: $VITE_API_URL"
+          
           # Use environment-specific secrets (configured in GitHub Environment settings)
           S3_BUCKET="${{ secrets.S3_BUCKET }}"
           CLOUDFRONT_ID="${{ secrets.CLOUDFRONT_ID }}"
@@ -265,6 +275,8 @@ jobs:
             exit 1
           fi
           
+          echo "env-param=$ENV_PARAM" >> $GITHUB_OUTPUT
+          echo "vite-api-url=$VITE_API_URL" >> $GITHUB_OUTPUT
           echo "s3-bucket=$S3_BUCKET" >> $GITHUB_OUTPUT
           echo "cloudfront-id=$CLOUDFRONT_ID" >> $GITHUB_OUTPUT
       
@@ -276,41 +288,53 @@ jobs:
           role-session-name: GitHubActions-IframeDeployment
       
       - name: Build application
+        working-directory: iframe-frontend
         run: |
-          # Set base path for deployment
+          # Get version for base path
           if [ "${{ needs.determine-deployment.outputs.deployment-mode }}" = "new_version" ]; then
-            BASE_PATH="/${{ needs.determine-deployment.outputs.target-version }}/"
+            VERSION="${{ needs.determine-deployment.outputs.target-version }}"
           else
             # For override mode, get latest version from S3
             S3_BUCKET="${{ steps.config.outputs.s3-bucket }}"
             LATEST_VERSION=$(aws s3 ls "s3://${S3_BUCKET}/" | grep -E 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1 | awk '{print $2}' | sed 's/\///' || echo "v1.0.0")
-            BASE_PATH="/${LATEST_VERSION}/"
+            VERSION="$LATEST_VERSION"
           fi
           
-          # Determine environment for Vite variables
-          ENV="${{ github.event.inputs.target_environment || (github.ref_name == 'sandbox' && 'sandbox' || 'production') }}"
-          echo "Building for environment: $ENV"
-          echo "Building with base path: $BASE_PATH"
+          # Set base path following build.sh pattern
+          ENV_PARAM="${{ steps.config.outputs.env-param }}"
+          if [ -n "$ENV_PARAM" ]; then
+            # Non-production: /v{version}/{env}/
+            BASE_PATH="/${VERSION}/${ENV_PARAM}/"
+          else
+            # Production: /v{version}/
+            BASE_PATH="/${VERSION}/"
+          fi
           
-          # Set environment-specific secrets from GitHub Environment
-          export VITE_API_URL="${{ secrets.VITE_API_URL }}"
+          echo "Building for environment: ${ENV_PARAM:-production}"
+          echo "Version: $VERSION"
+          echo "Base path: $BASE_PATH"
+          echo "API URL: ${{ steps.config.outputs.vite-api-url }}"
+          
+          # Set environment variables following build.sh pattern
+          export VITE_API_URL="${{ steps.config.outputs.vite-api-url }}"
           export VITE_API_KEY="${{ secrets.VITE_API_KEY }}"
           export VITE_GA_MEASUREMENT_ID="${{ secrets.VITE_GA_MEASUREMENT_ID }}"
-          export VITE_APP_ENV="$ENV"
-          if [ "$ENV" = "sandbox" ]; then
-            export VITE_DEBUG_MODE="true"
-          else
-            export VITE_DEBUG_MODE="false"
-          fi
-          
-          # Common variables for all environments
           export VITE_BASE_PATH="$BASE_PATH"
           export VITE_APP_VERSION="${{ github.sha }}"
           export VITE_BUILD_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           export VITE_BRANCH_NAME="${{ github.ref_name }}"
           export VITE_TEST_ID="${{ secrets.VITE_TEST_ID }}"
           
-          yarn build
+          # Optional env-specific variables
+          if [ -n "$ENV_PARAM" ]; then
+            export VITE_APP_ENV="$ENV_PARAM"
+            export VITE_DEBUG_MODE="true"
+          else
+            export VITE_APP_ENV="production"
+            export VITE_DEBUG_MODE="false"
+          fi
+          
+          yarn build --base="$BASE_PATH"
         env:
           NODE_ENV: production
       
@@ -319,7 +343,9 @@ jobs:
         id: latest-version
         run: |
           S3_BUCKET="${{ steps.config.outputs.s3-bucket }}"
+          ENV_PARAM="${{ steps.config.outputs.env-param }}"
           echo "Using S3 bucket: $S3_BUCKET"
+          echo "Environment: ${ENV_PARAM:-production}"
           
           # List all version directories and get the latest one
           LATEST_VERSION=$(aws s3 ls "s3://${S3_BUCKET}/" | grep -E 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1 | awk '{print $2}' | sed 's/\///')
@@ -337,52 +363,73 @@ jobs:
         run: |
           TARGET_VERSION="${{ needs.determine-deployment.outputs.target-version }}"
           S3_BUCKET="${{ steps.config.outputs.s3-bucket }}"
+          ENV_PARAM="${{ steps.config.outputs.env-param }}"
+          
+          # Build S3 path following build.sh pattern
+          if [ -n "$ENV_PARAM" ]; then
+            S3_PATH="${ENV_PARAM}/${TARGET_VERSION}"
+          else
+            S3_PATH="prod/${TARGET_VERSION}"
+          fi
+          
+          echo "Deploying to: s3://${S3_BUCKET}/${S3_PATH}/"
           
           # Check if version already exists
-          if aws s3 ls "s3://${S3_BUCKET}/${TARGET_VERSION}/" > /dev/null 2>&1; then
-            echo "Version ${TARGET_VERSION} already exists. Aborting deployment."
+          if aws s3 ls "s3://${S3_BUCKET}/${S3_PATH}/" > /dev/null 2>&1; then
+            echo "Version ${S3_PATH} already exists. Aborting deployment."
             exit 1
           fi
           
           # Deploy to new version folder
-          aws s3 sync dist/ "s3://${S3_BUCKET}/${TARGET_VERSION}/" \
+          aws s3 sync iframe-frontend/dist/ "s3://${S3_BUCKET}/${S3_PATH}/" \
             --delete \
             --cache-control "public, max-age=31536000" \
             --metadata-directive REPLACE
           
           # Update index.html with correct content type and shorter cache control
-          aws s3 cp "s3://${S3_BUCKET}/${TARGET_VERSION}/index.html" \
-            "s3://${S3_BUCKET}/${TARGET_VERSION}/index.html" \
+          aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}/index.html" \
+            "s3://${S3_BUCKET}/${S3_PATH}/index.html" \
             --content-type "text/html" \
             --cache-control "public, max-age=300" \
             --metadata-directive REPLACE
           
-          echo "✅ Deployed new version: ${TARGET_VERSION}"
+          echo "✅ Deployed new version: ${S3_PATH}"
       
       - name: Deploy to S3 (Override)
         if: needs.determine-deployment.outputs.deployment-mode == 'override'
         run: |
           TARGET_VERSION="${{ steps.latest-version.outputs.latest-version }}"
           S3_BUCKET="${{ steps.config.outputs.s3-bucket }}"
+          ENV_PARAM="${{ steps.config.outputs.env-param }}"
+          
+          # Build S3 path following build.sh pattern
+          if [ -n "$ENV_PARAM" ]; then
+            S3_PATH="${ENV_PARAM}/${TARGET_VERSION}"
+          else
+            S3_PATH="prod/${TARGET_VERSION}"
+          fi
+          
+          echo "Overriding: s3://${S3_BUCKET}/${S3_PATH}/"
           
           # Deploy to existing version folder (override)
-          aws s3 sync dist/ "s3://${S3_BUCKET}/${TARGET_VERSION}/" \
+          aws s3 sync iframe-frontend/dist/ "s3://${S3_BUCKET}/${S3_PATH}/" \
             --delete \
             --cache-control "public, max-age=31536000" \
             --metadata-directive REPLACE
           
           # Update index.html with correct content type and shorter cache control
-          aws s3 cp "s3://${S3_BUCKET}/${TARGET_VERSION}/index.html" \
-            "s3://${S3_BUCKET}/${TARGET_VERSION}/index.html" \
+          aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}/index.html" \
+            "s3://${S3_BUCKET}/${S3_PATH}/index.html" \
             --content-type "text/html" \
             --cache-control "public, max-age=300" \
             --metadata-directive REPLACE
           
-          echo "✅ Overrode existing version: ${TARGET_VERSION}"
+          echo "✅ Overrode existing version: ${S3_PATH}"
       
       - name: Invalidate CloudFront
         run: |
           CLOUDFRONT_ID="${{ steps.config.outputs.cloudfront-id }}"
+          ENV_PARAM="${{ steps.config.outputs.env-param }}"
           
           if [ "${{ needs.determine-deployment.outputs.deployment-mode }}" = "new_version" ]; then
             TARGET_VERSION="${{ needs.determine-deployment.outputs.target-version }}"
@@ -390,31 +437,43 @@ jobs:
             TARGET_VERSION="${{ steps.latest-version.outputs.latest-version }}"
           fi
           
+          # Build invalidation path following build.sh pattern
+          if [ -n "$ENV_PARAM" ]; then
+            INVALIDATION_PATH="/${ENV_PARAM}/${TARGET_VERSION}/*"
+          else
+            INVALIDATION_PATH="/prod/${TARGET_VERSION}/*"
+          fi
+          
+          echo "Invalidating path: ${INVALIDATION_PATH}"
+          
           # Invalidate specific version path
           aws cloudfront create-invalidation \
             --distribution-id "${CLOUDFRONT_ID}" \
-            --paths "/${TARGET_VERSION}/*"
+            --paths "${INVALIDATION_PATH}"
           
-          echo "✅ CloudFront invalidation created for /${TARGET_VERSION}/*"
+          echo "✅ CloudFront invalidation created for ${INVALIDATION_PATH}"
       
       - name: Update CloudFront KeyValueStore
         run: |
           S3_BUCKET="${{ steps.config.outputs.s3-bucket }}"
+          ENV_PARAM="${{ steps.config.outputs.env-param }}"
           
-          # Determine environment key name
-          ENV="${{ github.event.inputs.target_environment || (github.ref_name == 'sandbox' && 'sandbox' || 'production') }}"
-          if [ "$ENV" = "sandbox" ]; then
-            KVS_KEY="sandbox"
+          # Determine environment key name and folder
+          if [ -n "$ENV_PARAM" ]; then
+            KVS_KEY="$ENV_PARAM"
+            S3_ENV_FOLDER="${ENV_PARAM}/"
           else
             KVS_KEY="prod"
+            S3_ENV_FOLDER="prod/"
           fi
           
           echo "Updating KeyValueStore for environment: $KVS_KEY"
+          echo "Listing versions from: s3://${S3_BUCKET}/${S3_ENV_FOLDER}"
           
-          # Get all version directories from S3 and format as comma-separated list
-          VERSIONS=$(aws s3 ls "s3://${S3_BUCKET}/" | grep -E 'v[0-9]+\.[0-9]+\.[0-9]+' | awk '{print $2}' | sed 's/\///' | sed 's/^v//' | sort -V | tr '\n' ',' | sed 's/,$//')
+          # Get all version directories from the environment folder in S3 and format as comma-separated list
+          VERSIONS=$(aws s3 ls "s3://${S3_BUCKET}/${S3_ENV_FOLDER}" | grep -E 'v[0-9]+\.[0-9]+\.[0-9]+' | awk '{print $2}' | sed 's/\///' | sed 's/^v//' | sort -V | tr '\n' ',' | sed 's/,$//')
           
-          echo "Available versions: $VERSIONS"
+          echo "Available versions for $KVS_KEY: $VERSIONS"
           
           # Use shared repository secret for KVS ARN
           KVS_ARN="${{ secrets.CLOUDFRONT_KVS_ARN }}"

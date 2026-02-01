@@ -1,5 +1,15 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.6.0
+
+### Minor Changes
+
+- 7573ef7: offerbar feature
+
+### Patch Changes
+
+- 7065367: Fix overflow bug for relevantDomains storage helper
+
 ## 1.5.2
 
 ### Patch Changes

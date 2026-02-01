@@ -69,10 +69,11 @@ const bringInitBackground = async ({ identifier, apiEndpoint, cashbackPagePath, 
     // Initialize debug cache after API endpoint is set
     storage.initializeDebugCache()
 
-    const popupEnabled = await storage.get('popupEnabled')
+    let popupEnabled = await storage.get('popupEnabled')
 
     if (popupEnabled === undefined) {
         await storage.set('popupEnabled', isEnabledByDefault)
+        popupEnabled = isEnabledByDefault
     }
 
     await checkAndRunMigration();

@@ -86,7 +86,6 @@ export const searchSingle = (entry: string, query: string, regex?: boolean): boo
     const decodedQueryPath = decodeURIComponent(queryPath.replace(/\+/g, ' '));
 
     if (!regex) {
-        if (entryPath && !entryPath.endsWith('/')) entryPath += '/';
         if (decodedQueryPath.startsWith(entryPath)) {
             return true;
         }

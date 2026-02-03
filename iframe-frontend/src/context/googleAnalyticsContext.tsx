@@ -5,12 +5,12 @@ import { VariantKey } from '../utils/ABTest/platform-variants';
 import analytics from '../api/analytics';
 import { useWalletAddress } from '../hooks/useWalletAddress';
 
-type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer'
+type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer' | 'wallet_connected'
 
 interface GAEvent {
     category: "user_action" | "system";
     action?: "click" | "input" | "select" | "request";
-    details?: string;
+    details?: string | object;
     process?: "activate" | "initiate" | "submit";
 }
 
@@ -41,7 +41,9 @@ interface Props {
 
 export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId }) => {
     const effectRan = useRef(false)
+    const isInitialMount = useRef(true)
     const { walletAddress } = useWalletAddress()
+    const previousWalletAddressRef = useRef<string | undefined>(walletAddress)
 
     const sendBackendEvent = useCallback(async (name: EventName, event: BackendEvent) => {
         const timestamp = Date.now()
@@ -120,6 +122,35 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
 
     }, [measurementId, platform, testVariant, walletAddress]);
 
+    // Track wallet address changes
+    useEffect(() => {
+        if (window.origin.includes('localhost')) {
+            return
+        }
+
+        // Skip the very first mount
+        if (isInitialMount.current) {
+            isInitialMount.current = false
+            previousWalletAddressRef.current = walletAddress
+            return
+        }
+
+        // Only send event if wallet address actually changed
+        if (previousWalletAddressRef.current !== walletAddress) {
+            sendGaEvent('wallet_connected', {
+                category: 'user_action',
+                action: 'click',
+                details: {
+                    prevWalletAddress: previousWalletAddressRef.current ?? null,
+                    currentWalletAddress: walletAddress ?? null
+                }
+            })
+        }
+        
+        previousWalletAddressRef.current = walletAddress
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [walletAddress])
+
     useEffect(() => {
         if (window.origin.includes('localhost')) {
             return
@@ -162,7 +193,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         });
     };
 
-    const sendGaEvent = async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
+    const sendGaEvent = useCallback(async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
         if (window.origin.includes('localhost')) return
 
         const backendResult = await sendBackendEvent(name, event)
@@ -188,7 +219,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         if (walletAddress) params.walletAddress = walletAddress
         ReactGA.event(name, params)
         return
-    };
+    }, [sendBackendEvent, platform, testVariant, walletAddress])
 
     return (
         <GoogleAnalyticsContext.Provider value={{ sendGaEvent, sendPageViewEvent }}>

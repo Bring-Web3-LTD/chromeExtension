@@ -111,7 +111,6 @@ const Offerbar = () => {
     <div
       id="offerbar-container"
       className={styles.offerbar}
-      style={{ backgroundImage: `url(${iconsPath}/ob-bg.png)` }}
     >
       <button id="offerbar-close-btn-top" className={styles.closeButton} onClick={close}><img src={`${iconsPath}/ob-close-btn.svg`} alt="Close" /></button>
       {showOptout ? <Optout closeFn={() => setShowOptout(false)} />

@@ -7,10 +7,9 @@ import { useState } from 'react';
 
 const CollaborationLogos = () => {
     const { iconUrl, name, platformName } = useRouteLoaderData('root') as LoaderData    
-    // const [fallbackLogo, setFallbackLogo] = useState<string | null>(
-    //     !iconUrl || iconUrl.trim() === '' ? getInitials(name) : null
-    // )
-    const [fallbackLogo, setFallbackLogo] = useState<string | null>(getInitials(name))     
+    const [fallbackLogo, setFallbackLogo] = useState<string | null>(
+        !iconUrl || iconUrl.trim() === '' ? getInitials(name) : null
+    )         
 
     return (
         <div id="collaboration-logos-container" className={styles.logos_container} >

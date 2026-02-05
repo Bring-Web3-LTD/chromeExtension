@@ -61,6 +61,13 @@ export const dark = {
     logoTxtFS: "14px",
     logoTxtFW: "500",
     logoTxtFC: "#E1E6F5",
+    // Logo initials
+    logoWrapperInitialsBg: "#4B6DDE",
+    logoInitialsBg: "#4B6DDE",
+    logoInitialsFS: "60px",
+    logoInitialsTwoLettersFS: "40px",
+    logoInitialsFW: "500",
+    logoInitialsFC: "#FFF",
     // Overlay
     overlayWaitingBg: "#15171F",
     overlayBg: "#1F232ECC",

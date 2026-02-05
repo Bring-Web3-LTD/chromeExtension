@@ -7,28 +7,31 @@ import { useState } from 'react';
 
 const CollaborationLogos = () => {
     const { iconUrl, name, platformName } = useRouteLoaderData('root') as LoaderData    
-    const [fallbackImg, setFallbackImg] = useState<string | null>(
-        !iconUrl || iconUrl.trim() === '' ? getInitials(name) : null
-    )
-    // const [fallbackImg, setFallbackImg] = useState<string | null>(getInitials(name))     
+    // const [fallbackLogo, setFallbackLogo] = useState<string | null>(
+    //     !iconUrl || iconUrl.trim() === '' ? getInitials(name) : null
+    // )
+    const [fallbackLogo, setFallbackLogo] = useState<string | null>(getInitials(name))     
 
     return (
         <div id="collaboration-logos-container" className={styles.logos_container} >
             <div id="retailer-logo-container" className={styles.logo_container} >
-                <div id="retailer-logo-wrapper" className={styles.logo_wrapper} >
-                    {fallbackImg ? (
+                <div 
+                    id="retailer-logo-wrapper" 
+                    className={`${styles.logo_wrapper} ${fallbackLogo ? styles.logo_wrapper_initials : ''}`}
+                >
+                    {fallbackLogo ? (
                         <div 
                             id="retailer-logo-initials"
-                            className={styles.logo_initials}
+                            className={`${styles.logo_initials} ${fallbackLogo.length === 2 ? styles.logo_initials_two_letters : ''}`}
                         >
-                            {fallbackImg}
+                            {fallbackLogo}
                         </div>
                     ) : (
                         <img
                             id="retailer-logo"
                             src={iconUrl}
                             className={styles.logo}                            
-                            onError={() => setFallbackImg(getInitials(name))}
+                            onError={() => setFallbackLogo(getInitials(name))}
                         />
                     )}
                 </div>

@@ -80,7 +80,8 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         const eventPromise = (async () => {
             try {
                 const result = await analytics(backendEvent, timestamp)
-                if (result.success) {
+                const isSuccess = result.status === 200 && result.message === 'success'
+                if (isSuccess) {
                     sentEvents.add(name)
                 }
                 return result

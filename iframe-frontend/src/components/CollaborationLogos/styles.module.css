@@ -23,10 +23,35 @@
     border-radius: var(--logo-radius, 50%);
 }
 
+.logo_wrapper_initials {
+    background: var(--logo-wrapper-initials-bg, #FFF);
+}
+
 .logo {
     border-radius: var(--logo-radius, 50%);
     width: calc(var(--logo-size) - 4px);
     height: calc(var(--logo-size) - 4px);
+}
+.logo_initials{    
+    width: calc(var(--logo-size) - 4px);
+    height: calc(var(--logo-size) - 4px);
+    border-radius: var(--logo-radius, 50%);
+    color: var(--logo-initials-f-c, #000);          
+    font-size: var(--logo-initials-f-s, 60px);    
+    font-weight: var(--logo-initials-f-w, 600);   
+    background: var(--logo-initials-bg, #FFF);
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-style: normal;
+    text-transform: uppercase;
+    text-align: center;  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1/1;    
+}
+
+.logo_initials_two_letters {
+    font-size: var(--logo-initials-two-letters-f-s, 40px);
 }
 
 .plus_logo {

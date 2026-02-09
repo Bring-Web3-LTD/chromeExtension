@@ -1,6 +1,6 @@
 export const dark = {
-    fontUrl: "https://fonts.googleapis.com/css2?family=Inter&display=swap",
-    fontFamily: "'Inter', system-ui",
+    fontUrl: "https://fonts.googleapis.com/css2?family=Montserrat&display=swap",
+    fontFamily: "'Montserrat', system-ui",
     popupBg: "#141414",
     primaryBtnBg: "linear-gradient(to right, #00c7f3, #00fad5)",
     primaryBtnFC: "#041417",

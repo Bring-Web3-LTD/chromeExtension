@@ -131,7 +131,7 @@ const Offerbar = () => {
             id="offerbar-opt-out-btn"
             className={styles.optOutButton}
             onClick={() => setShowOptout(true)}
-          >{toCaseString('Opt out', textMode)}</button>
+          >{toCaseString('Turn Off', textMode)}</button>
         </>
       }
       <button id="offerbar-close-btn-bottom" className={styles.closeButtonBottom} onClick={close}>

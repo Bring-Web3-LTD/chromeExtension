@@ -32,6 +32,7 @@
     width: calc(var(--logo-size) - 4px);
     height: calc(var(--logo-size) - 4px);
 }
+
 .logo_initials{    
     width: calc(var(--logo-size) - 4px);
     height: calc(var(--logo-size) - 4px);

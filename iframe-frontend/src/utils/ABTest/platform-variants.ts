@@ -16,10 +16,9 @@ export type VariantsConfig = {
 // Example configuration
 export const variants = {
   // Global default for companies without specific settings
-  'default': {
-    'control': 34,
-    'testA': 33,
-    'testB': 33
+  'default': {  
+    'testA': 50,
+    'testB': 50
   },
   // Company-specific configurations
   'argent': {

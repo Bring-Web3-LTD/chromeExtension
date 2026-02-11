@@ -1,6 +1,5 @@
 .container {
     margin-top: 40px;
-   
 }
 
 .card {
@@ -11,8 +10,6 @@
     background: var(--optout-bg);
     padding: 16px;
     border-radius: var(--optout-radius);
-    min-height: 236px;
-
 }
 
 .title {

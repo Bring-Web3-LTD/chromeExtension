@@ -129,8 +129,6 @@ const OptOut = ({ onClose }: Props) => {
                         <div id="opt-out-description" className={styles.description}>
                             With {toCapital(platformName)}'s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
                         </div>
-                         (                           
-                            <>
                                 <RadioGroup
                                     options={websiteOptions}
                                     title="Turn off cashback offers"
@@ -143,8 +141,6 @@ const OptOut = ({ onClose }: Props) => {
                                     onChange={(option => setSelection({ ...selection, duration: option }))}
                                     defaultOption={durationOptions[0]}
                                 />
-                            </>
-                        )
                     </div>
                     <button
                         id="opt-out-apply-btn"

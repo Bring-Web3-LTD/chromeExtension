@@ -139,9 +139,9 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
     }, [measurementId, platform, testVariant, walletAddress]);
 
     useEffect(() => {
-        // if (window.origin.includes('localhost')) {
-        //     return
-        // }
+        if (window.origin.includes('localhost')) {
+            return
+        }
 
         if (effectRan.current) return
 
@@ -164,9 +164,9 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
 
     const sendPageViewEvent = (): void => {
 
-        // if (window.origin.includes('localhost')) {
-        //     return
-        // }
+        if (window.origin.includes('localhost')) {
+            return
+        }
         if (!ReactGA.isInitialized) {
             console.warn('BRING: Google Analytics is not initialized');
             return
@@ -181,7 +181,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
     };
 
     const sendGaEvent = async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
-        // if (window.origin.includes('localhost')) return
+        if (window.origin.includes('localhost')) return
 
         const backendResult = await sendBackendEvent(name, event)
 

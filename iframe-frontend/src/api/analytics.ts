@@ -20,6 +20,7 @@ interface Body {
     resultDomain?: string
     resultUrl?: string
     matchedKeyword?: string
+    isOfferBar?: boolean
 }
 
 const analytics = async (body: Body,timestamp?: number) => {

@@ -43,9 +43,10 @@ interface Props {
     domain: string
     inlineSearchLink: string | undefined
     matchedKeyword: string | undefined
+    isOfferBar: boolean | undefined
 }
 
-export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword }) => {
+export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar }) => {
     const effectRan = useRef(false)
     const { walletAddress } = useWalletAddress()
 
@@ -86,6 +87,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         if (domain) backendEvent.resultDomain = domain
         if (inlineSearchLink) backendEvent.resultUrl = inlineSearchLink
         if (matchedKeyword) backendEvent.matchedKeyword = matchedKeyword
+        if (isOfferBar !== undefined) backendEvent.isOfferBar = isOfferBar
         
         // Calculate triggerType based on verifiedMatch
         const triggerType = verifiedMatch?.isRegex === true ? 'keyword' : 'domain'
@@ -137,9 +139,9 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
     }, [measurementId, platform, testVariant, walletAddress]);
 
     useEffect(() => {
-        if (window.origin.includes('localhost')) {
-            return
-        }
+        // if (window.origin.includes('localhost')) {
+        //     return
+        // }
 
         if (effectRan.current) return
 
@@ -162,9 +164,9 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
 
     const sendPageViewEvent = (): void => {
 
-        if (window.origin.includes('localhost')) {
-            return
-        }
+        // if (window.origin.includes('localhost')) {
+        //     return
+        // }
         if (!ReactGA.isInitialized) {
             console.warn('BRING: Google Analytics is not initialized');
             return
@@ -179,7 +181,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
     };
 
     const sendGaEvent = async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
-        if (window.origin.includes('localhost')) return
+        // if (window.origin.includes('localhost')) return
 
         const backendResult = await sendBackendEvent(name, event)
 

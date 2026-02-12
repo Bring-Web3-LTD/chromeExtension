@@ -26,6 +26,7 @@ const Layout = () => {
                     domain={data.domain}
                     inlineSearchLink={data.inlineSearchLink}
                     matchedKeyword={data.matchedKeyword}
+                    isOfferBar={data.isOfferBar}
                 >
                     <Beamer enabled={data.beamer} />
                     <Outlet />

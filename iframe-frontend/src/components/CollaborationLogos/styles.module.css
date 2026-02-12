@@ -24,7 +24,7 @@
 }
 
 .logo_wrapper_initials {
-    background: var(--logo-wrapper-initials-bg, #FFF);
+    background: var(--logo-wrapper-initials-bg, #BCBDC1);
 }
 
 .logo {

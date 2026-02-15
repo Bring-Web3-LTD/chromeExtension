@@ -14,6 +14,13 @@ interface Body {
     retailer?: string
     flowId: string
     timestamp?: number
+    searchEngine?: string
+    triggerType?: string
+    searchQuery?: string
+    resultDomain?: string
+    resultUrl?: string
+    matchedKeyword?: string
+    isOfferBar?: boolean
 }
 
 const analytics = async (body: Body,timestamp?: number) => {

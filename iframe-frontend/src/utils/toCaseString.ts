@@ -1,5 +1,8 @@
 
-const toCaseString = (str: string, mode?: 'upper' | 'lower') => {
+const toCaseString = (str: string, mode?: 'upper' | 'lower', platformName?: string) => {
+
+    if (platformName?.toLowerCase() === 'ecko') return str;
+
     if (mode !== 'upper') {
         return str
     }

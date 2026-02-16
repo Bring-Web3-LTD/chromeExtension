@@ -24,14 +24,13 @@ const parseOfferText = (text: string | undefined): React.ReactNode => {
     if (!text) return null
 
     try {
-        keyCounter = 0 // Reset counter for consistent keys on each parse
-        return parseText(text)
+        const keyCounter = { value: 0 } // Object wrapper for pass-by-reference
+        return parseText(text, keyCounter)
     } catch (error) {
         console.error('Error parsing offer text:', error)
         return text // Fallback to plain text on error
     }
 }
-let keyCounter = 0
 
 /**
  * Finds the first marker pair in text and returns its position/content
@@ -79,7 +78,7 @@ function findFirstMarker(text: string): {
 /**
  * Recursively parses text, applying styles for each marker found
  */
-function parseText(text: string): React.ReactNode {
+function parseText(text: string, keyCounter: { value: number }): React.ReactNode {
     const marker = findFirstMarker(text)
 
     if (!marker) {
@@ -91,11 +90,11 @@ function parseText(text: string): React.ReactNode {
 
     return (
         <>
-            {before && parseText(before)}
-            <span key={`m${keyCounter++}`} style={STYLES[marker.type]}>
-                {parseText(marker.content)}
+            {before && parseText(before, keyCounter)}
+            <span key={`m${keyCounter.value++}`} style={STYLES[marker.type]}>
+                {parseText(marker.content, keyCounter)}
             </span>
-            {after && parseText(after)}
+            {after && parseText(after, keyCounter)}
         </>
     )
 }

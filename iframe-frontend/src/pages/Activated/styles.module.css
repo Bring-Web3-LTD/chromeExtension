@@ -120,8 +120,12 @@
     text-decoration: underline;
 }
 
+.markdown a:hover {
+    color: var(--primary-btn-bg);
+}
+
 .externalLink {
-   color: var(--markdown-f-c);
+   color: var(--primary-btn-bg);
     text-decoration: underline;
     cursor: pointer;
 }

@@ -1,4 +1,4 @@
-import { FC, createContext, useEffect, ReactNode, useCallback, useRef } from 'react';
+import { FC, createContext, useEffect, ReactNode, useCallback } from 'react';
 import ReactGA from 'react-ga4';
 import { TEST_ID } from '../config';
 import { VariantKey } from '../utils/ABTest/platform-variants';
@@ -27,6 +27,7 @@ export const GoogleAnalyticsContext = createContext<GoogleAnalyticsContextType |
 // Move these outside the component to persist across remounts
 const sentEvents = new Set<EventName>()
 const pendingPromises = new Map<EventName, Promise<{ success: boolean; error?: Error; skipped?: boolean }>>()
+let pageViewSent = false
 
 interface Props {
     measurementId: string
@@ -47,7 +48,6 @@ interface Props {
 }
 
 export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar }) => {
-    const effectRan = useRef(false)
     const { walletAddress } = useWalletAddress()
 
     const sendBackendEvent = useCallback(async (name: EventName, event: BackendEvent) => {
@@ -143,7 +143,8 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
             return
         }
 
-        if (effectRan.current) return
+        if (pageViewSent) return
+        pageViewSent = true
 
         const details: { [key: string]: string } = {
             pageLocation: window.location.href,
@@ -157,8 +158,6 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
             category: 'system',
             details
         })
-
-        effectRan.current = true
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

@@ -24,6 +24,7 @@ const parseOfferText = (text: string | undefined): React.ReactNode => {
     if (!text) return null
 
     try {
+        keyCounter = 0 // Reset counter for consistent keys on each parse
         return parseText(text)
     } catch (error) {
         console.error('Error parsing offer text:', error)

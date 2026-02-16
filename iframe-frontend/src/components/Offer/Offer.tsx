@@ -16,6 +16,7 @@ import parseTime from '../../utils/parseTime'
 import { Oval } from 'react-loader-spinner'
 import CollaborationLogos from '../CollaborationLogos/CollaborationLogos'
 import formatCashback from '../../utils/formatCashback'
+import parseOfferText from '../../utils/parseOfferText'
 
 interface BringEventData {
     from: string;
@@ -159,7 +160,7 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    {offerText || (
+                                    {parseOfferText(offerText) || (
                                         <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
                                     )}
                                 </div>

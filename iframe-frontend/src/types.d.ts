@@ -49,6 +49,12 @@ declare global {
         networkUrl?: string
         offerBarSearch?: string
         offerBarPageUrl?: string
+        verifiedMatch?: {
+            match: string
+            isRegex: boolean
+        }
+        inlineSearchLink?: string
+        matchedKeyword?: string
     }
 
     interface LoaderData extends Info {

@@ -125,19 +125,19 @@ const Offerbar = () => {
             <div id="offerbar-offer-text-cashback" className={styles.offer_text}>Cashback</div>
           </div>
           <button id="offerbar-activate-btn" className={styles.activateButton} onClick={handleActivate} disabled={status !== 'idle'}>
-            {toCaseString('Activate', textMode)}
+            {toCaseString('Activate', textMode, platformName)}
           </button>
           <button
             id="offerbar-opt-out-btn"
             className={styles.optOutButton}
             onClick={() => setShowOptout(true)}
-          >{toCaseString('Turn Off', textMode)}</button>
+          >{toCaseString('Turn Off', textMode, platformName)}</button>
         </>
       }
       <button id="offerbar-close-btn-bottom" className={styles.closeButtonBottom} onClick={close}>
         <img id='offerbar-close-btn-bottom-icon' src={`${iconsPath}/close-icon.svg`} alt="" />
         <span id="offerbar-close-text">
-          {toCaseString('Close', textMode)}
+          {toCaseString('Close', textMode, platformName)}
         </span>
       </button>
     </div>

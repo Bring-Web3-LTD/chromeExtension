@@ -22,7 +22,7 @@ const dict = {
 }
 
 const Optout = ({ closeFn }: Props) => {
-    const { textMode, domain, name } = useRouteLoaderData('root') as LoaderData
+    const { textMode, domain, name, platformName } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)
 
@@ -65,7 +65,7 @@ const Optout = ({ closeFn }: Props) => {
                                 onClick={() => handleOptOut(option)}
                                 disabled={isOpted}
                             >
-                                {toCaseString(option.label, textMode)}
+                                {toCaseString(option.label, textMode, platformName)}
                             </button>
                         ))}
                         <button id="optout-back-btn" className={styles.backBtn} onClick={closeFn} disabled={isOpted}>

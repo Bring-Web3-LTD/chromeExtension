@@ -37,9 +37,16 @@ interface Props {
     retailerName: string | undefined
     location: string
     flowId: string
+    searchEngineDomain: string | undefined
+    verifiedMatch: { match: string; isRegex: boolean } | undefined
+    offerBarSearch: string | undefined
+    domain: string
+    inlineSearchLink: string | undefined
+    matchedKeyword: string | undefined
+    isOfferBar: boolean | undefined
 }
 
-export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId }) => {
+export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar }) => {
     const effectRan = useRef(false)
     const { walletAddress } = useWalletAddress()
 
@@ -75,6 +82,17 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         if (retailerName) backendEvent.retailer = retailerName
         if (walletAddress) backendEvent.walletAddress = walletAddress
         if (userId) backendEvent.userId = userId
+        if (searchEngineDomain) backendEvent.searchEngine = searchEngineDomain
+        if (offerBarSearch) backendEvent.searchQuery = offerBarSearch
+        if (domain) backendEvent.resultDomain = domain
+        if (inlineSearchLink) backendEvent.resultUrl = inlineSearchLink
+        if (matchedKeyword) backendEvent.matchedKeyword = matchedKeyword
+        if (isOfferBar !== undefined) backendEvent.isOfferBar = isOfferBar
+        
+        // Calculate triggerType based on verifiedMatch
+        const triggerType = verifiedMatch?.isRegex === true ? 'keyword' : 'domain'
+        backendEvent.triggerType = triggerType
+
 
         // Create the promise for this event
         const eventPromise = (async () => {

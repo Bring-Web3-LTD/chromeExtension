@@ -43,7 +43,7 @@ const tabStates = new Map<number, TabState>();
 
 const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
     const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[]) => {
-
+        if (!isInlineSearch) console.log("validating url: (not inline search)", urlToCheck);
         if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') return;
 
         const url = parseUrl(urlToCheck);
@@ -54,6 +54,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             if (!isInlineSearch) await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
             return;
         };
+
+        if (!isInlineSearch) console.log("found match");
 
         if (isInlineSearch) {
             const state = tabStates.get(tabId);
@@ -94,6 +96,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             });
             return;
         } else if (phase === 'quiet') {
+            if (!isInlineSearch) console.log("found in quietDomains");
             // TODO: if(phase === 'quiet') => Purchase-detector
             await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
             return
@@ -110,6 +113,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             tabStates.get(tabId)!.urlSearchStatus = 'pending';
         }
 
+        if (!isInlineSearch) console.log("is about to call checkPopup");
         let popupData = await validateDomain({
             body: {
                 phase,
@@ -201,6 +205,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         if (!isPopupEnabled) return;
 
         if (changeInfo.url) {
+            console.log('url changed, the new one is:', tab.url);
             tabStates.delete(tabId);
             await checkPostPurchasePage(tab.url);
             validateAndInject(tab.url, tabId, tab, false);

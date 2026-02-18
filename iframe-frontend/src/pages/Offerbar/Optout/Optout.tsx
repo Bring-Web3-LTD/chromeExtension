@@ -10,14 +10,14 @@ interface Props {
 }
 
 const durationOptions = [
-    { label: '24 Hours', value: 24 * 60 * 60 * 1000 },
-    { label: '30 Days', value: 30 * 24 * 60 * 60 * 1000 },
+    { label: '24 hours', value: 24 * 60 * 60 * 1000 },
+    { label: '30 days', value: 30 * 24 * 60 * 60 * 1000 },
     { label: 'Forever', value: 999999999999999 },
 ]
 
 const dict = {
-    '24 Hours': '24Hours',
-    '30 Days': '30Days',
+    '24 hours': '24Hours',
+    '30 days': '30Days',
     'Forever': 'forever'
 }
 
@@ -61,7 +61,7 @@ const Optout = ({ closeFn }: Props) => {
                             <button
                                 key={option.label}
                                 id={`optout-${option.label.toLowerCase().replace(' ', '-')}-btn`}
-                                className={option.label === '24 Hours' ? styles.mainBtn : styles.secondaryBtn}
+                                className={option.label === '24 hours' ? styles.mainBtn : styles.secondaryBtn}
                                 onClick={() => handleOptOut(option)}
                                 disabled={isOpted}
                             >

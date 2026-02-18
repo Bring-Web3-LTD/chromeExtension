@@ -5,6 +5,8 @@
 
 export const light = {
     popupBg: '#F5F6F7',
+    detailsSubtitleFC: '#84868C',
+    detailsAmountFC: '#0A2EBF',
 }
 
 export const dark = {
@@ -58,11 +60,11 @@ export const dark = {
     detailsTitleFC: "#E1E6F5",
     detailsSubtitleFS: "16px",
     detailsSubtitleFW: "400",
-    detailsSubtitleFC: "#E1E6F5",
+    detailsSubtitleFC: "#A9AAAD",
     detailsRadius: "8px",
     detailsBorderW: "0",
     detailsBorderC: "transparent",
-    detailsAmountFC: "#66F2D6",
+    detailsAmountFC: "#7490FF",
     detailsAmountFW: "500",
     // Logo
     logoBg: "white",

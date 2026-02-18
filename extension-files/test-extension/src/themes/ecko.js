@@ -50,7 +50,7 @@ export const dark = {
     secondaryBtnFS: "14px",
     detailsTitleFC: "#FBFBFB",
     detailsTitleFS: "16px",
-    detailsSubtitleFW: "400",
+    detailsSubtitleFW: "400",    
     labelFW: "400",
     secondaryBtnBg: "#1A1E3E",
     closeFW: "400",

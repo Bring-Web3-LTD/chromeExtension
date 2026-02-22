@@ -59,7 +59,7 @@ export const selectVariant = (userId: string, platformName: PlatformName = 'defa
   const variants = Object.keys(variantDistribution) as VariantKey[];
 
   for (const variant of variants) {
-    const weight = variantDistribution[variant] !== undefined ? variantDistribution[variant] : 100 / variants.length;
+    const weight = variantDistribution[variant];
     cumulativeWeight += weight;
     cumulativeDistribution.push({ variant, weight: cumulativeWeight });
   }

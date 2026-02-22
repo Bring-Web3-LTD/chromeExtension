@@ -48,7 +48,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         const url = parseUrl(urlToCheck);
 
-        const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 'd' : 'kd');
+        const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 's' : 'kd');
 
         if (!matched) {
             if (!isInlineSearch) await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
@@ -115,7 +115,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 phase,
                 url: tab.url!,
                 address,
-                type: isInlineSearch ? 'i' : type,
+                matchType: type,
+                triggerType: isInlineSearch ? 'inline' : 'url',
                 quietDomains,
                 ...(isInlineSearch && {
                     link: urlToCheck,

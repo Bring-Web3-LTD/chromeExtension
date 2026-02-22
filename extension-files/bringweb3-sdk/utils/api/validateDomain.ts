@@ -9,7 +9,8 @@ interface ValidateDomainProps {
         address: WalletAddress,
         country?: string
         phase?: 'new' | 'activated'
-        type?: string,
+        matchType?: string,
+        triggerType?: 'inline' | 'url',
         quietDomains?: any[]
     }
 }

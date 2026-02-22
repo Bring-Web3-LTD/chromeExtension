@@ -42,13 +42,13 @@ interface TabState {
 const tabStates = new Map<number, TabState>();
 
 const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
-    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineMatch?: string | string[]) => {
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineSearchResult?: { match: string | string[], type?: string }) => {
 
         if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') return;
 
         const url = parseUrl(urlToCheck);
 
-        const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 'd' : 'kd');
+        const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 's' : 'kd');
 
         if (!matched) {
             if (!isInlineSearch) await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
@@ -68,6 +68,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         }
 
         const { phase, payload } = await getQuietDomain(url, type);
+
+        const matches = [];
+        if (isInlineSearch && inlineSearchResult) {
+            matches.push({ match: inlineSearchResult.match, type: inlineSearchResult.type || '' });
+        }
+        matches.push({ match, type: type || '' });
 
         if (phase === 'new') {
             const now = Date.now();
@@ -115,15 +121,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 phase,
                 url: tab.url!,
                 address,
-                type: isInlineSearch ? 'i' : type,
+                matchType: type,
+                triggerType: isInlineSearch ? 'inline' : 'url',
                 quietDomains,
+                matches,
                 ...(isInlineSearch && {
-                    link: urlToCheck,
-                    linkMatch: match,
-                    urlMatch: inlineMatch
-                }),
-                ...(!isInlineSearch && {
-                    urlMatch: match
+                    link: urlToCheck
                 })
             }
         });
@@ -220,7 +223,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             const uniqueLinks = [...new Set(response.links)] as string[];
 
             await Promise.allSettled(
-                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, inlineSearchResult.match))
+                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, { match: inlineSearchResult.match, type: inlineSearchResult.type }))
             );
         }
     })

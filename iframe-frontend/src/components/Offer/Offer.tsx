@@ -72,7 +72,7 @@ const Offer = ({ closeFn }: Props) => {
             activationUrl,
             activationMode,
             clickIdValue,
-        }   
+        }
 
         if (isTester && isDemo) body.isDemo = true
 
@@ -102,7 +102,7 @@ const Offer = ({ closeFn }: Props) => {
             details: name
         })
 
-    }, [activationMode, activationUrl, clickIdValue, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [activationMode, activationToken, activationUrl, clickIdValue, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {

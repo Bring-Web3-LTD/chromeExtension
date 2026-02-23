@@ -31,7 +31,7 @@ interface ActivateResponse {
     token: string
 }
 
-const activate = async (body: ActivateProps): Promise<ActivateResponse> => {
+const activate = async (body: ActivateProps, activationToken?: string): Promise<ActivateResponse> => {
     body.timestamp = Date.now()
     const runActivate = fetch(`${API_URL}/activate`, {
         method: 'POST',
@@ -51,7 +51,7 @@ const activate = async (body: ActivateProps): Promise<ActivateResponse> => {
             cashbackInfoUrl: 'N/A',
             generalTermsUrl: 'N/A',
             iframeUrl: 'N/A',
-            token: 'N/A'
+            token: activationToken || 'N/A'
         }
     }
 

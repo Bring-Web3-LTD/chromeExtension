@@ -50,7 +50,8 @@ const Offer = ({ closeFn }: Props) => {
         variant,
         activationUrl,
         activationMode,
-        clickIdValue
+        clickIdValue,
+        activationToken
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -75,7 +76,7 @@ const Offer = ({ closeFn }: Props) => {
 
         if (isTester && isDemo) body.isDemo = true
 
-        const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
+        const { status, url: redirectUrl, iframeUrl, token } = await activate(body, activationToken)
 
 
         if (status !== 200) {

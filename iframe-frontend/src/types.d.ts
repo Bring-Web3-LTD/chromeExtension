@@ -58,6 +58,7 @@ declare global {
         activationUrl?: string
         activationMode?: string
         clickIdValue?: string
+        activationToken?: string
     }
 
     interface LoaderData extends Info {

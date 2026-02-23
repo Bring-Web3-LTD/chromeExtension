@@ -41,7 +41,8 @@ const Offerbar = () => {
     isRegex,
     activationUrl,
     activationMode,
-    clickIdValue
+    clickIdValue,
+    activationToken
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
@@ -78,7 +79,7 @@ const Offerbar = () => {
       clickIdValue
     }
 
-    const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
+    const { status, url: redirectUrl, iframeUrl, token } = await activate(body, activationToken)
 
     if (status !== 200) {
       setStatus('idle')

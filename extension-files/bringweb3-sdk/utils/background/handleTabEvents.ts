@@ -121,13 +121,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 phase,
                 url: tab.url!,
                 address,
-                matchType: type,
-                triggerType: isInlineSearch ? 'inline' : 'url',
                 quietDomains,
-                matches,
-                ...(isInlineSearch && {
-                    link: urlToCheck
-                })
+                matches
             }
         });
 

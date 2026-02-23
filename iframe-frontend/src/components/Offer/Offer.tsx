@@ -47,7 +47,10 @@ const Offer = ({ closeFn }: Props) => {
         cashbackSymbol,
         cashbackCurrency,
         offerText,
-        variant 
+        variant,
+        activationUrl,
+        activationMode,
+        clickIdValue
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -65,7 +68,10 @@ const Offer = ({ closeFn }: Props) => {
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
-        }
+            activationUrl,
+            activationMode,
+            clickIdValue,
+        }   
 
         if (isTester && isDemo) body.isDemo = true
 
@@ -95,7 +101,7 @@ const Offer = ({ closeFn }: Props) => {
             details: name
         })
 
-    }, [cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [activationMode, activationUrl, clickIdValue, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {

@@ -38,7 +38,10 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     quietDomainType, 
-    isRegex
+    isRegex,
+    activationUrl,
+    activationMode,
+    clickIdValue
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
@@ -69,7 +72,10 @@ const Offerbar = () => {
       networkUrl,
       searchEngineDomain,
       offerBarPageUrl: url,
-      offerBarSearch
+      offerBarSearch,
+      activationUrl,
+      activationMode,
+      clickIdValue
     }
 
     const { status, url: redirectUrl, iframeUrl, token } = await activate(body)

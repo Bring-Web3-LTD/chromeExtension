@@ -55,6 +55,9 @@ declare global {
         }
         inlineSearchLink?: string
         matchedKeyword?: string
+        activationUrl?: string
+        activationMode?: string
+        clickIdValue?: string
     }
 
     interface LoaderData extends Info {

@@ -1,5 +1,6 @@
 {
     "dark": {
+        "fontUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
         "fontFamily": "\"Inter\", sans-serif",
         "popupBg": "#18181F",
         "primaryBtnBg": "#C2000E",
@@ -82,10 +83,11 @@
         "activateTitleBoldFS": "14px",
         "activateTitleBoldFW": "600",
         "activateTitleBoldFC": "#FFFFFF",
-        "activateWalletNameFC": "#407FF7",
+        "activateWalletNameFC": "90deg, #407FF7, #407FF7",
         "logoBg": "#18181F"
     },
     "light": {
+        "fontUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
         "fontFamily": "\"Inter\", sans-serif",
         "popupBg": "#F5F6F7",
         "primaryBtnBg": "#CC000F",
@@ -169,7 +171,7 @@
         "activateTitleBoldFS": "14px",
         "activateTitleBoldFW": "600",
         "activateTitleBoldFC": "#1A1919",
-        "activateWalletNameFC": "#407FF7",
+        "activateWalletNameFC": "90deg, #407FF7, #407FF7",
         "labelFC": "#1A1919",
         "labelDescFC": "#1A1919",
         "logoBg": "#F5F6F7"

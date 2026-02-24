@@ -45,7 +45,8 @@ const Offer = ({ closeFn }: Props) => {
         maxCashback,
         cashbackSymbol,
         cashbackCurrency,
-        offerText
+        offerText,
+        variant
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -170,7 +171,7 @@ const Offer = ({ closeFn }: Props) => {
                                     disabled={status !== 'idle'}
                                 >
                                     {status === 'idle' ?
-                                        toCaseString("Activate", textMode)
+                                        toCaseString(variant === 'testB' ? `Earn ${cryptoSymbols[0]}` : "Activate", textMode)
                                         :
                                         <Oval
                                             visible={true}

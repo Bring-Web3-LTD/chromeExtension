@@ -11,7 +11,7 @@ interface Query {
 
 interface Props {
     query: Query
-    theme?: Style
+    styleUrl?: string
     iframeUrl: string
     themeMode: string
     text: 'upper' | 'lower'
@@ -24,17 +24,16 @@ interface Props {
 
 const STYLESHEET_ID = 'bring-iframe-stylesheet';
 
-const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWallet, placement, stylesheet, framed }: Props): HTMLIFrameElement => {
+const injectIFrame = ({ query, styleUrl, themeMode, text, iframeUrl, page, switchWallet, placement, stylesheet, framed }: Props): HTMLIFrameElement => {
     const extensionId = chrome.runtime.id;
     const iframeId = `${IFRAME_ID_PREFIX}-${extensionId}`;
     const element = document.getElementById(iframeId)
     const iframeHost = ENV_IFRAME_URL ? `${ENV_IFRAME_URL}${page ? '/' + page : ''}` : iframeUrl
     if (element) return element as HTMLIFrameElement;
-    const params = getQueryParams({ query: { ...query, extensionId, v: getVersion(), themeMode, textMode: text, switchWallet: String(switchWallet) } })
-    const customStyles = theme ? `&${getQueryParams({ query: theme, prefix: 't' })}` : ''
+    const params = getQueryParams({ query: { ...query, extensionId, v: getVersion(), themeMode, textMode: text, switchWallet: String(switchWallet), ...(styleUrl ? { styleUrl } : {}) } })
     const iframe = document.createElement('iframe');
     iframe.id = iframeId;
-    iframe.src = encodeURI(`${iframeHost}?${params}${customStyles}`);
+    iframe.src = encodeURI(`${iframeHost}?${params}`);
     const sandbox = "allow-scripts allow-same-origin"
     iframe.setAttribute('sandbox', sandbox)
     iframe.style.position = "fixed";
@@ -46,7 +45,7 @@ const injectIFrame = ({ query, theme, themeMode, text, iframeUrl, page, switchWa
     iframe.style.borderRadius = "10px";
     iframe.style.border = "none";
     iframe.style.cssText += `z-index: 99999999999999 !important;`;
-    if (theme?.popupShadow) iframe.style.boxShadow = theme.popupShadow;
+
 
     insertStyleElement(stylesheet, STYLESHEET_ID);
 

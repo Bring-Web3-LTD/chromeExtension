@@ -203,7 +203,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         const isPopupEnabled = await storage.get('popupEnabled');
 
         if (!isPopupEnabled) return;
-
+        console.log("changeInfo is:", changeInfo);
         if (changeInfo.url) {
             console.log('url changed, the new one is:', tab.url);
             tabStates.delete(tabId);

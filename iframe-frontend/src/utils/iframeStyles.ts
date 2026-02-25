@@ -40,7 +40,7 @@ const offerbarStyle: Styles = {
             height: `482px`,
             borderRadius: '100px 0 0 100px',
             display: 'block',
-            top: '190px',
+            top: '144px',
             right: '0px'
         }
     }

@@ -1,4 +1,4 @@
-import { themeNames } from "./theme"
+import { themeNames, iframeStyleNames } from "./theme"
 import loadFont from "./loadFont"
 
 type ThemeData = Record<string, string> | { dark?: Record<string, string>; light?: Record<string, string> }
@@ -7,6 +7,21 @@ const fetchThemeData = async (url: string): Promise<ThemeData> => {
     const response = await fetch(url)
     if (!response.ok) throw new Error(`Failed to fetch theme: ${response.status}`)
     return await response.json()
+}
+
+/**
+ * Extracts iframe-style entries from a resolved theme object using iframeStyleNames config.
+ * Returns the extracted styles mapped to their camelCase style property names, and removes them from the input.
+ */
+const extractIframeStyle = (theme: Record<string, string>): Record<string, string> => {
+    const extracted: Record<string, string> = {}
+    for (const [themeKey, styleProp] of Object.entries(iframeStyleNames)) {
+        if (themeKey in theme) {
+            extracted[styleProp] = theme[themeKey]
+            delete theme[themeKey]
+        }
+    }
+    return extracted
 }
 
 /**
@@ -40,13 +55,17 @@ const applyTheme = (theme: Record<string, string>) => {
     })
 }
 
+export interface LoadThemeResult {
+    iframeStyle?: Record<string, string>
+}
+
 interface LoadThemeProps {
     theme?: ThemeData
     platformName: string
     themeMode: string
 }
 
-const loadTheme = async ({ theme, platformName, themeMode }: LoadThemeProps) => {
+const loadTheme = async ({ theme, platformName, themeMode }: LoadThemeProps): Promise<LoadThemeResult> => {
     // Always load DEFAULT as the base
     let defaultTheme: Record<string, string> = {}
     try {
@@ -76,8 +95,15 @@ const loadTheme = async ({ theme, platformName, themeMode }: LoadThemeProps) => 
     // Merge: DEFAULT first, then override with platform/remote values
     const resolvedTheme = { ...defaultTheme, ...overrideTheme }
 
+    // Extract iframe-style keys before applying CSS variables
+    const iframeStyle = extractIframeStyle(resolvedTheme)
+
     applyTheme(resolvedTheme)
     loadFont(resolvedTheme.fontUrl || null, resolvedTheme.fontFamily || null)
+
+    return {
+        iframeStyle: Object.keys(iframeStyle).length > 0 ? iframeStyle : undefined
+    }
 }
 
 export default loadTheme

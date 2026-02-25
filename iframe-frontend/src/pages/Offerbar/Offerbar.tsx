@@ -1,7 +1,7 @@
 import styles from './styles.module.css'
 import { useEffect, useState, useCallback } from "react"
 import { sendMessage, ACTIONS } from "../../utils/sendMessage"
-import { offerbarStyle } from "../../utils/iframeStyles"
+import { getIframeStyle } from "../../utils/iframeStyles"
 import { useRouteLoaderData } from "react-router-dom"
 import Logos from './Logos/Logos'
 import toCaseString from '../../utils/toCaseString'
@@ -38,7 +38,8 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     quietDomainType, 
-    isRegex
+    isRegex,
+    iframeStyle: themeIframeStyle
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
@@ -103,7 +104,7 @@ const Offerbar = () => {
   }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
-    sendMessage({ action: ACTIONS.OPEN, style: offerbarStyle[platformName.toLowerCase()] || offerbarStyle['default'] })
+    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, themeIframeStyle) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

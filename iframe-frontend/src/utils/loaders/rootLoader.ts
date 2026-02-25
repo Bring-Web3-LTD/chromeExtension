@@ -23,7 +23,7 @@ const rootLoader = async ({ request }: Props) => {
     if (res.status !== 200) throw `got ${res.status} code`
 
     // Apply theme: use server-fetched theme if available, otherwise fall back to local JSON
-    await loadTheme({ theme: res.theme, platformName: res.info.platformName, themeMode })
+    const { iframeStyle } = await loadTheme({ theme: res.theme, platformName: res.info.platformName, themeMode })
 
     const variant = selectVariant(userId || res.info.walletAddress || '', res.info.platformName)
     // Argent Control: only load on base path
@@ -52,7 +52,8 @@ const rootLoader = async ({ request }: Props) => {
         textMode,
         switchWallet,
         iconsPath: `${import.meta.env.BASE_URL}${themeMode}/icons/${res.info.platformName.toUpperCase() || 'DEFAULT'}`,
-        variant
+        variant,
+        iframeStyle
     }
 }
 

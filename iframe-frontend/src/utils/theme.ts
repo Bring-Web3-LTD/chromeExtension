@@ -1,3 +1,10 @@
+
+export const iframeStyleNames: Record<string, string> = {
+ // Maps theme JSON keys to CSS properties applied on the iframe element itself.
+    popupShadow: "boxShadow"
+    
+}
+
 export const themeNames = {
     popupBg: "--popup-bg",
     primaryBtnBg: "--primary-btn-bg",

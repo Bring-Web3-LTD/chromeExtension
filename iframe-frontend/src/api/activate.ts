@@ -15,7 +15,10 @@ interface ActivateProps {
     networkUrl?: string
     searchEngineDomain?: string
     offerBarPageUrl?: string
-    offerBarSearch?: string
+    offerBarSearch?: string,
+    activationUrl?: string,
+    activationMode?: string,
+    clickIdValue?: string
 }
 
 interface ActivateResponse {
@@ -28,11 +31,11 @@ interface ActivateResponse {
     token: string
 }
 
-const activate = async (body: ActivateProps): Promise<ActivateResponse> => {
+const activate = async (body: ActivateProps, activationToken?: string): Promise<ActivateResponse> => {
     body.timestamp = Date.now()
-
-    const res = await fetch(`${API_URL}/activate`, {
+    const runActivate = fetch(`${API_URL}/activate`, {
         method: 'POST',
+        keepalive: true,
         headers: {
             'Content-Type': 'application/json',
             'x-api-key': API_KEY
@@ -40,8 +43,20 @@ const activate = async (body: ActivateProps): Promise<ActivateResponse> => {
         body: JSON.stringify(body)
     })
 
-    const json = await res.json()
+    if (body.activationMode === 'lightweight' && body.activationUrl) {
+        return {
+            status: 200,
+            flowId: body.flowId,
+            url: body.activationUrl,
+            cashbackInfoUrl: 'N/A',
+            generalTermsUrl: 'N/A',
+            iframeUrl: 'N/A',
+            token: activationToken || 'N/A'
+        }
+    }
 
+    const res = await runActivate
+    const json = await res.json()
     return json
 }
 

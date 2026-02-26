@@ -47,7 +47,11 @@ const Offer = ({ closeFn }: Props) => {
         cashbackSymbol,
         cashbackCurrency,
         offerText,
-        variant 
+        variant,
+        activationUrl,
+        activationMode,
+        clickIdValue,
+        activationToken
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -65,11 +69,14 @@ const Offer = ({ closeFn }: Props) => {
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
+            activationUrl,
+            activationMode,
+            clickIdValue,
         }
 
         if (isTester && isDemo) body.isDemo = true
 
-        const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
+        const { status, url: redirectUrl, iframeUrl, token } = await activate(body, activationToken)
 
 
         if (status !== 200) {
@@ -95,7 +102,7 @@ const Offer = ({ closeFn }: Props) => {
             details: name
         })
 
-    }, [cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [activationMode, activationToken, activationUrl, clickIdValue, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {

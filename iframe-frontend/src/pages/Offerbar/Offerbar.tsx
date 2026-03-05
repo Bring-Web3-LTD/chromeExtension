@@ -51,7 +51,7 @@ const Offerbar = () => {
       action: 'click',
       details: 'extension'
     })
-    sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com', 'amazon.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['ki', 'ki'], isRegex: [false, false] })
+    sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com','google.com','amazon.com', 'amazon.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['ki','kd', 'ki', 'kd'], isRegex: [false, false, false, false] })
   }
 
   const handleActivate = useCallback(async () => {

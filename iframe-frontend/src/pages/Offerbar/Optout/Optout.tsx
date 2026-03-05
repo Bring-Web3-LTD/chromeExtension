@@ -30,9 +30,9 @@ const Optout = ({ closeFn }: Props) => {
     const handleOptOut = (duration: typeof durationOptions[0]) => {
         const event: Message = {
             action: ACTIONS.OPT_OUT_SPECIFIC,
-            domain: ['google.com', 'amazon.com'],
-            type: ["ki", "ki"],
-            isRegex: [false, false],
+            domain: ['google.com', 'google.com', 'amazon.com', 'amazon.com'],
+            type: ["ki", "kd", "ki", "kd"],
+            isRegex: [false, false, false, false],
             time: +duration.value,
             key: dict[duration.label as keyof typeof dict]
         }

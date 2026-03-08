@@ -120,9 +120,14 @@ const { bringInitContentScript } = require('@bringweb3/chrome-extension-kit');
 import { bringInitBackground } from '@bringweb3/chrome-extension-kit';
 
 bringInitBackground({
-    identifier: process.env.PLATFORM_IDENTIFIER, // The identifier key you obtained from Bringweb3
-    apiEndpoint: 'sandbox', // 'sandbox' || 'prod'
-    cashbackPagePath: '/wallet/cashback' // The relative path to your Cashback Dashboard if you have one inside your extension
+    // ── MANDATORY ────────────────────────
+    // identifier key obtained from Bringweb3
+    identifier: process.env.PLATFORM_IDENTIFIER,
+    apiEndpoint: 'sandbox', // 'sandbox' | 'prod'
+
+    // ── OPTIONAL ─────────────────────────
+    // relative path to your Cashback Dashboard inside the extension
+    cashbackPagePath: '/wallet/cashback',
 })
 ```
 
@@ -132,28 +137,33 @@ bringInitBackground({
 import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";
 
 bringInitContentScript({
-  // Async function that returns the current user's wallet address:
-    getWalletAddress: async () => await new Promise(resolve => setTimeout(() => resolve('<USER_WALLET_ADDRESS>'), 200)),
-    // Function that prompts a UI element asking the user to login:
+    // ── MANDATORY ────────────────────────
+    // Async function that returns the current user's wallet address
+    getWalletAddress: async () => ...,
+    // function that prompts the user to log in
     promptLogin: () => {...},
+
+    // ── MANDATORY (pick one) ────────────
     // An optional list of custom events that dispatched when the user's wallet address had changed
-    // Don't add it if you are using walletAddressUpdateCallback:
-    walletAddressListeners: ["customEvent:addressChanged"],
-    //an optional function that runs when the user's wallet address had changed and execute the callback,
     // Don't add it if you are using walletAddressUpdateCallback
-    walletAddressUpdateCallback: (callback)=>{...},
-    // Add switch wallet button, this requires also a UI for changing wallet address:
-    switchWallet: true,
-    // themeMode: 'light' | 'dark':
+    walletAddressListeners: ["customEvent:addressChanged"],
+    // An optional function that runs when the user's wallet address had changed and execute the callback
+    // Don't add it if you are using walletAddressListeners
+    walletAddressUpdateCallback: (callback) => {...},
+
+    // ── OPTIONAL ─────────────────────────
+    // 'lower' | 'upper' (defaults to 'lower')
+    text: 'lower',
+    // 'light' | 'dark' (defaults to 'light')
     themeMode: 'light',
-    /* OPTIONAL: needed if you want to host the style file on your own servers.
+    // show a switch-wallet button (requires a wallet-change UI)
+    switchWallet: true,
+    /* needed if you want to host the style file on your own servers.
     styleUrl examples:
       - Single theme: https://media.bringweb3.io/examples/style/theme-single.json
       - Dark & light: https://media.bringweb3.io/examples/style/theme-dual.json
       If not provided (recommended), Bring will host the style. */
     styleUrl: 'https://<your-domain>',
-    // text option: 'lower' | 'upper'
-    text:'lower'
 });
 ```
 

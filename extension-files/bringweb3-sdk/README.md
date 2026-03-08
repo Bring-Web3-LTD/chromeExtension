@@ -32,12 +32,12 @@ When a user visits supported online retailer websites, the Crypto Cashback syste
 ### Portal Integration
 
 The full integration also includes a dedicated **Portal** where users can track offer details and reward statuses.
-To integrate the Portal, please reach out to **[Bringweb3](https://bringweb3.io/#contact)**.
 
 #### Portal Integration Requirements
 For the Portal integration, you should provide your **SDK** for:
 * **Wallet Connection:** Enabling users to connect their digital wallets.
 * **Message Signing:** Required for specific solutions to verify user identity.
+* **Portal Integration**: Please send your SDK integration info to [Bringweb3](https://bringweb3.io/#contact)
 
 #### Implementation
 Once integrated, **Bring** will provide a dedicated link to the Portal. You can surface this link within your app to give users **quick, seamless access** to their personalized rewards and status dashboard..
@@ -136,31 +136,26 @@ bringInitContentScript({
     getWalletAddress: async () => await new Promise(resolve => setTimeout(() => resolve('<USER_WALLET_ADDRESS>'), 200)),
     // Function that prompts a UI element asking the user to login:
     promptLogin: () => {...},
-
     // An optional list of custom events that dispatched when the user's wallet address had changed
     // Don't add it if you are using walletAddressUpdateCallback:
     walletAddressListeners: ["customEvent:addressChanged"],
-
     //an optional function that runs when the user's wallet address had changed and execute the callback,
     // Don't add it if you are using walletAddressUpdateCallback
     walletAddressUpdateCallback: (callback)=>{...},
-
     // Add switch wallet button, this requires also a UI for changing wallet address:
     switchWallet: true,
-    themeMode: 'light', // 'light' | 'dark'
-    styleUrl: 'https://<your-domain>'// optional, see examples
-    text:'lower' // 'lower' | 'upper'
-
+    // themeMode: 'light' | 'dark':
+    themeMode: 'light',
+    /* OPTIONAL: needed if you want to host the style file on your own servers.
+    styleUrl examples:
+      - Single theme: https://media.bringweb3.io/examples/style/theme-single.json
+      - Dark & light: https://media.bringweb3.io/examples/style/theme-dual.json
+      If not provided (recommended), Bring will host the style. */
+    styleUrl: 'https://<your-domain>',
+    // text option: 'lower' | 'upper'
+    text:'lower'
 });
 ```
-Note:
-styleUrl is optional if you want to host the style file on your own servers.
-
-styleUrl examples:
-Single theme: https://media.bringweb3.io/examples/style/theme-single.json
-Dark & light: https://media.bringweb3.io/examples/style/theme-dual.json
-
-Alternatively, Bring can store the style for you. In that case, do not provide styleUrl.
 
 ### Turnoff settings 
 ```javascript

@@ -1,4 +1,4 @@
-<a href="https://bringweb3.io/"><img width="200px" src="https://bringweb3.io/wp-content/uploads/2024/05/logo-trans_black.png"/></a><br>
+<a href="https://bring.network/"><img width="200px" src="https://media.bringweb3.io/logos/logo_darkbg_large.png"/></a><br>
 <br><br>
 <h1>@bringweb3/chrome-extension-kit</h1>
 <br><br>
@@ -20,11 +20,27 @@
 - [Contact us](#contact-us)
 
 ## Description
+The @bringweb3/chrome-extension-kit provides a robust, pre-configured framework for building browser extensions that bridge traditional web experiences with the crypto economy. From seamless wallet integration to automated cashback triggers, it handles the boilerplate so you can focus on the user experience.
+
+### SDK
 This integration kit is designed to enhance existing Chrome extensions by adding functionality that enables automatic crypto cashback on online purchases.
 
 This kit consists of a set of JavaScript files that crypto outlets can integrate into their crypto wallet extensions. This integration facilitates a seamless addition of cashback features, leveraging cryptocurrency transactions in the context of online shopping.
 
 When a user visits supported online retailer websites, the Crypto Cashback system determines eligibility for cashback offers based on the user's location and the website's relevance.
+
+### Portal Integration
+
+The full integration also includes a dedicated **Portal** where users can track offer details and reward statuses.
+To integrate the Portal, please reach out to **[Bringweb3](https://bringweb3.io/#contact)**.
+
+#### Portal Integration Requirements
+For the Portal integration, you should provide your **SDK** for:
+* **Wallet Connection:** Enabling users to connect their digital wallets.
+* **Message Signing:** Required for specific solutions to verify user identity.
+
+#### Implementation
+Once integrated, **Bring** will provide a dedicated link to the Portal. You can surface this link within your app to give users **quick, seamless access** to their personalized rewards and status dashboard..
 
 ## Prerequisites
 
@@ -116,110 +132,36 @@ bringInitBackground({
 import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";
 
 bringInitContentScript({
-    getWalletAddress: async () => await new Promise(resolve => setTimeout(() => resolve('<USER_WALLET_ADDRESS>'), 200)),// Async function that returns the current user's wallet address
-    promptLogin: () => {...}, // Function that prompts a UI element asking the user to login
-    walletAddressListeners: ["customEvent:addressChanged"], // An optional list of custom events that dispatched when the user's wallet address had changed, don't add it if you are using walletAddressUpdateCallback
-    walletAddressUpdateCallback: (callback)=>{...}, //an optional function that runs when the user's wallet address had changed and execute the callback, don't add it if you are using walletAddressUpdateCallback
-    switchWallet: true // Add switch wallet button, this requires also a UI for changing wallet address.
-    themeMode: 'light' // 'light' | 'dark',
+  // Async function that returns the current user's wallet address:
+    getWalletAddress: async () => await new Promise(resolve => setTimeout(() => resolve('<USER_WALLET_ADDRESS>'), 200)),
+    // Function that prompts a UI element asking the user to login:
+    promptLogin: () => {...},
+
+    // An optional list of custom events that dispatched when the user's wallet address had changed
+    // Don't add it if you are using walletAddressUpdateCallback:
+    walletAddressListeners: ["customEvent:addressChanged"],
+
+    //an optional function that runs when the user's wallet address had changed and execute the callback,
+    // Don't add it if you are using walletAddressUpdateCallback
+    walletAddressUpdateCallback: (callback)=>{...},
+
+    // Add switch wallet button, this requires also a UI for changing wallet address:
+    switchWallet: true,
+    themeMode: 'light', // 'light' | 'dark'
+    styleUrl: 'https://<your-domain>'// optional, see examples
     text:'lower' // 'lower' | 'upper'
-    darkTheme: {...}, // Same as lightTheme
-    lightTheme: {
-        // font
-        fontUrl: 'https://fonts.googleapis.com/css2?family=Matemasie&display=swap',
-        fontFamily: "'Matemasie', system-ui",
-        // Popup
-        popupBg: "#192E34",
-        popupShadow: "",
-        // Primary button
-        primaryBtnBg: "linear-gradient(135deg, #5DEB5A 0%, #FDFC47 100%)",
-        primaryBtnFC: "#041417",
-        primaryBtnFW: "600",
-        primaryBtnFS: "14px",
-        primaryBtnBorderC: "transparent",
-        primaryBtnBorderW: "0",
-        primaryBtnRadius: "8px",
-        // Secondary button
-        secondaryBtnBg: "transparent",
-        secondaryBtnFS: "12px",
-        secondaryBtnFW: "500",
-        secondaryBtnFC: "white",
-        secondaryBtnBorderC: "rgba(149, 176, 178, 0.50)",
-        secondaryBtnBorderW: "2px",
-        secondaryBtnRadius: "8px",
-        // Markdown
-        markdownBg: "#07131766",
-        markdownFS: "12px",
-        markdownFC: "#DADCE5",
-        markdownBorderW: "0",
-        markdownRadius: "4px",
-        markdownBorderC: "black",
-        markdownScrollbarC: "#DADCE5",
-        // Wallet address
-        walletBg: "#33535B",
-        walletFS: "10px",
-        walletFW: "400",
-        walletFC: "white",
-        walletBorderC: "white",
-        walletBorderW: "0",
-        walletRadius: "4px",
-        // Details of offering
-        detailsBg: "#33535B",
-        detailsTitleFS: "15px",
-        detailsTitleFW: "600",
-        detailsTitleFC: "white",
-        detailsSubtitleFS: "14px",
-        detailsSubtitleFW: "500",
-        detailsSubtitleFC: "#A8ADBF",
-        detailsRadius: "8px",
-        detailsBorderW: "0",
-        detailsBorderC: "transparent",
-        detailsAmountFC: "#5DEB5A",
-        detailsAmountFW: "700",
-        // Overlay
-        overlayBg: "#192E34E6",
-        overlayFS: "13px",
-        overlayFW: "400",
-        overlayFC: "#DADCE5",
-        loaderBg: "#0A2EC0",
-        // Optout \ Turn off
-        optoutBg: "#192E34",
-        optoutFS: "14px",
-        optoutFW: "400",
-        optoutFC: "white",
-        optoutRadius: "56px",
-        // X Button and close buttons
-        closeFS: "9px",
-        closeFW: "300",
-        closeFC: "#B9BBBF",
-        // Token name
-        tokenBg: "transparent",
-        tokenFS: "13px",
-        tokenFW: "600",
-        tokenFC: "#DADCE5",
-        tokenBorderW: "2px",
-        tokenBorderC: "#DADCE5",
-        tokenRadius: "8px",
-        // Notification popup
-        notificationFS: "14px",
-        notificationFW: "500",
-        notificationFC: "white",
-        notificationBtnBg: "linear-gradient(135deg, #5DEB5A 0%, #FDFC47 100%)",
-        notificationBtnFS: "12px",
-        notificationBtnFW: "500",
-        notificationBtnFC: "#041417",
-        notificationBtnBorderW: "0",
-        notificationBtnBorderC: "transparent",
-        notificationBtnRadius: "8px",
-        activateTitleFS: "14px",
-        activateTitleFW: "600",
-        activateTitleFC: "white",
-        activateTitleBoldFS: "14px",
-        activateTitleBoldFW: "700",
-        activateTitleBoldFC: "white",
-    }
+
 });
 ```
+Note:
+styleUrl is optional if you want to host the style file on your own servers.
+
+styleUrl examples:
+Single theme: https://media.bringweb3.io/examples/style/theme-single.json
+Dark & light: https://media.bringweb3.io/examples/style/theme-dual.json
+
+Alternatively, Bring can store the style for you. In that case, do not provide styleUrl.
+
 ### Turnoff settings 
 ```javascript
 import { getTurnOff, setTurnOff } from "@bringweb3/chrome-extension-kit";

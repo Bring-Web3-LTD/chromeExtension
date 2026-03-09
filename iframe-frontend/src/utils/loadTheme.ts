@@ -1,5 +1,5 @@
 import { themeNames, iframeStyleNames } from "./theme"
-import loadFont from "./loadFont"
+import loadFont, { preloadFontUrl } from "./loadFont"
 
 type ThemeData = Record<string, string> | { dark?: Record<string, string>; light?: Record<string, string> }
 
@@ -66,6 +66,15 @@ interface LoadThemeProps {
 }
 
 const loadTheme = async ({ theme, platformName, themeMode }: LoadThemeProps): Promise<LoadThemeResult> => {
+    // If the server-provided theme has a custom fontUrl, start loading it immediately
+    // so the CSS fetches in parallel with the DEFAULT.json fetch below
+    if (theme && typeof theme === 'object') {
+        const flat = theme as Record<string, string>
+        const nested = theme as { dark?: Record<string, string>; light?: Record<string, string> }
+        const fontUrl = flat.fontUrl || nested.dark?.fontUrl || nested.light?.fontUrl
+        if (fontUrl) preloadFontUrl(fontUrl)
+    }
+
     // Always load DEFAULT as the base
     let defaultTheme: Record<string, string> = {}
     try {
@@ -99,7 +108,7 @@ const loadTheme = async ({ theme, platformName, themeMode }: LoadThemeProps): Pr
     const iframeStyle = extractIframeStyle(resolvedTheme)
 
     applyTheme(resolvedTheme)
-    loadFont(resolvedTheme.fontUrl || null, resolvedTheme.fontFamily || null)
+    await loadFont(resolvedTheme.fontUrl || null, resolvedTheme.fontFamily || null)
 
     return {
         iframeStyle: Object.keys(iframeStyle).length > 0 ? iframeStyle : undefined

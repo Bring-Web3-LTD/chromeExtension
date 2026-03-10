@@ -1,56 +1,27 @@
-<a href="https://bring.network/"><img width="200px" src="https://media.bringweb3.io/logos/logo_darkbg_large.png"/></a><br>
-<br><br>
+<a href="https://bring.network/"><img width="200px" src="https://media.bringweb3.io/logos/logo_doc.png"/></a>
 <h1>@bringweb3/chrome-extension-kit</h1>
-<br><br>
-
-## Table of content
-- [Table of content](#table-of-content)
-- [Description](#description)
-- [Prerequisites](#prerequisites)
-- [Installing](#installing)
-  - [Package](#package)
-  - [Manifest](#manifest)
-- [Importing](#importing)
-  - [import](#import)
-  - [require](#require)
-- [Example](#example)
-  - [background.js](#backgroundjs)
-  - [contentScript.js](#contentscriptjs)
-  - [Turnoff settings](#turnoff-settings)
-- [Contact us](#contact-us)
 
 ## Description
-The @bringweb3/chrome-extension-kit provides a robust, pre-configured framework for building browser extensions that bridge traditional web experiences with the crypto economy. From seamless wallet integration to automated cashback triggers, it handles the boilerplate so you can focus on the user experience.
+The @bringweb3/chrome-extension-kit provides a robust, pre-configured framework for adding crypto cashback functionality to Chrome extension wallets.
+This SDK is designed for seamless integration and once added to the  wallet, it autonomously handles the full cycle of the crypto cashback from online purchases.
 
 ### SDK
-This integration kit is designed to enhance existing Chrome extensions by adding functionality that enables automatic crypto cashback on online purchases.
+This SDK consists of a set of JavaScript files that crypto wallets can integrate into their Chrome extension wallets.
+This integration facilitates a seamless addition of cashback features, allowing wallet users to earn crypto cashback on everyday shopping online.
+When a user visits supported online retailer websites, the Crypto Cashback system determines eligibility for cashback offers based on the user's location and the website's relevance. If it is a supported merchant/retailer, the user will be able to activate the offer and receive crypto cashback on their purchases.
 
-This kit consists of a set of JavaScript files that crypto outlets can integrate into their crypto wallet extensions. This integration facilitates a seamless addition of cashback features, leveraging cryptocurrency transactions in the context of online shopping.
-
-When a user visits supported online retailer websites, the Crypto Cashback system determines eligibility for cashback offers based on the user's location and the website's relevance.
-
-### Portal Integration
-
-The full integration also includes a dedicated **Portal** where users can track offer details and reward statuses.
-
-#### Portal Integration Requirements
-For the Portal integration, you should provide your **SDK** for:
-* **Wallet Connection:** Enabling users to connect their digital wallets.
-* **Message Signing:** Required for specific solutions to verify user identity.
-* **Portal Integration**: Please send your SDK integration info to [Bringweb3](https://bringweb3.io/#contact)
-
-#### Implementation
-Once integrated, **Bring** will provide a dedicated link to the Portal. You can surface this link within your app to give users **quick, seamless access** to their personalized rewards and status dashboard..
+### Cashback Section
+The integration also includes a dedicated Cashback Section in the wallet that is built by the Bring team based on your SDK.
+Please provide the SDK to enable users to connect their digital wallets to [Bring](https://bringweb3.io/#contact).
+Once integrated, **Bring** will provide a dedicated link to the Cashback Section. You can surface this link within your app to give users quick, seamless access to their personalized rewards and status dashboard.
 
 ## Prerequisites
-
 - Node.js >= 14
 - Chrome extension manifest >= V2 with required permissions
-- Obtain an identifier key from [Bringweb3](https://bringweb3.io/#contact)
-- Provide a specific logo for the specific outlet
+- Obtain an identifier key from [Bring](https://bringweb3.io/#contact)
+- Provide a specific logo for the your wallet
 
 ##  Installing
-
 ### Package
 Using npm:
 ```bash
@@ -58,21 +29,17 @@ $ npm install @bringweb3/chrome-extension-kit
 ```
 
 Using yarn:
-
 ```bash
 $ yarn add @bringweb3/chrome-extension-kit
 ```
 
 Using pnpm:
-
 ```bash
 $ pnpm add @bringweb3/chrome-extension-kit
 ```
 
 ### Manifest
-
 Include this configuration inside your `manifest.json` file:
-
 ```json
   "permissions": [
     "storage",
@@ -95,33 +62,24 @@ Include this configuration inside your `manifest.json` file:
 
 ## Importing
 Once the package is installed, you can import the library using `import` or `require` approach:
-
-### import
 ```js
 import { bringInitBackground } from '@bringweb3/chrome-extension-kit';
-```
-```js
 import { bringInitContentScript } from '@bringweb3/chrome-extension-kit';
 ```
-### require
 ```js
 const { bringInitBackground } = require('@bringweb3/chrome-extension-kit');
-```
-```js
 const { bringInitContentScript } = require('@bringweb3/chrome-extension-kit');
 ```
 
 ## Example
-
 ### background.js
-
 ```js
 
 import { bringInitBackground } from '@bringweb3/chrome-extension-kit';
 
 bringInitBackground({
     // ── MANDATORY ────────────────────────
-    // identifier key obtained from Bringweb3
+    // identifier key obtained from Bring
     identifier: process.env.PLATFORM_IDENTIFIER,
     apiEndpoint: 'sandbox', // 'sandbox' | 'prod'
 
@@ -132,7 +90,6 @@ bringInitBackground({
 ```
 
 ### contentScript.js
-
 ```js 
 import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";
 
@@ -180,7 +137,5 @@ const res = await setTurnOff(true)
 console.log(res.isTurnedOff) // true
 ```
 
-
 ## Contact us
- 
 For more information: [contact us](https://bringweb3.io/#contact)

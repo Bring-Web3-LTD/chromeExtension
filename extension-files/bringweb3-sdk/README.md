@@ -12,13 +12,13 @@ When a user visits supported online retailer websites, the Crypto Cashback syste
 
 ### Cashback Section
 The integration also includes a dedicated Cashback Section in the wallet that is built by the Bring team based on your SDK.
-Please provide the SDK to enable users to connect their digital wallets to [Bring](https://bringweb3.io/#contact).
+Please provide the SDK to enable users to connect their digital wallets to [Bring](https://bring.network/#contact).
 Once integrated, **Bring** will provide a dedicated link to the Cashback Section. You can surface this link within your app to give users quick, seamless access to their personalized rewards and status dashboard.
 
 ## Prerequisites
 - Node.js >= 14
 - Chrome extension manifest >= V2 with required permissions
-- Obtain an identifier key from [Bring](https://bringweb3.io/#contact)
+- Obtain an identifier key from [Bring](https://bring.network/#contact)
 - Provide a specific logo for the your wallet
 
 ##  Installing
@@ -138,4 +138,4 @@ console.log(res.isTurnedOff) // true
 ```
 
 ## Contact us
-For more information: [contact us](https://bringweb3.io/#contact)
+For more information: [contact us](https://bring.network/#contact)

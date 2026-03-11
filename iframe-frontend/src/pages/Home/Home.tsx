@@ -3,17 +3,17 @@ import { useRouteLoaderData } from 'react-router-dom'
 import Offer from '../../components/Offer/Offer'
 import OneStep from '../../templates/b/OneStep/OneStep'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
-import { iframeStyle } from '../../utils/iframeStyles'
+import { getIframeStyle } from '../../utils/iframeStyles'
 import compareVersions from '../../utils/compareVersions'
 import parseTime from '../../utils/parseTime'
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const Home = () => {
-  const { version, variant, platformName, domain } = useRouteLoaderData('root') as LoaderData
+  const { version, variant, platformName, domain, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as LoaderData
 
   useEffect(() => {
-    sendMessage({ action: ACTIONS.OPEN, style: iframeStyle[platformName.toLowerCase()] || iframeStyle['default'] })
+    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, themeIframeStyle) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

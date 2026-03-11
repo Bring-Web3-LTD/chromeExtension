@@ -112,7 +112,7 @@ bringInitContentScript({
     // 'lower' | 'upper' (defaults to 'lower')
     text: 'lower',
     // 'light' | 'dark' (defaults to 'light')
-    themeMode: 'light',
+    theme: 'light',
     // show a switch-wallet button (requires a wallet-change UI)
     switchWallet: true,
     /* needed if you want to host the style file on your own servers.

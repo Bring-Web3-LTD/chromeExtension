@@ -19,7 +19,7 @@ Once integrated, **Bring** will provide a dedicated link to the Cashback Section
 - Node.js >= 14
 - Chrome extension manifest >= V2 with required permissions
 - Obtain an identifier key from [Bring](https://bring.network/#contact)
-- Provide a specific logo for the your wallet
+- Provide a specific logo for your wallet
 
 ##  Installing
 ### Package

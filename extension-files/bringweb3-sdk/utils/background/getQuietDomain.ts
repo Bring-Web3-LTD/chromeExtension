@@ -25,7 +25,8 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
     for (let i = 0; i < quietDomains.length; i++) {
         const entry = quietDomains[i]
 
-        if (type && !entry.type?.includes(type)) continue
+        if (type && !type.split('').some(t => entry.type?.includes(t))) continue
+
         if (searchSingle(entry.domain, url, entry.regex)) {
 
             const { time } = entry

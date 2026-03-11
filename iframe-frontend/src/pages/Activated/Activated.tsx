@@ -8,11 +8,11 @@ import toCapital from '../../utils/toCapital'
 import Markdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
-import { iframeStyle } from '../../utils/iframeStyles'
+import { getIframeStyle } from '../../utils/iframeStyles'
 import { ENV } from '../../config'
 
 const Activated = () => {
-    const { topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, iconsPath, tokenSymbol } = useRouteLoaderData('root') as ActivatedData
+    const { topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, iconsPath, tokenSymbol, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const [markdownContent, setMarkdownContent] = useState('')
     // const [loading, setLoading] = useState(true)
@@ -20,7 +20,7 @@ const Activated = () => {
     useEffect(() => {
         const controller = new AbortController()
 
-        sendMessage({ action: ACTIONS.OPEN, style: iframeStyle[platformName.toLowerCase()] || iframeStyle['default'] })
+        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, themeIframeStyle) })
 
         const loadAllMarkdown = async () => {
             try {

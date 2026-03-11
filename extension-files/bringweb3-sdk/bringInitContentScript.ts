@@ -15,8 +15,7 @@ interface Configuration {
     walletAddressUpdateCallback?: (callback: () => void) => void
     walletAddressListeners?: string[]
     promptLogin: () => Promise<void>
-    lightTheme?: Style
-    darkTheme?: Style
+    styleUrl?: string
     theme: string
     text: 'upper' | 'lower',
     switchWallet: boolean
@@ -39,8 +38,7 @@ const removeElements = () => {
  * @param {Function} configuration.promptLogin - A function to prompt the user to login.
  * @param {string[]} configuration.walletAddressListeners - An optional array of strings representing wallet address listeners.
  * @param {Function} [configuration.walletAddressUpdateCallback] - An optional callback function for wallet address updates.
- * @param {Object} [configuration.lightTheme] - Optional light theme settings.
- * @param {Object} [configuration.darkTheme] - Optional dark theme settings.
+ * @param {string} [configuration.styleUrl] - Optional URL to a remote JSON theme file.
  * @param {string} configuration.theme - The chosen theme, light | dark.
  * @param {string} configuration.text - The chosen case for some of the texts, upper | lower.
  * @throws {Error} Throws an error if any required configuration is missing.
@@ -58,8 +56,7 @@ const removeElements = () => {
  *   walletAddressListeners: ["listener1", "listener2"],
  *   theme: 'light',
  *   text: 'lower',
- *   lightTheme: { ... },
- *   darkTheme: { ... }
+ *   styleUrl: 'https://example.com/theme.json'
  * });
  */
 const bringInitContentScript = async ({
@@ -67,8 +64,7 @@ const bringInitContentScript = async ({
     promptLogin,
     walletAddressListeners,
     walletAddressUpdateCallback,
-    lightTheme,
-    darkTheme,
+    styleUrl,
     theme,
     text,
     switchWallet = false
@@ -179,7 +175,7 @@ const bringInitContentScript = async ({
                     iframeEl = injectIFrame({
                         query,
                         iframeUrl,
-                        theme: theme === 'dark' ? darkTheme : lightTheme,
+                        styleUrl,
                         themeMode: theme || 'light',
                         text,
                         switchWallet,

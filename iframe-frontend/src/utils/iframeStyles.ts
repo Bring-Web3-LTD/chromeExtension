@@ -7,7 +7,9 @@ interface KeyFrames {
     [key: string]: string
 }
 
-export const iframeStyle: Styles = {
+export type IframePage = 'popup' | 'offerbar' | 'offerbarFramed' | 'notification'
+
+const iframeStyle: Styles = {
     default: {
         iframe: {
             animation: 'slideIn .3s ease-in-out',
@@ -30,7 +32,7 @@ export const iframeStyle: Styles = {
     }
 }
 
-export const offerbarStyle: Styles = {
+const offerbarStyle: Styles = {
     default: {
         iframe: {
             animation: 'slideIn .3s ease-in-out',
@@ -44,7 +46,7 @@ export const offerbarStyle: Styles = {
     }
 }
 
-export const offerbarFramedStyle: Styles = {
+const offerbarFramedStyle: Styles = {
     default: {
         iframe: {
             position: 'fixed',
@@ -57,7 +59,7 @@ export const offerbarFramedStyle: Styles = {
     }
 }
 
-export const notificationIframeStyle: Styles = {
+const notificationIframeStyle: Styles = {
     default: {
         iframe: {
             animation: 'slideIn .3s ease-in-out',
@@ -94,3 +96,30 @@ export const keyFrames: KeyFrames[] =
       }`
         }
     ]
+
+const styleMap: Record<IframePage, Styles> = {
+    popup: iframeStyle,
+    offerbar: offerbarStyle,
+    offerbarFramed: offerbarFramedStyle,
+    notification: notificationIframeStyle,
+}
+
+/**
+ * Returns the merged iframe style for a given page type and platform.
+ * Combines the hardcoded base style with any theme-provided overrides.
+ */
+export const getIframeStyle = (
+    page: IframePage,
+    platformName: string,
+    themeIframeStyle?: Record<string, string>
+): { [key: string]: { [key: string]: string } } => {
+    const styles = styleMap[page]
+    const baseIframeStyle = styles[platformName.toLowerCase()] || styles['default']
+    if (!themeIframeStyle) return baseIframeStyle
+    return {
+        iframe: {
+            ...baseIframeStyle.iframe,
+            ...themeIframeStyle
+        }
+    }
+}

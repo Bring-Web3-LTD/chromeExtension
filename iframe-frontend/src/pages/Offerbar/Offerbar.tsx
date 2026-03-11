@@ -38,7 +38,11 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     quietDomainType, 
-    isRegex
+    isRegex,
+    activationUrl,
+    activationMode,
+    clickIdValue,
+    activationToken
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
@@ -69,10 +73,13 @@ const Offerbar = () => {
       networkUrl,
       searchEngineDomain,
       offerBarPageUrl: url,
-      offerBarSearch
+      offerBarSearch,
+      activationUrl,
+      activationMode,
+      clickIdValue
     }
 
-    const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
+    const { status, url: redirectUrl, iframeUrl, token } = await activate(body, activationToken)
 
     if (status !== 200) {
       setStatus('idle')
@@ -100,7 +107,7 @@ const Offerbar = () => {
       details: name
     })
 
-  }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
+  }, [activationMode, activationToken, activationUrl, clickIdValue, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
     sendMessage({ action: ACTIONS.OPEN, style: offerbarStyle[platformName.toLowerCase()] || offerbarStyle['default'] })

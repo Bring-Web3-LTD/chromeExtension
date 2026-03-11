@@ -11,7 +11,7 @@ import parseTime from '../../utils/parseTime'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 import activate from '../../api/activate'
-import { ACTIVATE_QUIET_TIME } from '../../config'
+import { OB_ACTIVATE_QUIET_TIME } from '../../config'
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
@@ -84,7 +84,7 @@ const Offerbar = () => {
       url,
       domain,
       searchTermPattern,
-      time: parseTime(ACTIVATE_QUIET_TIME, version),
+      time: parseTime(OB_ACTIVATE_QUIET_TIME, version),
       redirectUrl,
       iframeUrl,
       token,

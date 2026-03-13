@@ -16,6 +16,7 @@ import parseTime from '../../utils/parseTime'
 import { Oval } from 'react-loader-spinner'
 import CollaborationLogos from '../CollaborationLogos/CollaborationLogos'
 import formatCashback from '../../utils/formatCashback'
+import parseOfferText from '../../utils/parseOfferText'
 
 interface BringEventData {
     from: string;
@@ -45,11 +46,13 @@ const Offer = ({ closeFn }: Props) => {
         maxCashback,
         cashbackSymbol,
         cashbackCurrency,
-        offerText
+        offerText,
+        variant 
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
+    
 
     const activateAction = useCallback(async () => {
         setStatus('activating')
@@ -157,7 +160,7 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    {offerText || (
+                                    {parseOfferText(offerText) || (
                                         <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
                                     )}
                                 </div>
@@ -170,7 +173,7 @@ const Offer = ({ closeFn }: Props) => {
                                     disabled={status !== 'idle'}
                                 >
                                     {status === 'idle' ?
-                                        toCaseString("Activate", textMode)
+                                        toCaseString(variant === 'testB' ? `Earn ${cryptoSymbols[0]}` : "Activate", textMode)
                                         :
                                         <Oval
                                             visible={true}

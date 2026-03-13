@@ -7,15 +7,28 @@ interface Request {
     path: string
     method: 'POST' | 'GET'
     params?: { [key: string]: any }
+    timeout?: number
 }
 
 
 const apiRequest = async (req: Request) => {
-    let { path, method, params } = req
+    let { path, method, params, timeout } = req
     if (!req || !path || !method || (!params && method === 'POST')) throw new Error('Missing endpoint or method')
 
-    let endpoint = ApiEndpoint.getInstance().getApiEndpoint()
-    endpoint += path
+    const apiEndpointInstance = ApiEndpoint.getInstance()
+    const baseDomain = apiEndpointInstance.getBaseDomain()
+    const apiPath = apiEndpointInstance.getApiPath()
+    const envName = await storage.get('envName')
+
+    // Build URL structure: https://api.bringweb3.io/{envName}/v1/extension{path}
+    // Or for production: https://api.bringweb3.io/v1/extension{path}
+    let endpoint: string
+    if (envName) {
+        endpoint = `${baseDomain}/${envName}/${apiPath}${path}`
+    } else {
+        endpoint = `${baseDomain}/${apiPath}${path}`
+    }
+
     const apiKey = ApiEndpoint.getInstance().getApiKey()
 
     if (method === 'GET') {
@@ -45,7 +58,8 @@ const apiRequest = async (req: Request) => {
             'Content-Type': 'application/json',
             'x-api-key': apiKey
         },
-        body: method === 'POST' ? JSON.stringify(params) : undefined
+        body: method === 'POST' ? JSON.stringify(params) : undefined,
+        signal: timeout && 'timeout' in AbortSignal ? AbortSignal.timeout(timeout) : undefined
     })
     const json = await res.json()
     return json

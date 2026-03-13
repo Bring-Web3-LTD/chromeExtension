@@ -8,16 +8,27 @@ interface Style {
     [key: string]: string
 }
 
+interface StyleObject {
+    [key: string]: { [key: string]: string }
+}
+
 interface KeyFrame {
     name: string
     rules: string
+}
+
+// Placement configuration for iframe injection
+interface PlacementConfig {
+    location: 'end' | 'start' | 'after' | 'before'
+    selector?: string  // Required for 'after' and 'before' types
+    parent?: string  // Optional parent element type (e.g., 'div')
 }
 
 interface BringEvent {
     data: {
         from: string
         action: string
-        style?: Style[]
+        style?: StyleObject
         keyFrames?: KeyFrame[]
         extensionId: string
         time?: number
@@ -29,5 +40,22 @@ interface BringEvent {
         token?: string
         flowId?: string
         platformName?: string
+        searchTermPattern?: string,
+        type?: string | string[],
+        quietDomainType?: string, 
+        isRegex?: boolean | boolean[]
     }
+}
+type ScaleOptions = 'w' | 'h' | 'n'
+
+interface Scales {
+    x: [ScaleOptions, string]
+    y: [ScaleOptions, string]
+}
+
+interface FrameModeOptions {
+    scroller: string | null
+    sides: [number, number, number, number]
+    scales: Scales
+    resize: boolean
 }

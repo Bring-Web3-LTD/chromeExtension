@@ -27,6 +27,7 @@ export const GoogleAnalyticsContext = createContext<GoogleAnalyticsContextType |
 // Move these outside the component to persist across remounts
 const sentEvents = new Set<EventName>()
 const pendingPromises = new Map<EventName, Promise<{ success: boolean; error?: Error; skipped?: boolean }>>()
+let pageViewSent = false
 
 interface Props {
     measurementId: string
@@ -37,10 +38,16 @@ interface Props {
     retailerName: string | undefined
     location: string
     flowId: string
+    searchEngineDomain: string | undefined
+    verifiedMatch: { match: string; isRegex: boolean } | undefined
+    offerBarSearch: string | undefined
+    domain: string
+    inlineSearchLink: string | undefined
+    matchedKeyword: string | undefined
+    isOfferBar: boolean | undefined
 }
 
-export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId }) => {
-    const effectRan = useRef(false)
+export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar }) => {
     const isInitialMount = useRef(true)
     const { walletAddress } = useWalletAddress()
     const previousWalletAddressRef = useRef<string | undefined>(walletAddress)
@@ -77,6 +84,17 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         if (retailerName) backendEvent.retailer = retailerName
         if (walletAddress) backendEvent.walletAddress = walletAddress
         if (userId) backendEvent.userId = userId
+        if (searchEngineDomain) backendEvent.searchEngine = searchEngineDomain
+        if (offerBarSearch) backendEvent.searchQuery = offerBarSearch
+        if (domain) backendEvent.resultDomain = domain
+        if (inlineSearchLink) backendEvent.resultUrl = inlineSearchLink
+        if (matchedKeyword) backendEvent.matchedKeyword = matchedKeyword
+        if (isOfferBar !== undefined) backendEvent.isOfferBar = isOfferBar
+        
+        // Calculate triggerType based on verifiedMatch
+        const triggerType = verifiedMatch?.isRegex === true ? 'keyword' : 'domain'
+        backendEvent.triggerType = triggerType
+
 
         // Create the promise for this event
         const eventPromise = (async () => {
@@ -98,6 +116,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         pendingPromises.set(name, eventPromise)
 
         return eventPromise
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flowId, platform, retailerName, testVariant, userId, walletAddress])
 
     useEffect(() => {
@@ -178,7 +197,8 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
             return
         }
 
-        if (effectRan.current) return
+        if (pageViewSent) return
+        pageViewSent = true
 
         const details: { [key: string]: string } = {
             pageLocation: window.location.href,
@@ -192,8 +212,6 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
             category: 'system',
             details
         })
-
-        effectRan.current = true
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -215,7 +233,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         });
     };
 
-    const sendGaEvent = useCallback(async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
+    const sendGaEvent = async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
         if (window.origin.includes('localhost')) return
 
         const backendResult = await sendBackendEvent(name, event)
@@ -241,7 +259,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         if (walletAddress) params.walletAddress = walletAddress
         ReactGA.event(name, params)
         return
-    }, [sendBackendEvent, platform, testVariant, walletAddress])
+    };
 
     return (
         <GoogleAnalyticsContext.Provider value={{ sendGaEvent, sendPageViewEvent }}>

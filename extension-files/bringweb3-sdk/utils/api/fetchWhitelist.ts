@@ -1,7 +1,6 @@
 import { ApiEndpoint } from "../apiEndpoint"
-import { compress } from "../background/domainsListCompression"
 
-export const fetchWhitelist = async () => {
+export const fetchWhitelist = async (timeout?: number) => {
     try {
         const endpoint = ApiEndpoint.getInstance().getWhitelistEndpoint()
 
@@ -15,7 +14,8 @@ export const fetchWhitelist = async () => {
             headers: {
                 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
                 'Pragma': 'no-cache'
-            }
+            },
+            signal: timeout && 'timeout' in AbortSignal ? AbortSignal.timeout(timeout) : undefined
         })
 
         if (!response.ok) {
@@ -28,7 +28,6 @@ export const fetchWhitelist = async () => {
             throw new Error("whitelist isn't an array")
         }
 
-        whitelist = compress(whitelist)
 
         return whitelist
     } catch (error) {

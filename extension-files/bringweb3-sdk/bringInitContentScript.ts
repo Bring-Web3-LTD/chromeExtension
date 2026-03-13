@@ -3,6 +3,7 @@ import handleIframeMessages from "./utils/contentScript/handleIframeMessages.js"
 import startListenersForWalletAddress from "./utils/contentScript/startLIstenersForWalletAddress.js";
 import getDomain from "./utils/getDomain.js";
 import removeTrailingSlash from "./utils/background/removeTrailingSlash.js";
+import { contentScriptCleanup } from "./utils/contentScript/cleanupManager.js";
 
 let iframeEl: IFrame = null
 let iframePath: `/${string}` | undefined = undefined
@@ -19,6 +20,13 @@ interface Configuration {
     theme: string
     text: 'upper' | 'lower',
     switchWallet: boolean
+}
+
+const removeElements = () => {
+    isIframeOpen = false
+    iframePath = undefined
+    iframeEl = null
+    contentScriptCleanup?.cleanup()
 }
 
 /**
@@ -118,11 +126,26 @@ const bringInitContentScript = async ({
                     .then(walletAddress => sendResponse({ status: 'success', walletAddress }))
                     .catch(err => sendResponse({ status: 'success', walletAddress: undefined }))
                 return true
+            case 'GET_PAGE_LINKS':
+                // Only respond from the main frame, not from iframes
+                if (window !== window.top) {
+                    return false;
+                }
+                // Force DOM to flush before querying
+                requestAnimationFrame(() => {
+                    try {
+                        const links = Array.from(document.querySelectorAll('a[href]'))
+                            .map(a => (a as HTMLAnchorElement).href)
+                            .filter(href => href.startsWith('http'));
+                        sendResponse({ status: 'success', links });
+                    } catch (error) {
+                        sendResponse({ status: 'failed', links: [] });
+                    }
+                });
+                return true
             case 'CLOSE_POPUP':
                 if (iframeEl && iframePath === request.path && getDomain(location.href) === getDomain(request.domain)) {
-                    iframeEl.parentNode?.removeChild(iframeEl)
-                    isIframeOpen = false
-                    iframePath = undefined
+                    removeElements();
                     sendResponse({ status: 'success', message: 'Popup closed', location: window.document.location.href, flowId })
                 } else {
                     sendResponse({ status: 'failed', message: 'Domain mismatch or iframe not open' })
@@ -148,7 +171,7 @@ const bringInitContentScript = async ({
                         return true
                     }
 
-                    const { token, iframeUrl, userId } = request;
+                    const { token, iframeUrl, userId, placement, framed, stylesheet } = request;
 
                     const query: { [key: string]: string } = { token }
                     if (userId) query['userId'] = userId
@@ -160,7 +183,10 @@ const bringInitContentScript = async ({
                         themeMode: theme || 'light',
                         text,
                         switchWallet,
-                        page: request.page
+                        page: request.page,
+                        placement,  // Pass placement configuration from server
+                        stylesheet,
+                        framed
                     });
                     isIframeOpen = true
                     iframePath = `/${request.page || ''}`
@@ -180,6 +206,10 @@ const bringInitContentScript = async ({
                 break;
         }
     });
+
+    window.addEventListener('pagehide', () => {
+        removeElements()
+    })
 }
 
 export default bringInitContentScript;

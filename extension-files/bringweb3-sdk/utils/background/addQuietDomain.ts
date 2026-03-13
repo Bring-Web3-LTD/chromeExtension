@@ -1,4 +1,5 @@
 import storage from "../storage/storage"
+import { cleanupQuietDomains } from "./cleanupDomains"
 
 const storageKey = 'quietDomains'
 
@@ -6,25 +7,57 @@ interface Payload {
     iframeUrl?: string
     token?: string
     flowId?: string
+    placement?: PlacementConfig  // Optional placement configuration from server
 }
 
-const addQuietDomain = async (domain: string, time: number, payload?: Payload, phase?: 'activated' | 'quiet') => {
-    let quietDomains = await storage.get(storageKey)
+const addQuietDomain = async (domain: string | string[], time: number, type: string | string[], isRegex: boolean | boolean[], payload?: Payload, phase?: 'activated' | 'quiet') => {
+    if (!domain) return
+    const domains = Array.isArray(domain) ? domain : [domain]
+    const types = type ? (Array.isArray(type) ? type : [type]) : ['kd']
+    const regexes = isRegex ? (Array.isArray(isRegex) ? isRegex : [isRegex]) : [false]
 
-    if (typeof quietDomains !== 'object' || quietDomains === null) {
-        quietDomains = {}
+    let [quietDomains, maxLength] = await Promise.all([
+        storage.get(storageKey),
+        storage.get('quietDomainsMaxLength')
+    ])
+
+    if (!Array.isArray(quietDomains)) {
+        quietDomains = []
     }
+    quietDomains = cleanupQuietDomains(quietDomains, maxLength)
 
     const now = Date.now()
     const end = now + time
 
-    quietDomains[domain] = {
-        time: [now, end],
-        phase: phase || 'quiet'
-    }
+    for (let i = 0; i < domains.length; i++) {
+        const singleDomain = domains[i]
+        if (!singleDomain) continue
 
-    if (payload) {
-        quietDomains[domain].payload = payload
+        const entry: any = {
+            domain: singleDomain,
+            time: [now, end],
+            phase: phase || 'quiet'
+        }
+
+        if (types && types[i]) {
+            entry.type = types[i]
+        }
+
+        if (regexes && regexes[i] !== undefined) {
+            entry.regex = regexes[i]
+        }
+
+        if (payload) {
+            entry.payload = payload
+        }
+        const existingIndex = quietDomains.findIndex((d: any) =>
+            d.domain === singleDomain && d.type === entry.type
+        )
+        if (existingIndex >= 0) {
+            quietDomains[existingIndex] = entry
+        } else {
+            quietDomains.push(entry)
+        }
     }
 
     await storage.set(storageKey, quietDomains)

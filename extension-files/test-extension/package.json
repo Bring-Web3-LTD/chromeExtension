@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "watch": "node --env-file=.env ./node_modules/webpack/bin/webpack.js --mode=development --watch --config config/webpack.config.js",
-    "build": "node --env-file=.env ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js"
+    "build": "node --env-file=.env ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js",
+    "build:prod": "BUILD_ENV= node --env-file=.env ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js",
+    "build:env": "node --env-file=.env ./node_modules/webpack/bin/webpack.js --mode=production --config config/webpack.config.js"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^6.4.1",

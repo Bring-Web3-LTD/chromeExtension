@@ -20,6 +20,13 @@ const Layout = () => {
                     testVariant={data.variant}
                     location={data.url}
                     flowId={data.flowId}
+                    searchEngineDomain={data.searchEngineDomain}
+                    verifiedMatch={data.verifiedMatch}
+                    offerBarSearch={data.offerBarSearch}
+                    domain={data.domain}
+                    inlineSearchLink={data.inlineSearchLink}
+                    matchedKeyword={data.matchedKeyword}
+                    isOfferBar={data.isOfferBar}
                 >
                     <Beamer enabled={data.beamer} />
                     <Outlet />

@@ -10,6 +10,12 @@ interface ActivateProps {
     flowId: string
     timestamp?: number
     isDemo?: boolean
+    isOfferLine?: boolean
+    isOfferBar?: boolean
+    networkUrl?: string
+    searchEngineDomain?: string
+    offerBarPageUrl?: string
+    offerBarSearch?: string
 }
 
 interface ActivateResponse {

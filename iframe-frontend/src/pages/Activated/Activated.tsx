@@ -6,8 +6,10 @@ import { useWalletAddress } from '../../hooks/useWalletAddress'
 import splitWordMaxFive from '../../utils/splitWordMaxFive'
 import toCapital from '../../utils/toCapital'
 import Markdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { iframeStyle } from '../../utils/iframeStyles'
+import { ENV } from '../../config'
 
 const Activated = () => {
     const { topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, iconsPath, tokenSymbol } = useRouteLoaderData('root') as ActivatedData
@@ -61,7 +63,32 @@ const Activated = () => {
                 <p id="activated-text" className={styles.p}>Reward approval may take up to 48 hours.</p>
                 <div id="activated-backed-by" className={styles.backed_by}>Backed by {toCapital(platformName)} Wallet</div>
             </div>
-            <Markdown className={styles.markdown}>
+            <Markdown 
+                className={styles.markdown} 
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                    a: ({ href, children, ...props }) => {
+                        if (href?.startsWith('http')) {
+                            const url = new URL(href)
+                            url.searchParams.set('platform', platformName.toUpperCase())
+                            url.searchParams.set('address', walletAddress || 'null')
+                            if (ENV) {
+                                url.searchParams.set('env', ENV)
+                            }
+                            return (
+                                <span
+                                    {...props}
+                                    className={styles.externalLink}
+                                    onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: url.toString() })}
+                                >
+                                    {children}
+                                </span>
+                            )
+                        }
+                        return <a href={href} {...props}>{children}</a>
+                    }
+                }}
+            >
                 {markdownContent}
             </Markdown>
         </div>

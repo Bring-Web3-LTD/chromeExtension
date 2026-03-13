@@ -1,0 +1,65 @@
+.frameContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    width: 100vw;
+    height: 100vh;
+}
+
+.topFrame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    pointer-events: auto;
+    background: lightseagreen;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.bottomFrame {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    pointer-events: auto;
+    background: lightseagreen;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.leftFrame {
+    position: absolute;
+    left: 0;
+    top: 80px;
+    bottom: 80px;
+    width: 80px;
+    pointer-events: auto;
+    background: lightseagreen;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    writing-mode: vertical-rl;
+}
+
+.rightFrame {
+    position: absolute;
+    right: 0;
+    top: 80px;
+    bottom: 80px;
+    width: 80px;
+    pointer-events: auto;
+    background: lightseagreen;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    writing-mode: vertical-rl;
+}

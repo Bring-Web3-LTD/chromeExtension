@@ -27,22 +27,19 @@ export const uint8ArrayToStr = (blob: Uint8Array): string => {
     return btoa(arr.join(''))
 }
 
+const buildRegExpArray = (obj: { regexes: string[], flags: string[] }) => {
+    try {
+        return obj.regexes.map((pattern, i) => new RegExp(pattern, obj.flags[i] || ''))
+    } catch (error) {
+        console.error('Error building RegExp array:', error)
+        return null
+    }
+}
+
 const helpers: Helpers = {
     relevantDomains: {
-        get: strToUint8Array,
-        set: uint8ArrayToStr
-    },
-    redirectsWhitelist: {
-        get: strToUint8Array,
-        set: uint8ArrayToStr
-    },
-    portalRelevantDomains: {
-        get: strToUint8Array,
-        set: uint8ArrayToStr
-    },
-    postPurchaseUrls: {
-        get: strToUint8Array,
-        set: uint8ArrayToStr
+        get: buildRegExpArray,
+        set: buildRegExpArray
     }
 }
 

@@ -16,10 +16,9 @@ export type VariantsConfig = {
 // Example configuration
 export const variants = {
   // Global default for companies without specific settings
-  'default': {
-    'control': 34,
-    'testA': 33,
-    'testB': 33
+  'default': {  
+    'testA': 50,
+    'testB': 50
   },
   // Company-specific configurations
   'argent': {
@@ -59,7 +58,7 @@ export const selectVariant = (userId: string, platformName: PlatformName = 'defa
   const variants = Object.keys(variantDistribution) as VariantKey[];
 
   for (const variant of variants) {
-    const weight = variantDistribution[variant] || 100 / variants.length;
+    const weight = variantDistribution[variant];
     cumulativeWeight += weight;
     cumulativeDistribution.push({ variant, weight: cumulativeWeight });
   }

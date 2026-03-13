@@ -115,6 +115,18 @@
     color: var(--markdown-title-f-c, var(--markdown-f-c));
 }
 
+.markdown a {
+    color: var(--markdown-f-c);
+    text-decoration: underline;
+}
+
+.externalLink {
+   color: var(--markdown-f-c);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+
 .markdown::-webkit-scrollbar {
     width: 4px;
 }

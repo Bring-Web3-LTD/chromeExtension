@@ -1,5 +1,5 @@
 interface Message {
-    action: 'INJECT' | 'GET_WALLET_ADDRESS' | 'CLOSE_POPUP'
+    action: 'INJECT' | 'GET_WALLET_ADDRESS' | 'CLOSE_POPUP' | 'GET_PAGE_LINKS'
     domain?: string
     token?: string
     iframeUrl?: string
@@ -9,11 +9,15 @@ interface Message {
     path?: string
     referrers?: string[]
     flowId?: string
+    placement?: PlacementConfig
+    framed?: FrameModeOptions | null
+    stylesheet?: string
 }
 
 const sendMessage = (tabId: number, message: Message, maxRetries?: number): Promise<any> => {
-    maxRetries = maxRetries || 5;
-    const baseDelay = 1000; // 1 second
+    maxRetries = maxRetries || 10;
+    const baseDelay = 100; // 0.1 second
+    const incrementalDelay = 20; // 0.02 seconds
 
     return new Promise((resolve, reject) => {
         const attemptSend = (attempt: number) => {
@@ -27,7 +31,7 @@ const sendMessage = (tabId: number, message: Message, maxRetries?: number): Prom
                 chrome.tabs.sendMessage(tabId, { ...message, from: 'bringweb3' }, (response) => {
                     if (chrome.runtime.lastError) {
                         if (attempt < maxRetries - 1) {
-                            setTimeout(() => attemptSend(attempt + 1), baseDelay * Math.pow(2, attempt));
+                            setTimeout(() => attemptSend(attempt + 1), baseDelay + incrementalDelay * attempt);
                         } else {
                             resolve(null);
                         }

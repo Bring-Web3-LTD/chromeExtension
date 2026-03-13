@@ -1,6 +1,5 @@
 import storage from "../storage/storage"
 import handleActivate from "./activate"
-import addOptOutDomain from "./addOptOutDomain"
 import addQuietDomain from "./addQuietDomain"
 import checkNotifications from "./checkNotifications"
 import getCashbackUrl from "./getCashbackUrl"
@@ -18,14 +17,14 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
 
         switch (action) {
             case 'ACTIVATE': {
-                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
+                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, quietDomainType, isRegex } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, quietDomainType, isRegex, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
                     .then(() => sendResponse());
                 return true;
             }
             case 'PORTAL_ACTIVATE': {
-                const { domain, extensionId, time, iframeUrl, token, flowId } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, time, sender.tab?.id, iframeUrl, token, flowId)
+                const { domain, extensionId, time, iframeUrl, token, flowId, type, isRegex } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications,type, isRegex, time, sender.tab?.id, iframeUrl, token, flowId)
                     .then(() => sendResponse());
                 return true;
             }
@@ -39,9 +38,12 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'OPT_OUT_SPECIFIC': {
-                const { domain, time } = request
-
-                addOptOutDomain(domain, time).then(res => sendResponse(res))
+                const { domain, time, type, isRegex } = request
+                if (!domain?.length) {
+                    sendResponse({ error: 'Missing domain' })
+                    return true
+                }
+                addQuietDomain(domain, time, type, isRegex).then(res => sendResponse(res))
                 return true;
             }
             case 'GET_POPUP_ENABLED': {
@@ -61,9 +63,9 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
             case 'CLOSE': {
-                const { time, domain } = request
+                const { time, domain, type, isRegex } = request
                 if (!domain) return true;
-                addQuietDomain(domain, time)
+                addQuietDomain(domain, time, type, isRegex)
                 sendResponse({ message: 'domain added to quiet list' })
                 return true;
             }

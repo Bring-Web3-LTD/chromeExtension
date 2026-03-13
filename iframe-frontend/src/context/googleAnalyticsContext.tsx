@@ -5,7 +5,7 @@ import { VariantKey } from '../utils/ABTest/platform-variants';
 import analytics from '../api/analytics';
 import { useWalletAddress } from '../hooks/useWalletAddress';
 
-type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer' | 'wallet_connected'
+type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer' | 'wallet_connected' | 'wallet_switched' | 'wallet_disconnected'
 
 interface GAEvent {
     category: "user_action" | "system";
@@ -135,16 +135,38 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
             return
         }
 
+        const prev = previousWalletAddressRef.current
+        const current = walletAddress
+
         // Only send event if wallet address actually changed
-        if (previousWalletAddressRef.current !== walletAddress) {
-            sendGaEvent('wallet_connected', {
-                category: 'user_action',
-                action: 'click',
-                details: {
-                    prevWalletAddress: previousWalletAddressRef.current ?? null,
-                    currentWalletAddress: walletAddress ?? null
-                }
-            })
+        if (prev !== current) {
+            const details = {
+                prevWalletAddress: prev ?? null,
+                currentWalletAddress: current ?? null
+            }
+
+            if (!prev && current) {
+                // No wallet → wallet: user connected a wallet
+                sendGaEvent('wallet_connected', {
+                    category: 'user_action',
+                    action: 'click',
+                    details
+                })
+            } else if (prev && current) {
+                // Wallet A → wallet B: user switched wallets
+                sendGaEvent('wallet_switched', {
+                    category: 'user_action',
+                    action: 'click',
+                    details
+                })
+            } else if (prev && !current) {
+                // Wallet → no wallet: user disconnected
+                sendGaEvent('wallet_disconnected', {
+                    category: 'user_action',
+                    action: 'click',
+                    details
+                })
+            }
         }
         
         previousWalletAddressRef.current = walletAddress

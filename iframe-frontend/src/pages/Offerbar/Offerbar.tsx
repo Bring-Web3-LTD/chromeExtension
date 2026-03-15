@@ -42,6 +42,7 @@ const Offerbar = () => {
     iframeStyle: themeIframeStyle
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
+  const [isOptedOut, setIsOptedOut] = useState(false)
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
   const { sendGaEvent } = useGoogleAnalytics()
   const { walletAddress } = useWalletAddress()
@@ -52,7 +53,11 @@ const Offerbar = () => {
       action: 'click',
       details: 'extension'
     })
-    sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com','google.com','amazon.com', 'amazon.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['ki','kd', 'ki', 'kd'], isRegex: [false, false, false, false] })
+    if (isOptedOut) {
+      sendMessage({ action: ACTIONS.CLOSE })
+    } else {
+      sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com','google.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['ki','kd'], isRegex: [false, false] })
+    }
   }
 
   const handleActivate = useCallback(async () => {
@@ -114,7 +119,7 @@ const Offerbar = () => {
       className={styles.offerbar}
     >
       <button id="offerbar-close-btn-top" className={styles.closeButton} onClick={close}><img src={`${iconsPath}/ob-close-btn.svg`} alt="Close" /></button>
-      {showOptout ? <Optout closeFn={() => setShowOptout(false)} />
+      {showOptout ? <Optout closeFn={() => setShowOptout(false)} onOptOut={() => setIsOptedOut(true)} />
         :
         <>
           <div id="offerbar-spacer" className={styles.spacer}></div>

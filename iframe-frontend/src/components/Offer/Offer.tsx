@@ -62,9 +62,11 @@ const Offer = ({ closeFn }: Props) => {
             platformName,
             retailerId,
             url,
+            domain,
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
+            isOfferBar: false
         }
 
         if (isTester && isDemo) body.isDemo = true

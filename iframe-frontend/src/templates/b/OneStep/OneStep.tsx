@@ -98,9 +98,11 @@ const OneStep = () => {
             platformName,
             retailerId,
             url,
+            domain,
             tokenSymbol,
             flowId,
-            userId
+            userId,
+            isOfferBar: false
         }
 
         if (isTester && isDemo) {

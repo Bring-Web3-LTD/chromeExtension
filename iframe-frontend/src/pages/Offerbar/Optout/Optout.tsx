@@ -40,7 +40,7 @@ const Optout = ({ closeFn }: Props) => {
         sendMessage(event)
         setIsOpted(true)
 
-        sendGaEvent('opt_out_offer_line', {
+        sendGaEvent('opt_out', {
             category: 'user_action',
             action: 'click',
             details: duration.label,

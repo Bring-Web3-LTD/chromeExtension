@@ -38,11 +38,6 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
             } else {
                 phase = entry.phase || 'quiet'
                 payload = entry.payload || {}
-                if (phase === 'activated') {
-                    entry.phase = 'quiet'
-                    if (entry.payload) delete entry.payload
-                    await storage.set('quietDomains', quietDomains)
-                }
             }
             break
         }

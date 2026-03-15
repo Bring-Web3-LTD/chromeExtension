@@ -9,10 +9,10 @@ import Markdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle } from '../../utils/iframeStyles'
-import { ENV } from '../../config'
+import { ENV, ACTIVATE_QUIET_TIME, OB_ACTIVATE_QUIET_TIME } from '../../config'
 
 const Activated = () => {
-    const { topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, iconsPath, tokenSymbol, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
+    const { topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, iconsPath, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const [markdownContent, setMarkdownContent] = useState('')
     // const [loading, setLoading] = useState(true)
@@ -50,7 +50,7 @@ const Activated = () => {
     return (
         <div id="activated-container" className={styles.container}>
             <CloseBtn
-                withTime={false}
+                time={isOfferBar ? OB_ACTIVATE_QUIET_TIME : ACTIVATE_QUIET_TIME}
             />
             <div id="activated-top-container" className={styles.top_container}>
                 {walletAddress ? <div id="activated-wallet-container" className={styles.wallet_container}>

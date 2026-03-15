@@ -68,6 +68,7 @@ const Offerbar = () => {
       platformName,
       retailerId,
       url: networkUrl,
+      domain,
       userId,
       tokenSymbol: cryptoSymbols[0],
       flowId,

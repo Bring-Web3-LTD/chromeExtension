@@ -47,7 +47,8 @@ const Offer = ({ closeFn }: Props) => {
         cashbackSymbol,
         cashbackCurrency,
         offerText,
-        variant 
+        variant,
+        isOfferBar
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -62,9 +63,11 @@ const Offer = ({ closeFn }: Props) => {
             platformName,
             retailerId,
             url,
+            domain,
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
+            isOfferBar
         }
 
         if (isTester && isDemo) body.isDemo = true

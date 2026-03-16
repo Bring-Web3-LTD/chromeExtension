@@ -1,5 +1,11 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.6.2
+
+### Patch Changes
+
+- 24ef774: Removed the automatic change from activated to quiet.
+
 ## 1.6.1
 
 ### Patch Changes

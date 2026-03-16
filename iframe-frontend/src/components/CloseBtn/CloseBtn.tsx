@@ -15,7 +15,7 @@ interface Props {
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const CloseBtn = ({ callback, withTime = true, time, className = '' }: Props) => {
-    const { domain, version, quietDomainType, isRegex } = useRouteLoaderData('root') as LoaderData
+    const { domain, version} = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
 
     const close = async () => {

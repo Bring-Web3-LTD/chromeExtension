@@ -5,18 +5,26 @@ type Token = string | null
 interface Req {
     token: Token
     userId: string
+    styleUrl?: string | null
+    themeMode: string
 }
 
 interface VerifyResponse {
     status: number
     info: Info
+    theme?: Record<string, string> | { dark?: Record<string, string>; light?: Record<string, string> }
 }
 
-const verify = async ({ token, userId }: Req): Promise<VerifyResponse> => {
-    const body = {
+const verify = async ({ token, userId, styleUrl, themeMode }: Req): Promise<VerifyResponse> => {
+    const body: Record<string, unknown> = {
         token,
         userId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        themeMode
+    }
+
+    if (styleUrl) {
+        body.styleUrl = styleUrl
     }
 
     const res = await fetch(`${API_URL}/verify`, {

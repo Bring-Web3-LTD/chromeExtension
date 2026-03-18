@@ -4,7 +4,7 @@ import PlatformLogo from "../../components/PlatformLogo/PlatformLogo"
 import CloseBtn from '../../components/CloseBtn/CloseBtn'
 import { useEffect } from 'react'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
-import { notificationIframeStyle } from '../../utils/iframeStyles'
+import { getIframeStyle } from '../../utils/iframeStyles'
 import toCaseString from '../../utils/toCaseString'
 import useTimeout from '../../hooks/useTimeout'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
@@ -93,7 +93,7 @@ interface Notification {
 }
 
 const Notification = () => {
-    const { platformName, textMode, cashbackUrl, new: _new, eligible, total, expiredAt, promptPairing } = useRouteLoaderData('root') as Notification
+    const { platformName, textMode, cashbackUrl, new: _new, eligible, total, expiredAt, promptPairing, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as Notification & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const ctaText = !promptPairing ? 'Details' : eligible ? 'Claim' : 'Connect'
     const isExtraBtn = !_new
@@ -103,7 +103,7 @@ const Notification = () => {
     })
 
     useEffect(() => {
-        const style = notificationIframeStyle[platformName.toLowerCase()] || notificationIframeStyle['default']
+        const style = getIframeStyle('notification', platformName, themeIframeStyle)
 
         if (promptPairing) {
             style.iframe.width = '699px';
@@ -112,7 +112,7 @@ const Notification = () => {
 
         sendMessage({ action: ACTIONS.OPEN, style })
 
-    }, [platformName, promptPairing])
+    }, [platformName, promptPairing, themeIframeStyle])
 
     useEffect(() => {
         start()

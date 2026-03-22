@@ -16,7 +16,7 @@
     border-radius: 50%;
     height: 68px;
     width: 68px;
-    border: 2px solid var(--ob-platform-logos-bg);
+    border: var(--ob-platform-logo-border-w) solid var(--ob-platform-logo-border-c);
     margin-bottom: -8px;
     z-index: 1;
 }
@@ -28,4 +28,5 @@
     border-radius: 50%;
     object-fit: cover;
     object-position: center;
+    border: var(--ob-retailer-logo-border-w) solid var(--ob-retailer-logo-border-c);
 }

@@ -56,7 +56,7 @@ const Offerbar = () => {
     if (isOptedOut) {
       sendMessage({ action: ACTIONS.CLOSE })
     } else {
-      sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com','google.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['ki','kd'], isRegex: [false, false] })
+      sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['kdsi'], isRegex: [false] })
     }
   }
 
@@ -97,7 +97,7 @@ const Offerbar = () => {
       token,
       flowId,
       platformName,
-      quietDomainType: 'ds',
+      quietDomainType: 'kds',
       isRegex
     })
 

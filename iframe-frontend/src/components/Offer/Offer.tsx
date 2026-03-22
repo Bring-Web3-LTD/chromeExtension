@@ -90,7 +90,7 @@ const Offer = ({ closeFn }: Props) => {
             token,
             flowId,
             platformName,
-            quietDomainType: 'ds'
+            quietDomainType: 'kds'
         })
 
         sendGaEvent('retailer_shop', {

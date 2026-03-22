@@ -51,7 +51,7 @@ const Activated = () => {
         <div id="activated-container" className={styles.container}>
             <CloseBtn
                 time={isOfferBar ? OB_ACTIVATE_QUIET_TIME : ACTIVATE_QUIET_TIME}
-                type="ds"
+                type="kds"
             />
             <div id="activated-top-container" className={styles.top_container}>
                 {walletAddress ? <div id="activated-wallet-container" className={styles.wallet_container}>

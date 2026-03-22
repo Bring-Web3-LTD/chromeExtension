@@ -116,7 +116,7 @@ const OneStep = () => {
             return
         }
 
-        sendMessage({ action: ACTIONS.ACTIVATE, url, domain, time: parseTime(ACTIVATE_QUIET_TIME, version), redirectUrl })
+        sendMessage({ action: ACTIONS.ACTIVATE, url, domain, time: parseTime(ACTIVATE_QUIET_TIME, version), redirectUrl, quietDomainType: 'd' })
         sendGaEvent('retailer_shop', {
             category: 'user_action',
             action: 'click',

@@ -97,7 +97,7 @@ const Offerbar = () => {
       token,
       flowId,
       platformName,
-      quietDomainType,
+      quietDomainType: 'ds',
       isRegex
     })
 

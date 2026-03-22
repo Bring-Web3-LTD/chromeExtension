@@ -10,11 +10,12 @@ interface Props {
     withTime?: boolean
     time?: number
     className?: string
+    type?: string
 }
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
-const CloseBtn = ({ callback, withTime = true, time, className = '' }: Props) => {
+const CloseBtn = ({ callback, withTime = true, time, className = '', type }: Props) => {
     const { domain, version} = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
 
@@ -30,6 +31,7 @@ const CloseBtn = ({ callback, withTime = true, time, className = '' }: Props) =>
 
         const message: Parameters<typeof sendMessage>[0] = { action: ACTIONS.CLOSE, domain}
         if (withTime) message.time = parseTime(time ?? THIRTY_MIN_MS, version)
+        if (type) message.type = type
 
         sendMessage(message)
     }

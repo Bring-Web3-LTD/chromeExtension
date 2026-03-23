@@ -7,6 +7,7 @@ import styles from './styles.module.css'
 
 interface Props {
     closeFn: () => void
+    onOptOut: () => void
 }
 
 const durationOptions = [
@@ -21,7 +22,7 @@ const dict = {
     'Forever': 'forever'
 }
 
-const Optout = ({ closeFn }: Props) => {
+const Optout = ({ closeFn, onOptOut }: Props) => {
     const { textMode, domain, name, platformName } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)
@@ -30,17 +31,18 @@ const Optout = ({ closeFn }: Props) => {
     const handleOptOut = (duration: typeof durationOptions[0]) => {
         const event: Message = {
             action: ACTIONS.OPT_OUT_SPECIFIC,
-            domain: ['google.com', 'google.com', 'amazon.com', 'amazon.com'],
-            type: ["ki", "kd", "ki", "kd"],
-            isRegex: [false, false, false, false],
+            domain: ['google.com'],
+            type: ["kdsi"],
+            isRegex: [false],
             time: +duration.value,
             key: dict[duration.label as keyof typeof dict]
         }
 
         sendMessage(event)
         setIsOpted(true)
+        onOptOut()
 
-        sendGaEvent('opt_out_offer_line', {
+        sendGaEvent('opt_out', {
             category: 'user_action',
             action: 'click',
             details: duration.label,

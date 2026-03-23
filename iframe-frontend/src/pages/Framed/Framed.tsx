@@ -1,16 +1,14 @@
 import { useEffect } from "react"
 import { sendMessage, ACTIONS } from "../../utils/sendMessage"
-import { offerbarFramedStyle } from "../../utils/iframeStyles"
+import { getIframeStyle } from "../../utils/iframeStyles"
 import { useRouteLoaderData } from "react-router-dom"
 import styles from "./styles.module.css"
 
 const Framed = () => {
-    const { platformName } = useRouteLoaderData('root') as LoaderData
+    const { platformName, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as LoaderData
 
     useEffect(() => {
-        const style = offerbarFramedStyle[platformName.toLowerCase()] || offerbarFramedStyle['default']
-        console.log('style', style)
-        sendMessage({ action: ACTIONS.OPEN, style })
+        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, themeIframeStyle) })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

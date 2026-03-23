@@ -13,7 +13,7 @@ interface Payload {
 const addQuietDomain = async (domain: string | string[], time: number, type: string | string[], isRegex: boolean | boolean[], payload?: Payload, phase?: 'activated' | 'quiet') => {
     if (!domain) return
     const domains = Array.isArray(domain) ? domain : [domain]
-    const types = type ? (Array.isArray(type) ? type : [type]) : ['kd']
+    const types = type ? (Array.isArray(type) ? type : [type]) : ['kds']
     const regexes = isRegex ? (Array.isArray(isRegex) ? isRegex : [isRegex]) : [false]
 
     let [quietDomains, maxLength] = await Promise.all([

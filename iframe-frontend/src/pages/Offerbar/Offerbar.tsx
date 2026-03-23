@@ -37,7 +37,6 @@ const Offerbar = () => {
     networkUrl,
     isOfferBar,
     searchTermPattern,
-    quietDomainType, 
     isRegex,
     iframeStyle: themeIframeStyle
   } = useRouteLoaderData('root') as LoaderData

@@ -89,7 +89,8 @@ const Offer = ({ closeFn }: Props) => {
             iframeUrl,
             token,
             flowId,
-            platformName
+            platformName,
+            quietDomainType: 'kds'
         })
 
         sendGaEvent('retailer_shop', {

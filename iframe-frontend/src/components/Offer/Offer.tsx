@@ -71,6 +71,7 @@ const Offer = ({ closeFn }: Props) => {
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
+            isOfferBar,
         }
 
         if (isTester && isDemo) body.isDemo = true

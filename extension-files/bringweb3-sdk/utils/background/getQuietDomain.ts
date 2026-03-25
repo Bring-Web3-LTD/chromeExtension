@@ -25,7 +25,8 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
     for (let i = 0; i < quietDomains.length; i++) {
         const entry = quietDomains[i]
 
-        if (!entry.type?.includes(type)) continue
+        if (type && !type.split('').some(t => entry.type?.includes(t))) continue
+
         if (searchSingle(entry.domain, url, entry.regex)) {
 
             const { time } = entry
@@ -37,11 +38,6 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
             } else {
                 phase = entry.phase || 'quiet'
                 payload = entry.payload || {}
-                if (phase === 'activated') {
-                    entry.phase = 'quiet'
-                    if (entry.payload) delete entry.payload
-                    await storage.set('quietDomains', quietDomains)
-                }
             }
             break
         }

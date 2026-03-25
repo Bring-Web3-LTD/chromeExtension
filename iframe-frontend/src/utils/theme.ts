@@ -1,8 +1,11 @@
-interface ThemeNames {
-    [key: string]: string
+
+export const iframeStyleNames: Record<string, string> = {
+ // Maps theme JSON keys to CSS properties applied on the iframe element itself.
+    popupShadow: "boxShadow"
+    
 }
 
-export const themeNames: ThemeNames = Object.freeze({
+export const themeNames = {
     popupBg: "--popup-bg",
     primaryBtnBg: "--primary-btn-bg",
     primaryBtnFC: "--primary-btn-f-c",
@@ -145,6 +148,10 @@ export const themeNames: ThemeNames = Object.freeze({
     obCloseBtnLH: "--ob-close-btn-l-h",
     obCloseBtnTopHoverBg: "--ob-close-btn-top-hover-bg",
     obPlatformLogosBg: "--ob-platform-logos-bg",
+    obPlatformLogoBorderC: "--ob-platform-logo-border-c",
+    obPlatformLogoBorderW: "--ob-platform-logo-border-w",
+    obRetailerLogoBorderC: "--ob-retailer-logo-border-c",
+    obRetailerLogoBorderW: "--ob-retailer-logo-border-w",
     obRetailerLogoBg: "--ob-retailer-logo-bg",
     obPlatformWalletLogoBg: "--ob-platform-wallet-logo-bg",
     obOptOutTitleFS: "--ob-opt-out-title-f-s",
@@ -171,4 +178,13 @@ export const themeNames: ThemeNames = Object.freeze({
     obOptOutBackBtnFW: "--ob-opt-out-back-btn-f-w",
     obOptOutBackBtnFC: "--ob-opt-out-back-btn-f-c",
     obOptOutBackBtnLH: "--ob-opt-out-back-btn-l-h",
-})
+} as const
+
+/** All valid theme keys (derived from themeNames) */
+export type ThemeKey = keyof typeof themeNames
+
+/** A complete theme object: all themeNames keys + font fields, all values are strings */
+export type Theme = Record<ThemeKey, string> & {
+    fontUrl: string
+    fontFamily: string
+}

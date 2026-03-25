@@ -48,6 +48,7 @@ const Offer = ({ closeFn }: Props) => {
         cashbackCurrency,
         offerText,
         variant,
+        isOfferBar,
         activationUrl,
         activationMode,
         clickIdValue,
@@ -66,12 +67,10 @@ const Offer = ({ closeFn }: Props) => {
             platformName,
             retailerId,
             url,
+            domain,
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
-            activationUrl,
-            activationMode,
-            clickIdValue,
         }
 
         if (isTester && isDemo) body.isDemo = true
@@ -93,7 +92,8 @@ const Offer = ({ closeFn }: Props) => {
             iframeUrl,
             token,
             flowId,
-            platformName
+            platformName,
+            quietDomainType: 'kds'
         })
 
         sendGaEvent('retailer_shop', {

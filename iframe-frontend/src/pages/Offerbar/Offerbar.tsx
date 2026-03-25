@@ -1,7 +1,7 @@
 import styles from './styles.module.css'
 import { useEffect, useState, useCallback } from "react"
 import { sendMessage, ACTIONS } from "../../utils/sendMessage"
-import { offerbarStyle } from "../../utils/iframeStyles"
+import { getIframeStyle } from "../../utils/iframeStyles"
 import { useRouteLoaderData } from "react-router-dom"
 import Logos from './Logos/Logos'
 import toCaseString from '../../utils/toCaseString'
@@ -37,14 +37,15 @@ const Offerbar = () => {
     networkUrl,
     isOfferBar,
     searchTermPattern,
-    quietDomainType, 
     isRegex,
     activationUrl,
     activationMode,
     clickIdValue,
-    activationToken
+    activationToken,
+    iframeStyle: themeIframeStyle
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
+  const [isOptedOut, setIsOptedOut] = useState(false)
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
   const { sendGaEvent } = useGoogleAnalytics()
   const { walletAddress } = useWalletAddress()
@@ -55,7 +56,11 @@ const Offerbar = () => {
       action: 'click',
       details: 'extension'
     })
-    sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com', 'amazon.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['ki', 'ki'], isRegex: [false, false] })
+    if (isOptedOut) {
+      sendMessage({ action: ACTIONS.CLOSE })
+    } else {
+      sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['kdsi'], isRegex: [false] })
+    }
   }
 
   const handleActivate = useCallback(async () => {
@@ -66,6 +71,7 @@ const Offerbar = () => {
       platformName,
       retailerId,
       url: networkUrl,
+      domain,
       userId,
       tokenSymbol: cryptoSymbols[0],
       flowId,
@@ -97,7 +103,7 @@ const Offerbar = () => {
       token,
       flowId,
       platformName,
-      quietDomainType,
+      quietDomainType: 'kds',
       isRegex
     })
 
@@ -110,7 +116,7 @@ const Offerbar = () => {
   }, [activationMode, activationToken, activationUrl, clickIdValue, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
-    sendMessage({ action: ACTIONS.OPEN, style: offerbarStyle[platformName.toLowerCase()] || offerbarStyle['default'] })
+    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, themeIframeStyle) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -120,7 +126,7 @@ const Offerbar = () => {
       className={styles.offerbar}
     >
       <button id="offerbar-close-btn-top" className={styles.closeButton} onClick={close}><img src={`${iconsPath}/ob-close-btn.svg`} alt="Close" /></button>
-      {showOptout ? <Optout closeFn={() => setShowOptout(false)} />
+      {showOptout ? <Optout closeFn={() => setShowOptout(false)} onOptOut={() => setIsOptedOut(true)} />
         :
         <>
           <div id="offerbar-spacer" className={styles.spacer}></div>

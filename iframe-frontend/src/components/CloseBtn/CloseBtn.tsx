@@ -8,13 +8,15 @@ import parseTime from '../../utils/parseTime'
 interface Props {
     callback?: () => void
     withTime?: boolean
+    time?: number
     className?: string
+    type?: string
 }
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
-const CloseBtn = ({ callback, withTime = true, className = '' }: Props) => {
-    const { domain, version } = useRouteLoaderData('root') as LoaderData
+const CloseBtn = ({ callback, withTime = true, time, className = '', type }: Props) => {
+    const { domain, version} = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
 
     const close = async () => {
@@ -27,8 +29,9 @@ const CloseBtn = ({ callback, withTime = true, className = '' }: Props) => {
             sendMessage({ action: ACTIONS.ACTIVATE, url: `https://${domain}` })
         }
 
-        const message: Parameters<typeof sendMessage>[0] = { action: ACTIONS.CLOSE, domain }
-        if (withTime) message.time = parseTime(THIRTY_MIN_MS, version)
+        const message: Parameters<typeof sendMessage>[0] = { action: ACTIONS.CLOSE, domain}
+        if (withTime) message.time = parseTime(time ?? THIRTY_MIN_MS, version)
+        if (type) message.type = type
 
         sendMessage(message)
     }

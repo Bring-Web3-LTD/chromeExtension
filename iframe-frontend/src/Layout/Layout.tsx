@@ -2,11 +2,9 @@ import { Outlet, useLoaderData } from "react-router-dom"
 import { GoogleAnalyticsProvider } from "../context/googleAnalyticsContext"
 import WalletAddressProvider from "../context/walletAddressContext"
 import { GA_MEASUREMENT_ID } from "../config"
-import useCustomTheme from "../hooks/useCustomTheme"
 import Beamer from "../components/Beamer/Beamer"
 
 const Layout = () => {
-    useCustomTheme()
     const data = useLoaderData() as LoaderData
 
     return (

@@ -6,6 +6,7 @@ interface ActivateProps {
     platformName: string
     retailerId: string
     url: string
+    domain?: string
     tokenSymbol: string
     flowId: string
     timestamp?: number

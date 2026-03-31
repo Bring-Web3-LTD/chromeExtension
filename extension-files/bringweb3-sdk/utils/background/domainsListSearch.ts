@@ -29,6 +29,7 @@ export const searchRegexArray = async (regexArray: RegExp[], url: string, search
 
     for (let i = 0; i < regexArray.length; i++) {
         const type = domainsTypes?.[i];
+        console.log('Testing regex:', regexArray[i], 'type:', type, 'against', testStr, 'searchType:', searchType);
 
         if (searchType) {
             if (![...type].some(c => searchType.includes(c))) continue;

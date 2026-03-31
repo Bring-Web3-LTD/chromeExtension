@@ -211,7 +211,9 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "i");
             if (quietInlineSearch.phase === 'quiet') return;
 
-            const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });
+            console.log('[BringWeb3] GET_PAGE_LINKS: background sending request', { tabId, url: tab.url });
+            const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' }, undefined, 0);
+            console.log('[BringWeb3] GET_PAGE_LINKS: background received response', { tabId, status: response?.status, linksCount: response?.links?.length ?? null, links: response?.links ?? null });
 
             if (response?.status !== 'success' || !response.links?.length) return;
 

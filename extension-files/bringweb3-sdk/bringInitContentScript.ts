@@ -125,15 +125,12 @@ const bringInitContentScript = async ({
             case 'GET_PAGE_LINKS':
                 // Only respond from the main frame, not from iframes
                 if (window !== window.top) return false;
-                console.log('[BringWeb3] GET_PAGE_LINKS: content script received request', { url: window.location.href });
                 try {
                     const links = Array.from(document.querySelectorAll('a[href]'))
                         .map(a => (a as HTMLAnchorElement).href)
                         .filter(href => href.startsWith('http'));
-                    console.log('[BringWeb3] GET_PAGE_LINKS: content script sending response', { status: 'success', linksCount: links.length, links });
                     sendResponse({ status: 'success', links });
                 } catch (error) {
-                    console.log('[BringWeb3] GET_PAGE_LINKS: content script sending response', { status: 'failed', error });
                     sendResponse({ status: 'failed', links: [] });
                 }
                 return true

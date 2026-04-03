@@ -211,7 +211,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "i");
             if (quietInlineSearch.phase === 'quiet') return;
 
-            const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' });
+            const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' }, undefined, 0);
 
             if (response?.status !== 'success' || !response.links?.length) return;
 

@@ -11,9 +11,8 @@ import parseTime from '../../utils/parseTime'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 import activate from '../../api/activate'
-import { OB_ACTIVATE_QUIET_TIME } from '../../config'
-
-const THIRTY_MIN_MS = 30 * 60 * 1000
+import { OB_ACTIVATE_QUIET_TIME, THIRTY_MIN_MS, AUTO_CLOSE_TIMEOUT } from '../../config'
+import useTimeout from '../../hooks/useTimeout'
 
 const Offerbar = () => {
   const {
@@ -115,8 +114,11 @@ const Offerbar = () => {
 
   }, [activationMode, activationToken, activationUrl, clickIdValue, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
+  const { start: startAutoCloseTimer } = useTimeout({ callback: close, delay: AUTO_CLOSE_TIMEOUT })
+
   useEffect(() => {
     sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, themeIframeStyle) })
+    startAutoCloseTimer()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -4,6 +4,7 @@ import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import { useRouteLoaderData } from 'react-router-dom'
 import compareVersions from '../../utils/compareVersions'
 import parseTime from '../../utils/parseTime'
+import { THIRTY_MIN_MS } from '../../config'
 
 interface Props {
     callback?: () => void
@@ -12,8 +13,6 @@ interface Props {
     className?: string
     type?: string
 }
-
-const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const CloseBtn = ({ callback, withTime = true, time, className = '', type }: Props) => {
     const { domain, version} = useRouteLoaderData('root') as LoaderData

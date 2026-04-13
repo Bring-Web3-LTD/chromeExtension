@@ -2,6 +2,7 @@ import styles from './styles.module.css'
 import { useEffect, useState } from 'react'
 import { useRouteLoaderData } from 'react-router-dom'
 import CloseBtn from '../../components/CloseBtn/CloseBtn'
+import Icon from '../../components/Icon/Icon'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 import splitWordMaxFive from '../../utils/splitWordMaxFive'
 import toCapital from '../../utils/toCapital'
@@ -12,7 +13,7 @@ import { getIframeStyle } from '../../utils/iframeStyles'
 import { ENV, ACTIVATE_QUIET_TIME, OB_ACTIVATE_QUIET_TIME } from '../../config'
 
 const Activated = () => {
-    const { topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, iconsPath, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
+    const { topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const [markdownContent, setMarkdownContent] = useState('')
     // const [loading, setLoading] = useState(true)
@@ -59,7 +60,7 @@ const Activated = () => {
                 </div> : null}
             </div>
             <div id="activated-subcontainer" className={styles.subcontainer} >
-                <img id="activated-icon" src={`${iconsPath}/activated.svg`} />
+                <Icon id="activated-icon" name="activated.svg" />
                 <div id="activated-title" className={styles.title}>{tokenSymbol} cashback activated</div>
                 <p id="activated-text" className={styles.p}>Reward approval may take up to 48 hours.</p>
                 <div id="activated-backed-by" className={styles.backed_by}>Backed by {toCapital(platformName)} Wallet</div>

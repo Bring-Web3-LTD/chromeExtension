@@ -7,6 +7,7 @@ import { useGoogleAnalytics } from "../../../hooks/useGoogleAnalytics"
 import { motion, AnimatePresence } from "framer-motion"
 // Components
 import CloseBtn from "../CloseBtn/CloseBtn"
+import Icon from "../../../components/Icon/Icon"
 import Markdown from "react-markdown"
 import rehypeRaw from "rehype-raw"
 import TimePeriodSelector from "../../../components/TimePeriodSelector/TimePeriodSelector"
@@ -40,7 +41,7 @@ const slideVariants = {
 
 
 const OneStep = () => {
-    const { iconsPath, cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar } = useRouteLoaderData('root') as LoaderData
+    const { cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar } = useRouteLoaderData('root') as LoaderData
     const [[isShowingTerms, direction], setIsShowingTerms] = useState([false, 0])
     const [markdownContent, setMarkdownContent] = useState('')
     const [isShowingTurnoff, setIsShowingTurnoff] = useState(false)
@@ -180,7 +181,7 @@ const OneStep = () => {
                         <CloseBtn />
                         <div id="onestep-spacer" className={styles.spacer}>
                         </div>
-                        <img id="onestep-coins-icon" src={`${iconsPath}/coins.svg`} alt="coins" />
+                        <Icon id="onestep-coins-icon" name="coins.svg" alt="coins" />
                         <h1 id="onestep-title" className={styles.title}>Activate Shop to Earn here</h1>
                         <h2 id="onestep-subtitle" className={styles.subtitle}>Get up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} back in {tokenSymbol} when you shop at {name}.</h2>
                         <button
@@ -188,7 +189,7 @@ const OneStep = () => {
                             className={styles.termsBtn}
                             onClick={() => paginate(1)}
                         >
-                            <img id="onestep-info-icon" src={`${iconsPath}/info.svg`} alt="info icon" />
+                            <Icon id="onestep-info-icon" name="info.svg" alt="info icon" />
                             Cashback terms
                         </button>
                         <div id="onestep-clarify-text" className={styles.clarify}>You'll get a reward notification within 48 hours. {tokenSymbol} arrives after the return period ends.</div>
@@ -246,7 +247,7 @@ const OneStep = () => {
                             className={styles.backBtn}
                             onClick={() => paginate(-1)}
                         >
-                            <img id="onestep-arrow-left-icon" src={`${iconsPath}/arrow-left.svg`} alt="arrow left" />
+                            <Icon id="onestep-arrow-left-icon" name="arrow-left.svg" alt="arrow left" />
                         </button>
                         <h1 id="onestep-terms-header" className={styles.termsHeader}>Cashback terms:</h1>
                         <Markdown 
@@ -311,9 +312,9 @@ const OneStep = () => {
                                         className={styles.turnoffCloseBtn}
                                         onClick={() => setIsShowingTurnoff(false)}
                                     >
-                                        <img id="onestep-x-mark-icon" src={`${iconsPath}/popup-x-mark.svg`} alt="x-mark icon" />
+                                        <Icon id="onestep-x-mark-icon" name="popup-x-mark.svg" alt="x-mark icon" />
                                     </button>
-                                    <img id="onestep-turnoff-icon" src={`${iconsPath}/turnoff.svg`} alt="turnoff icon" />
+                                    <Icon id="onestep-turnoff-icon" name="turnoff.svg" alt="turnoff icon" />
 
                                     <div id="onestep-turnoff-text" className={styles.turnoffText}>Turn off offer for this store</div>
                                     <TimePeriodSelector

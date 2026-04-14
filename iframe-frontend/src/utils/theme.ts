@@ -248,6 +248,7 @@ export const themeNames = {
     tbActivateBtnHoverBg: "--tb-activate-btn-hover-bg",
     tbOptOutBtnHoverFC: "--tb-opt-out-btn-hover-fc",
     tbOptOutSecondaryBtnHoverBg: "--tb-optout-secondary-btn-hover-bg",
+    tbIconFilter: "--tb-icon-filter",
 } as const
 
 /** All valid theme keys (derived from themeNames) */

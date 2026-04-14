@@ -215,6 +215,7 @@
         "tbActivateBtnHoverBg": "rgba(255, 255, 255, 0.85)",
         "tbOptOutBtnHoverFC": "#FFFFFFCC",
         "tbOptOutSecondaryBtnHoverBg": "rgba(255, 255, 255, 0.10)",
+        "tbIconFilter": "none",
         "tbFontFamily": "Inter, sans-serif"
     },
     "light": {
@@ -436,6 +437,7 @@
         "tbActivateBtnHoverBg": "rgba(255, 255, 255, 0.85)",
         "tbOptOutBtnHoverFC": "#FFFFFFCC",
         "tbOptOutSecondaryBtnHoverBg": "rgba(255, 255, 255, 0.10)",
+        "tbIconFilter": "none",
         "tbFontFamily": "Inter, sans-serif"
     }
 }

@@ -243,6 +243,11 @@ export const themeNames = {
     tbOptOutBackBtnFW: "--tb-opt-out-back-btn-f-w",
     tbOptOutBackBtnFC: "--tb-opt-out-back-btn-f-c",
     tbOptOutBackBtnLH: "--tb-opt-out-back-btn-l-h",
+    tbOptOutBg: "--tb-optout-bg",
+    tbOptOutShadow: "--tb-optout-shadow",
+    tbActivateBtnHoverBg: "--tb-activate-btn-hover-bg",
+    tbOptOutBtnHoverFC: "--tb-opt-out-btn-hover-fc",
+    tbOptOutSecondaryBtnHoverBg: "--tb-optout-secondary-btn-hover-bg",
 } as const
 
 /** All valid theme keys (derived from themeNames) */

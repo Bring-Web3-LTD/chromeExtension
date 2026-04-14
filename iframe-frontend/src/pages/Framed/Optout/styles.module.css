@@ -17,6 +17,7 @@
     justify-content: space-between;
     align-items: flex-start;
     background: var(--tb-optout-bg, #1A1E3E);
+    box-shadow: var(--tb-optout-shadow, none);
 }
 
 /* ── Back button ── */
@@ -109,20 +110,22 @@
     cursor: not-allowed;
 }
 
-/* ── selected button (pink background) ── */
+/* ── selected button ── */
 .selectedBtn {
-    background: var(--tb-optout-main-btn-bg, #FF00B8);
+    background: var(--tb-opt-out-main-btn-bg, #FF00B8);
+    color: var(--tb-opt-out-main-btn-f-c, #FFF);
     border: none;
 }
 
 /* ── unselected button (outlined) ── */
 .unselectedBtn {
-    background: var(--tb-optout-secondary-btn-bg, #1A1E3E);
-    border: 1px solid #FFF;
+    background: var(--tb-opt-out-secondary-btn-bg, transparent);
+    border: var(--tb-opt-out-secondary-btn-border-w, 1px) solid var(--tb-opt-out-secondary-btn-border-c, #FFF);
+    color: var(--tb-opt-out-secondary-btn-f-c, #FFF);
 }
 
 .unselectedBtn:hover {
-    background: rgba(255, 0, 184, 0.10);
+    background: var(--tb-optout-secondary-btn-hover-bg, rgba(255, 0, 184, 0.10));
 }
 
 /* ── forever button — capitalize instead of uppercase ── */
@@ -163,7 +166,7 @@
 
 .closeBtn:hover::before,
 .closeBtn:active::before {
-    background: rgba(255, 255, 255, 0.40);
+    background: var(--tb-close-btn-hover-bg, rgba(255, 255, 255, 0.40));
 }
 
 .closeBtn img {
@@ -241,7 +244,7 @@
 
 .confirmCloseBtn:hover::before,
 .confirmCloseBtn:active::before {
-    background: rgba(255, 255, 255, 0.40);
+    background: var(--tb-close-btn-hover-bg, rgba(255, 255, 255, 0.40));
 }
 
 .confirmCloseBtn img {

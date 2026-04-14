@@ -214,5 +214,10 @@
     "tbOptOutBackBtnFW": "500",
     "tbOptOutBackBtnFC": "#FFFFFF",
     "tbOptOutBackBtnLH": "15px",
+    "tbOptOutBg": "#1A1E3E",
+    "tbOptOutShadow": "none",
+    "tbActivateBtnHoverBg": "rgba(255, 0, 184, 0.80)",
+    "tbOptOutBtnHoverFC": "#FFFFFFCC",
+    "tbOptOutSecondaryBtnHoverBg": "rgba(255, 0, 184, 0.10)",
     "tbFontFamily": "Inter, sans-serif"
 }

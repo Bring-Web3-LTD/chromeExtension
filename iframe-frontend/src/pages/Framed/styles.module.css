@@ -27,6 +27,7 @@
     height: 71px;
     pointer-events: auto;
     background: var(--tb-bg, #1A1E3E);
+    box-shadow: var(--tb-shadow, none);
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -129,8 +130,6 @@
     width: 27px;
     height: 27px;
     border-radius: 50%;
-    background: var(--tb-platform-logo-bg, #13172F);
-    border: var(--tb-platform-logo-border-w, 1px) solid var(--tb-platform-logo-border-c, #FFF);
     overflow: hidden;
     flex-shrink: 0;
 }
@@ -244,7 +243,7 @@
 }
 
 .tbActivateBtn:hover {
-    background: rgba(255, 0, 184, 0.80);
+    background: var(--tb-activate-btn-hover-bg, rgba(255, 0, 184, 0.80));
 }
 
 .tbActivateBtn:disabled {
@@ -278,7 +277,7 @@
 }
 
 .tbOptOutBtn:hover {
-    color: #FFFFFFCC;
+    color: var(--tb-opt-out-btn-hover-fc, #FFFFFFCC);
 }
 
 /* ── Close button ── */
@@ -314,7 +313,7 @@
 
 .tbCloseBtn:hover::before,
 .tbCloseBtn:active::before {
-    background: rgba(255, 255, 255, 0.40);
+    background: var(--tb-close-btn-hover-bg, rgba(255, 255, 255, 0.40));
 }
 
 .tbCloseBtn img {

@@ -27,6 +27,7 @@ const Framed = () => {
         version,
         flowId,
         name,
+        displayName,
         userId,
         retailerId,
         url,
@@ -169,9 +170,9 @@ const Framed = () => {
                                             </span>
                                             <span
                                                 id="tb-retailer-name"
-                                                className={`${styles.tbRetailerName}${name === name.toUpperCase() ? ` ${styles.tbRetailerNameUppercase}` : ''}`}
+                                                className={`${styles.tbRetailerName}${displayName === displayName.toUpperCase() ? ` ${styles.tbRetailerNameUppercase}` : ''}`}
                                             >
-                                                {name}
+                                                {displayName}
                                             </span>
                                         </div>
                                     </div>

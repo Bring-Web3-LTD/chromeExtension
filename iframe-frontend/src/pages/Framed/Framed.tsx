@@ -167,7 +167,10 @@ const Framed = () => {
                                             <span id="tb-platform-name" className={styles.tbPlatformName}>
                                                 {toCapital(platformName)}
                                             </span>
-                                            <span id="tb-retailer-name" className={styles.tbRetailerName}>
+                                            <span
+                                                id="tb-retailer-name"
+                                                className={`${styles.tbRetailerName}${name === name.toUpperCase() ? ` ${styles.tbRetailerNameUppercase}` : ''}`}
+                                            >
                                                 {name}
                                             </span>
                                         </div>

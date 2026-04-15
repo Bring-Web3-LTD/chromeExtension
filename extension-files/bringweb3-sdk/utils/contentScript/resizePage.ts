@@ -13,48 +13,64 @@ const resizePage = ({ sides, listener }: ResizePageOptions) => {
     const horizontalFrame = left + right;
     const verticalFrame = top + bottom;
 
-    const body = document.body;
-
-    // Capture original inline values + priorities for each managed property
-    const originals = MANAGED_PROPS.map(prop => ({
-        prop,
-        value: body.style.getPropertyValue(prop),
-        priority: body.style.getPropertyPriority(prop),
-    }));
+    let originals: { prop: typeof MANAGED_PROPS[number]; value: string; priority: string }[] | null = null;
 
     const handleResize = () => {
-        const neededScaleX = horizontalFrame > 0
-            ? (window.innerWidth - horizontalFrame) / window.innerWidth
-            : 1;
-        const neededScaleY = verticalFrame > 0
-            ? (window.innerHeight - verticalFrame) / window.innerHeight
-            : 1;
+        const body = document.body;
+        if (!body) return;
 
-        const scale = Math.min(neededScaleX, neededScaleY);
-        const bodyWidth = (window.innerWidth - horizontalFrame) / scale;
-        const bodyHeight = (window.innerHeight - verticalFrame) / scale;
+        if (!originals) {
+            originals = MANAGED_PROPS.map(prop => ({
+                prop,
+                value: body.style.getPropertyValue(prop),
+                priority: body.style.getPropertyPriority(prop),
+            }));
+        }
 
-        const updates: Record<typeof MANAGED_PROPS[number], string> = {
-            width: `${bodyWidth}px`,
-            height: `${bodyHeight}px`,
-            transform: `translate(${left}px, ${top}px) scale(${scale})`,
-        };
+        const availableWidth = window.innerWidth - horizontalFrame;
+        const availableHeight = window.innerHeight - verticalFrame;
+
+        const updates: Record<typeof MANAGED_PROPS[number], string> = (availableWidth <= 0 || availableHeight <= 0)
+            ? {
+                width: '0px',
+                height: '0px',
+                transform: `translate(${left}px, ${top}px) scale(0)`,
+            }
+            : (() => {
+                const neededScaleX = horizontalFrame > 0 ? availableWidth / window.innerWidth : 1;
+                const neededScaleY = verticalFrame > 0 ? availableHeight / window.innerHeight : 1;
+                const scale = Math.min(neededScaleX, neededScaleY);
+
+                return {
+                    width: `${availableWidth / scale}px`,
+                    height: `${availableHeight / scale}px`,
+                    transform: `translate(${left}px, ${top}px) scale(${scale})`,
+                };
+            })();
 
         for (const prop of MANAGED_PROPS) {
             body.style.setProperty(prop, updates[prop], 'important');
         }
     };
 
-    handleResize();
+    if (document.body) {
+        handleResize();
+    } else {
+        document.addEventListener('DOMContentLoaded', handleResize, { once: true });
+    }
 
     if (listener) {
         window.addEventListener('resize', handleResize);
     }
 
     contentScriptCleanup.add(() => {
+        document.removeEventListener('DOMContentLoaded', handleResize);
         if (listener) {
             window.removeEventListener('resize', handleResize);
         }
+
+        const body = document.body;
+        if (!body || !originals) return;
 
         for (const { prop, value, priority } of originals) {
             if (value) {

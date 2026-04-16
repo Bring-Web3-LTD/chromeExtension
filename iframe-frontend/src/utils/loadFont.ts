@@ -3,28 +3,30 @@ const DEFAULT_FONT_FAMILY = "'Poppins', sans-serif"
 const INTER_FONT_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
 
 const loadFont = async (fontUrl: string | null, fontFamily: string | null) => {
+  const resolvedUrl = fontUrl || DEFAULT_FONT_URL;
+
+  // Load the theme's main font
   const link = document.createElement('link');
-  link.href = fontUrl || DEFAULT_FONT_URL;
+  link.href = resolvedUrl;
   link.rel = 'stylesheet';
   document.head.appendChild(link);
 
-  // Also load Inter for TB (framed) components
-  const interLink = document.createElement('link');
-  interLink.href = INTER_FONT_URL;
-  interLink.rel = 'stylesheet';
-  document.head.appendChild(interLink);
+  const fontPromises: Promise<unknown>[] = [
+    new Promise((resolve) => { link.onload = resolve; link.onerror = resolve; })
+  ];
 
-  // Wait for fonts to load
-  await Promise.all([
-    new Promise((resolve) => {
-      link.onload = resolve;
-      link.onerror = resolve;
-    }),
-    new Promise((resolve) => {
-      interLink.onload = resolve;
-      interLink.onerror = resolve;
-    })
-  ]);
+  // Load Inter for TB (framed) components — skip if the theme already uses Inter
+  if (resolvedUrl !== INTER_FONT_URL) {
+    const interLink = document.createElement('link');
+    interLink.href = INTER_FONT_URL;
+    interLink.rel = 'stylesheet';
+    document.head.appendChild(interLink);
+    fontPromises.push(
+      new Promise((resolve) => { interLink.onload = resolve; interLink.onerror = resolve; })
+    );
+  }
+
+  await Promise.all(fontPromises);
 
   const style = document.createElement('style');
   style.textContent = `

@@ -1,5 +1,11 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.6.4
+
+### Patch Changes
+
+- a4b33e0: fix resizePage func and cleanup for framed mode
+
 ## 1.6.3
 
 ### Patch Changes

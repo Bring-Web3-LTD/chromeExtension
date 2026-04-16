@@ -143,7 +143,7 @@ const Framed = () => {
                                         {/* Platform logo + "+" + retailer logo */}
                                         <div id="tb-logos-row" className={styles.tbLogosRow}>
                                             <div id="tb-platform-logo" className={styles.tbPlatformLogo}>
-                                                <PlatformLogo size='sm' platformName={platformName} />
+                                                <PlatformLogo size='tb' platformName={platformName} />
                                             </div>
                                             <span id="tb-plus" className={styles.tbPlus}>+</span>
                                             <div id="tb-retailer-logo" className={styles.tbRetailerLogo}>

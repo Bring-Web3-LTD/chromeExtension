@@ -71,7 +71,7 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
 
                     {/* Main box — text + buttons */}
                     <div className={styles.mainBox}>
-                        <div className={styles.turnOf}>
+                        <div className={styles.turnOff}>
                             <span id="tb-optout-title" className={styles.title}>
                                 Turn off cashback offers for
                             </span>
@@ -106,9 +106,9 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
             ) : (
                 /* Confirmation banner */
                 <>
-                    {/* Frame 1321317114 — inner wrapper */}
+                    {/* Confirmation layout — centered text */}
                     <div className={styles.confirmationInner}>
-                        {/* Frame 1321317113 — text container */}
+                        {/* Confirmation message */}
                         <div className={styles.confirmationTextWrap}>
                             <span className={styles.confirmationText}>
                                 You'll stop getting cashback offers.

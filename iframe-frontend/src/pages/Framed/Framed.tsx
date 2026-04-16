@@ -111,7 +111,7 @@ const Framed = () => {
         })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern, isRegex])
+    }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
 
     useEffect(() => {
         sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, themeIframeStyle) })
@@ -120,7 +120,7 @@ const Framed = () => {
 
     return (
         <div className={`${styles.frameContainer} framed-transparent`}>
-            {/* OB Generic — full-width bar */}
+            {/* Top bar — fixed 71px strip at top of viewport */}
             <div id="tb-container" className={styles.tbBar}>
                 {showOptout ? (
                     <Optout 
@@ -129,18 +129,18 @@ const Framed = () => {
                         onConfirmClose={close}
                     />
                 ) : (
-                    /* Frame 1321317114 */
+                    /* Inner wrapper — horizontal layout with padding */
                     <div id="tb-inner" className={styles.tbInner}>
-                        {/* Frame 1321317115 */}
+                        {/* Left + center content (logos, names, offer text) */}
                         <div id="tb-left-center" className={styles.tbLeftCenter}>
 
                             {/* logos + names */}
                             <div id="tb-logos-names" className={styles.tbLogosNames}>
-                                {/* Frame 1321317110 — logo row */}
+                                {/* Logo row with vertical padding */}
                                 <div id="tb-logo-row" className={styles.tbLogoRow}>
-                                    {/* Group 427320096 — logos + names */}
+                                    {/* Stacked column: logo icons on top, names below */}
                                     <div id="tb-logo-group" className={styles.tbLogoGroup}>
-                                        {/* Frame 1321317106 — partner logo + "+" + retailer logo */}
+                                        {/* Platform logo + "+" + retailer logo */}
                                         <div id="tb-logos-row" className={styles.tbLogosRow}>
                                             <div id="tb-platform-logo" className={styles.tbPlatformLogo}>
                                                 <PlatformLogo size='sm' platformName={platformName} />
@@ -179,7 +179,7 @@ const Framed = () => {
                                 </div>
                             </div>
 
-                            {/* Frame 1321317113 — main offering text */}
+                            {/* Cashback offer text — centered, truncated */}
                             <div id="tb-offer-text" className={styles.tbOfferText}>
                                 <span>
                                     Up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} {cryptoSymbols[0]} cashback when purchasing with any card
@@ -187,7 +187,7 @@ const Framed = () => {
                             </div>
                         </div>
 
-                        {/* buttons */}
+                        {/* Right side — Activate, Stop Offers, Close buttons */}
                         <div id="tb-buttons" className={styles.tbButtons}>
                             <button
                                 id="tb-activate-btn"
@@ -204,7 +204,7 @@ const Framed = () => {
                             >
                                 Stop<br />Offers
                             </button>
-                            {/* close */}
+                            {/* Close (X) button */}
                             <button id="tb-close-btn" className={styles.tbCloseBtn} onClick={close}>
                                 <img src={`${import.meta.env.BASE_URL}icons/tb-close.svg`} alt="Close" />
                             </button>

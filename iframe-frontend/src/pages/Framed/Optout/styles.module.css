@@ -53,8 +53,8 @@
     height: 71px;
 }
 
-/* ── turn of — text wrapper ── */
-.turnOf {
+/* ── turn off — text wrapper ── */
+.turnOff {
     display: flex;
     padding: 24px 0;
     justify-content: center;

@@ -27,6 +27,7 @@ declare global {
         retailerId: string
         retailerDomain: string
         name: string
+        displayName: string
         maxCashback: string
         cashbackSymbol: string
         cashbackCurrency: string

@@ -4,6 +4,7 @@ import { sendMessage, ACTIONS } from "../../utils/sendMessage"
 import { getIframeStyle } from "../../utils/iframeStyles"
 import { useRouteLoaderData } from "react-router-dom"
 import Logos from './Logos/Logos'
+import Icon from '../../components/Icon/Icon'
 import toCaseString from '../../utils/toCaseString'
 import formatCashback from '../../utils/formatCashback'
 import Optout from './Optout/Optout'
@@ -17,7 +18,6 @@ import useTimeout from '../../hooks/useTimeout'
 const Offerbar = () => {
   const {
     platformName,
-    iconsPath,
     textMode,
     domain,
     cryptoSymbols,
@@ -127,7 +127,7 @@ const Offerbar = () => {
       id="offerbar-container"
       className={styles.offerbar}
     >
-      <button id="offerbar-close-btn-top" className={styles.closeButton} onClick={close}><img src={`${iconsPath}/ob-close-btn.svg`} alt="Close" /></button>
+      <button id="offerbar-close-btn-top" className={styles.closeButton} onClick={close}><Icon name="ob-close-btn.svg" alt="Close" /></button>
       {showOptout ? <Optout closeFn={() => setShowOptout(false)} onOptOut={() => setIsOptedOut(true)} />
         :
         <>
@@ -150,7 +150,7 @@ const Offerbar = () => {
         </>
       }
       <button id="offerbar-close-btn-bottom" className={styles.closeButtonBottom} onClick={close}>
-        <img id='offerbar-close-btn-bottom-icon' src={`${iconsPath}/close-icon.svg`} alt="" />
+        <Icon id='offerbar-close-btn-bottom-icon' name="close-icon.svg" alt="" />
         <span id="offerbar-close-text">
           {toCaseString('Close', textMode, platformName)}
         </span>

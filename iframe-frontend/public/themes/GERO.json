@@ -137,5 +137,6 @@
     "primaryBtnFC": "#041417",
     "primaryBtnBg": "linear-gradient(to right, #00c7f3, #00fad5)",
     "obOptOutBtnFW": "700",
-    "primaryBtnFS": "14px"
+    "primaryBtnFS": "14px",
+    "logoBg": "#FFFFFF"
 }

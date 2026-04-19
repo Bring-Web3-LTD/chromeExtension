@@ -21,6 +21,10 @@
     height: var(--logo-size);
     background: var(--logo-bg, white);
     border-radius: var(--logo-radius, 50%);
+    border-width: var(--logo-border-w, 0);
+    border-color: var(--logo-border-c, transparent);
+    border-style: solid;
+    box-sizing: border-box;
 }
 
 .logo_wrapper_initials {

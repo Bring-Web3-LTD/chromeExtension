@@ -52,7 +52,8 @@ Include this configuration inside your `manifest.json` file:
       ],
       "js": [
         "contentScript.js" // The name of the file importing the bringContentScriptInit
-      ]
+      ],
+      "all_frames": true
     }
   ],
   "host_permissions": [

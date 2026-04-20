@@ -348,3 +348,23 @@
     z-index: 1;
     filter: var(--tb-icon-filter, none);
 }
+
+/* ══════════════════════════════════════════════════════════
+   Small screen — offer text hidden, buttons shrink
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 599px) {
+    .tbOfferText {
+        display: none;
+    }
+
+    .tbActivateBtn {
+        width: 110px;
+        font-size: 15px;
+    }
+
+    .tbOptOutBtn {
+        width: 47px;
+        font-size: 12px;
+        line-height: 15px;
+    }
+}

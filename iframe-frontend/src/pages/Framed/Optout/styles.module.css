@@ -208,8 +208,8 @@
     color: var(--tb-opt-out-title-f-c, #FFF);
     text-align: center;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-size: 17px;
-    font-weight: 600;
+    font-size: var(--tb-opt-out-confirm-f-s, 17px);
+    font-weight: var(--tb-opt-out-confirm-f-w, 600);
     line-height: 22px;
 }
 
@@ -256,4 +256,24 @@
     position: relative;
     z-index: 1;
     filter: var(--tb-icon-filter, none);
+}
+
+/* ══════════════════════════════════════════════════════════
+   Small screen — smaller fonts and buttons
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+    .title {
+        font-size: 15px;
+    }
+
+    .optionBtn {
+        width: 80px;
+        height: 32px;
+        font-size: 14px;
+        line-height: 15.284px;
+    }
+
+    .confirmationText {
+        font-size: 15px;
+    }
 }

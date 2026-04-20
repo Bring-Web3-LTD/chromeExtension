@@ -109,9 +109,6 @@
     font-weight: var(--tb-retailer-name-fw, 500);
     line-height: 12px;
     white-space: nowrap;
-    max-width: 50px;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .tbRetailerNameUppercase {

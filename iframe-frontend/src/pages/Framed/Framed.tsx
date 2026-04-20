@@ -138,45 +138,35 @@ const Framed = () => {
 
                             {/* logos + names */}
                             <div id="tb-logos-names" className={styles.tbLogosNames}>
-                                {/* Logo row with vertical padding */}
-                                <div id="tb-logo-row" className={styles.tbLogoRow}>
-                                    {/* Stacked column: logo icons on top, names below */}
-                                    <div id="tb-logo-group" className={styles.tbLogoGroup}>
-                                        {/* Platform logo + "+" + retailer logo */}
-                                        <div id="tb-logos-row" className={styles.tbLogosRow}>
-                                            <div id="tb-platform-logo" className={styles.tbPlatformLogo}>
-                                                <PlatformLogo size='tb' platformName={platformName} />
-                                            </div>
-                                            <span id="tb-plus" className={styles.tbPlus}>+</span>
-                                            <div id="tb-retailer-logo" className={styles.tbRetailerLogo}>
-                                                {fallbackLogo ? (
-                                                    <span id="tb-retailer-initials" className={styles.tbRetailerInitials}>
-                                                        {fallbackLogo}
-                                                    </span>
-                                                ) : (
-                                                    <img
-                                                        id="tb-retailer-logo-img"
-                                                        src={iconUrl}
-                                                        className={styles.tbRetailerImg}
-                                                        alt="retailer-logo"
-                                                        onError={() => setFallbackLogo(getInitials(name))}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Name labels below logos */}
-                                        <div id="tb-names" className={styles.tbNames}>
-                                            <span id="tb-platform-name" className={styles.tbPlatformName}>
-                                                {toCapital(platformName)}
+                                {/* Logos row — this is the layout anchor */}
+                                <div id="tb-logos-row" className={styles.tbLogosRow}>
+                                    <div id="tb-platform-logo" className={styles.tbPlatformLogo}>
+                                        <PlatformLogo size='tb' platformName={platformName} />
+                                        <span id="tb-platform-name" className={styles.tbPlatformName}>
+                                            {toCapital(platformName)}
+                                        </span>
+                                    </div>
+                                    <span id="tb-plus" className={styles.tbPlus}>+</span>
+                                    <div id="tb-retailer-logo" className={styles.tbRetailerLogo}>
+                                        {fallbackLogo ? (
+                                            <span id="tb-retailer-initials" className={styles.tbRetailerInitials}>
+                                                {fallbackLogo}
                                             </span>
-                                            <span
-                                                id="tb-retailer-name"
-                                                className={`${styles.tbRetailerName}${displayName === displayName.toUpperCase() ? ` ${styles.tbRetailerNameUppercase}` : ''}`}
-                                            >
-                                                {displayName}
-                                            </span>
-                                        </div>
+                                        ) : (
+                                            <img
+                                                id="tb-retailer-logo-img"
+                                                src={iconUrl}
+                                                className={styles.tbRetailerImg}
+                                                alt="retailer-logo"
+                                                onError={() => setFallbackLogo(getInitials(name))}
+                                            />
+                                        )}
+                                        <span
+                                            id="tb-retailer-name"
+                                            className={`${styles.tbRetailerName}${displayName === displayName.toUpperCase() ? ` ${styles.tbRetailerNameUppercase}` : ''}`}
+                                        >
+                                            {displayName}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

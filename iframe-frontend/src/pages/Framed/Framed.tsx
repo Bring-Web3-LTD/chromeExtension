@@ -12,6 +12,7 @@ import { useWalletAddress } from "../../hooks/useWalletAddress"
 import { OB_ACTIVATE_QUIET_TIME } from "../../config"
 import Optout from "./Optout/Optout"
 import { getInitials } from "../../utils/getInitials"
+import parseOfferText from "../../utils/parseOfferText"
 import styles from "./styles.module.css"
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
@@ -38,6 +39,7 @@ const Framed = () => {
         searchTermPattern,
         isRegex,
         iconUrl,
+        offerTextTb,
         iframeStyle: themeIframeStyle
     } = useRouteLoaderData('root') as LoaderData
 
@@ -182,7 +184,9 @@ const Framed = () => {
                             {/* Cashback offer text — centered, truncated */}
                             <div id="tb-offer-text" className={styles.tbOfferText}>
                                 <span>
-                                    Up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} {cryptoSymbols[0]} cashback when purchasing with any card
+                                    {parseOfferText(offerTextTb) || (
+                                        <>Up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} {cryptoSymbols[0]} cashback when purchasing with any card</>
+                                    )}
                                 </span>
                             </div>
                         </div>

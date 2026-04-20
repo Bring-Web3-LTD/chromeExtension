@@ -66,7 +66,7 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
                         className={styles.backBtn}
                         onClick={closeFn}
                     >
-                        <img src="/icons/tb-back.svg" alt="Back" />
+                        <img src={`${import.meta.env.BASE_URL}icons/tb-back.svg`} alt="Back" />
                     </button>
 
                     {/* Main box — text + buttons */}
@@ -100,7 +100,7 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
                         className={styles.closeBtn}
                         onClick={closeFn}
                     >
-                        <img src="/icons/tb-close.svg" alt="Close" />
+                        <img src={`${import.meta.env.BASE_URL}icons/tb-close.svg`} alt="Close" />
                     </button>
                 </>
             ) : (
@@ -122,7 +122,7 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
                         className={styles.confirmCloseBtn}
                         onClick={onConfirmClose}
                     >
-                        <img src="/icons/tb-close.svg" alt="Close" />
+                        <img src={`${import.meta.env.BASE_URL}icons/tb-close.svg`} alt="Close" />
                     </button>
                 </>
             )}

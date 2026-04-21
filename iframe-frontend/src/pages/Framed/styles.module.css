@@ -249,7 +249,7 @@
     line-height: var(--tb-activate-btn-l-h, 15.284px);
     font-feature-settings: 'liga' off, 'clig' off;
     text-transform: uppercase;
-    border: var(--tb-activate-btn-border-w, 0) solid var(--tb-activate-btn-border-c, transparent);
+    border: none;
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
@@ -282,7 +282,7 @@
     font-feature-settings: 'liga' off, 'clig' off;
     text-transform: uppercase;
     text-align: center;
-    border: var(--tb-opt-out-btn-border-w, 0) solid var(--tb-opt-out-btn-border-c, transparent);
+    border: none;
     border-radius: var(--tb-opt-out-btn-radius, 0);
     cursor: pointer;
     white-space: nowrap;

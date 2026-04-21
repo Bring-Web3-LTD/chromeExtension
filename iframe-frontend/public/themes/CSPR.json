@@ -1,4 +1,4 @@
-{
+﻿{
     "dark": {
         "fontUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
         "fontFamily": "\"Inter\", sans-serif",
@@ -183,8 +183,6 @@
         "tbOptOutBtnFW": "600",
         "tbOptOutBtnFC": "#FFFFFF",
         "tbOptOutBtnLH": "15px",
-        "tbOptOutBtnBorderC": "transparent",
-        "tbOptOutBtnBorderW": "0",
         "tbOptOutBtnRadius": "0",
         "tbCloseBtnHoverBg": "rgba(204, 1, 15, 0.80)",
         "tbOptOutTitleFS": "17px",
@@ -393,8 +391,6 @@
         "tbOptOutBtnFW": "600",
         "tbOptOutBtnFC": "#FFFFFF",
         "tbOptOutBtnLH": "15px",
-        "tbOptOutBtnBorderC": "transparent",
-        "tbOptOutBtnBorderW": "0",
         "tbOptOutBtnRadius": "0",
         "tbCloseBtnHoverBg": "rgba(204, 1, 15, 0.80)",
         "tbOptOutTitleFS": "17px",

@@ -72,11 +72,12 @@ const Offer = ({ closeFn }: Props) => {
             tokenSymbol: cryptoSymbols[0],
             flowId,
             isOfferBar,
+            activationToken,
         }
 
         if (isTester && isDemo) body.isDemo = true
 
-        const { status, url: redirectUrl, iframeUrl, token } = await activate(body, activationToken)
+        const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
 
 
         if (status !== 200) {

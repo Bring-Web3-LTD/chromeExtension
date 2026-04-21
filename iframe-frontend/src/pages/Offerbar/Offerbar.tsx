@@ -81,10 +81,11 @@ const Offerbar = () => {
       offerBarSearch,
       activationUrl,
       activationMode,
-      clickIdValue
+      clickIdValue,
+      activationToken
     }
 
-    const { status, url: redirectUrl, iframeUrl, token } = await activate(body, activationToken)
+    const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
 
     if (status !== 200) {
       setStatus('idle')

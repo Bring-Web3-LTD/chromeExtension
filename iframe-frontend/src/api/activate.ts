@@ -19,20 +19,18 @@ interface ActivateProps {
     offerBarSearch?: string,
     activationUrl?: string,
     activationMode?: string,
-    clickIdValue?: string
+    clickIdValue?: string,
+    activationToken?: string
 }
 
-interface ActivateResponse {
+interface ActivateResponse extends Partial<ActivateProps> {
     status: number
-    flowId: string
     url: string
-    cashbackInfoUrl: string
-    generalTermsUrl: string
-    iframeUrl: string
     token: string
+    iframeUrl: string
 }
 
-const activate = async (body: ActivateProps, activationToken?: string): Promise<ActivateResponse> => {
+const activate = async (body: ActivateProps): Promise<ActivateResponse> => {
     body.timestamp = Date.now()
     const runActivate = fetch(`${API_URL}/activate`, {
         method: 'POST',
@@ -44,15 +42,13 @@ const activate = async (body: ActivateProps, activationToken?: string): Promise<
         body: JSON.stringify(body)
     })
 
-    if (body.activationMode === 'lightweight' && body.activationUrl) {
+    if (body.activationMode === 'lightweight') {
+        const { activationToken, activationUrl, ...rest } = body
         return {
+            ...rest,
             status: 200,
-            flowId: body.flowId,
-            url: body.activationUrl,
-            cashbackInfoUrl: 'N/A',
-            generalTermsUrl: 'N/A',
-            iframeUrl: 'N/A',
-            token: activationToken || 'N/A'
+            iframeUrl: activationUrl!,
+            token: activationToken!
         }
     }
 

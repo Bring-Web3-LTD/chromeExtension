@@ -41,7 +41,7 @@ const slideVariants = {
 
 
 const OneStep = () => {
-    const { iconsPath, cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar, activationUrl, activationMode, clickIdValue } = useRouteLoaderData('root') as LoaderData
+    const { cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar, activationUrl, activationMode, clickIdValue, activationToken } = useRouteLoaderData('root') as LoaderData
     const [[isShowingTerms, direction], setIsShowingTerms] = useState([false, 0])
     const [markdownContent, setMarkdownContent] = useState('')
     const [isShowingTurnoff, setIsShowingTurnoff] = useState(false)
@@ -106,7 +106,8 @@ const OneStep = () => {
             isOfferBar,
             activationUrl,
             activationMode,
-            clickIdValue
+            clickIdValue,
+            activationToken
         }
 
         if (isTester && isDemo) {

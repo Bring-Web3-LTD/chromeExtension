@@ -56,7 +56,7 @@
 /* ── logos + names wrapper ── */
 .tbLogosNames {
     display: flex;
-    width: 140px;
+    width: 162px;
     height: 68px;
     justify-content: flex-end;
     align-items: flex-start;
@@ -76,33 +76,29 @@
 
 /* ── Name label — absolutely positioned under its logo ── */
 .tbPlatformName {
+    --tb-name-lh: 12px;
     position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 6px;
+    bottom: calc(-6px - var(--tb-name-lh));
     color: var(--tb-platform-name-fc, #FFF);
     text-align: center;
     font-feature-settings: 'liga' off, 'clig' off;
     font-size: var(--tb-platform-name-fs, 12px);
     font-weight: var(--tb-platform-name-fw, 600);
-    line-height: 12px;
+    line-height: var(--tb-name-lh);
     white-space: nowrap;
     pointer-events: none;
 }
 
 .tbRetailerName {
+    --tb-name-lh: 12px;
     position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 6px;
+    bottom: calc(-6px - var(--tb-name-lh));
     color: var(--tb-retailer-name-fc, #FFF);
     text-align: center;
     font-feature-settings: 'liga' off, 'clig' off;
     font-size: var(--tb-retailer-name-fs, 12px);
     font-weight: var(--tb-retailer-name-fw, 500);
-    line-height: 12px;
+    line-height: var(--tb-name-lh);
     white-space: nowrap;
     pointer-events: none;
 }
@@ -128,10 +124,11 @@
 }
 
 .tbPlatformLogo img {
-    width: 100%;
-    height: 100%;
+    width: 27px;
+    height: 27px;
     border-radius: 50%;
-    object-fit: contain;
+    object-fit: cover;
+    object-position: center;
 }
 
 /* ── Plus sign ── */
@@ -142,6 +139,7 @@
     font-size: 22.86px;
     font-weight: 500;
     line-height: 12px;
+    width: 27px;
 }
 
 /* ── Retailer logo ── */

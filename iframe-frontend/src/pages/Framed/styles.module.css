@@ -179,7 +179,7 @@
     flex: 1;
     min-width: 0;
     height: 71px;
-    padding: 24px 20px;
+    padding: 24px 40px;
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -257,11 +257,6 @@
 
 .tbActivateBtn:hover {
     background: var(--tb-activate-btn-hover-bg, rgba(255, 0, 184, 0.80));
-}
-
-.tbActivateBtn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
 }
 
 /* ── Stop Offers button ── */
@@ -343,7 +338,7 @@
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 1050px) {
     .tbLogosNames {
-        width: auto;
+        width: 119px;
     }
 }
 

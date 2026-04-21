@@ -184,6 +184,8 @@
     "tbOptOutTitleFC": "#1A1A1A",
     "tbOptOutMainBtnBg": "#1A1A1A",
     "tbOptOutMainBtnFC": "#FFFFFF",
+    "tbOptOutOptionBtnFS": "15px",
+    "tbOptOutOptionBtnFW": "600",
     "tbOptOutSecondaryBtnBg": "transparent",
     "tbOptOutSecondaryBtnFC": "#1A1A1A",
     "tbOptOutSecondaryBtnBorderW": "1px",

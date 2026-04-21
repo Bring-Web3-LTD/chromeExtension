@@ -95,8 +95,8 @@
     color: #FFF;
     text-align: center;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: var(--tb-opt-out-option-btn-f-s, 15px);
+    font-weight: var(--tb-opt-out-option-btn-f-w, 600);
     line-height: 15.284px;
     cursor: pointer;
     white-space: nowrap;

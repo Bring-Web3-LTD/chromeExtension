@@ -223,6 +223,8 @@ export const themeNames = {
     tbOptOutTitleFC: "--tb-opt-out-title-f-c",
     tbOptOutMainBtnBg: "--tb-opt-out-main-btn-bg",
     tbOptOutMainBtnFC: "--tb-opt-out-main-btn-f-c",
+    tbOptOutOptionBtnFS: "--tb-opt-out-option-btn-f-s",
+    tbOptOutOptionBtnFW: "--tb-opt-out-option-btn-f-w",
     tbOptOutSecondaryBtnBg: "--tb-opt-out-secondary-btn-bg",
     tbOptOutSecondaryBtnFC: "--tb-opt-out-secondary-btn-f-c",
     tbOptOutSecondaryBtnBorderW: "--tb-opt-out-secondary-btn-border-w",

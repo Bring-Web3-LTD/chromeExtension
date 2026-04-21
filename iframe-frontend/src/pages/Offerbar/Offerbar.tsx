@@ -37,7 +37,7 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     isRegex,
-    activationUrl,
+    iframeUrl: iframeUrlFromLoader,
     activationMode,
     clickIdValue,
     activationToken,
@@ -79,9 +79,9 @@ const Offerbar = () => {
       searchEngineDomain,
       offerBarPageUrl: url,
       offerBarSearch,
-      activationUrl,
       activationMode,
       clickIdValue,
+      iframeUrl: iframeUrlFromLoader,
       activationToken
     }
 
@@ -113,7 +113,7 @@ const Offerbar = () => {
       details: name
     })
 
-  }, [activationMode, activationToken, activationUrl, clickIdValue, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
+  }, [activationMode, activationToken, iframeUrlFromLoader, clickIdValue, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   const { start: startAutoCloseTimer } = useTimeout({ callback: close, delay: AUTO_CLOSE_TIMEOUT })
 

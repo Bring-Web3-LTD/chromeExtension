@@ -16,22 +16,26 @@ interface ActivateProps {
     networkUrl?: string
     searchEngineDomain?: string
     offerBarPageUrl?: string
-    offerBarSearch?: string,
-    activationUrl?: string,
-    activationMode?: string,
-    clickIdValue?: string,
+    offerBarSearch?: string
+    activationMode?: string
+    clickIdValue?: string
     activationToken?: string
+    iframeUrl?: string
 }
 
-interface ActivateResponse extends Partial<ActivateProps> {
+interface ActivateResponse {
     status: number
+    flowId?: string
     url: string
-    token: string
+    cashbackInfoUrl?: string
+    generalTermsUrl?: string
     iframeUrl: string
+    token: string
 }
 
 const activate = async (body: ActivateProps): Promise<ActivateResponse> => {
     body.timestamp = Date.now()
+    const { activationToken, iframeUrl, ...payload } = body
     const runActivate = fetch(`${API_URL}/activate`, {
         method: 'POST',
         keepalive: true,
@@ -39,22 +43,20 @@ const activate = async (body: ActivateProps): Promise<ActivateResponse> => {
             'Content-Type': 'application/json',
             'x-api-key': API_KEY
         },
-        body: JSON.stringify(body)
-    })
+        body: JSON.stringify(payload)
+    }).then(res => res.json())
 
     if (body.activationMode === 'lightweight') {
-        const { activationToken, activationUrl, ...rest } = body
         return {
-            ...rest,
+            ...payload,
             status: 200,
-            iframeUrl: activationUrl!,
+            url: body.networkUrl!,
+            iframeUrl: iframeUrl!,
             token: activationToken!
-        }
+        } as ActivateResponse
     }
-
-    const res = await runActivate
-    const json = await res.json()
-    return json
+   
+    return await runActivate
 }
 
 export default activate

@@ -49,7 +49,7 @@ const Offer = ({ closeFn }: Props) => {
         offerText,
         variant,
         isOfferBar,
-        activationUrl,
+        iframeUrl: iframeUrlFromLoader,
         activationMode,
         clickIdValue,
         activationToken
@@ -72,6 +72,9 @@ const Offer = ({ closeFn }: Props) => {
             tokenSymbol: cryptoSymbols[0],
             flowId,
             isOfferBar,
+            activationMode,
+            clickIdValue,
+            iframeUrl: iframeUrlFromLoader,
             activationToken,
         }
 
@@ -104,7 +107,7 @@ const Offer = ({ closeFn }: Props) => {
             details: name
         })
 
-    }, [activationMode, activationToken, activationUrl, clickIdValue, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [activationMode, activationToken, iframeUrlFromLoader, clickIdValue, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {

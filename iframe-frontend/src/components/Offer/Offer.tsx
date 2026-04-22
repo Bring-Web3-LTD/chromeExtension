@@ -49,10 +49,7 @@ const Offer = ({ closeFn }: Props) => {
         offerText,
         variant,
         isOfferBar,
-        iframeUrl: iframeUrlFromLoader,
-        activationMode,
-        clickIdValue,
-        activationToken
+        activationPayload
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -72,10 +69,7 @@ const Offer = ({ closeFn }: Props) => {
             tokenSymbol: cryptoSymbols[0],
             flowId,
             isOfferBar,
-            activationMode,
-            clickIdValue,
-            iframeUrl: iframeUrlFromLoader,
-            activationToken,
+            activationPayload,
         }
 
         if (isTester && isDemo) body.isDemo = true
@@ -107,7 +101,7 @@ const Offer = ({ closeFn }: Props) => {
             details: name
         })
 
-    }, [activationMode, activationToken, iframeUrlFromLoader, clickIdValue, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [activationPayload, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {

@@ -37,10 +37,7 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     isRegex,
-    iframeUrl: iframeUrlFromLoader,
-    activationMode,
-    clickIdValue,
-    activationToken,
+    activationPayload,
     iframeStyle: themeIframeStyle
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
@@ -79,10 +76,7 @@ const Offerbar = () => {
       searchEngineDomain,
       offerBarPageUrl: url,
       offerBarSearch,
-      activationMode,
-      clickIdValue,
-      iframeUrl: iframeUrlFromLoader,
-      activationToken
+      activationPayload
     }
 
     const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
@@ -113,7 +107,7 @@ const Offerbar = () => {
       details: name
     })
 
-  }, [activationMode, activationToken, iframeUrlFromLoader, clickIdValue, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
+  }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   const { start: startAutoCloseTimer } = useTimeout({ callback: close, delay: AUTO_CLOSE_TIMEOUT })
 

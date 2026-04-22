@@ -56,10 +56,7 @@ declare global {
         }
         inlineSearchLink?: string
         matchedKeyword?: string
-        activationMode?: string
-        clickIdValue?: string
-        activationToken?: string
-        iframeUrl?: string
+        activationPayload?: ActivateResponse | null
     }
 
     interface LoaderData extends Info {

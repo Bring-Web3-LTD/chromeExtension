@@ -17,10 +17,8 @@ interface ActivateProps {
     searchEngineDomain?: string
     offerBarPageUrl?: string
     offerBarSearch?: string
+    activationPayload?: ActivateResponse | null
     activationMode?: string
-    clickIdValue?: string
-    activationToken?: string
-    iframeUrl?: string
 }
 
 interface ActivateResponse {
@@ -35,25 +33,20 @@ interface ActivateResponse {
 
 const activate = async (body: ActivateProps): Promise<ActivateResponse> => {
     body.timestamp = Date.now()
-    const { activationToken, iframeUrl, ...payload } = body
+    const isFast = !!body.activationPayload
+    body.activationMode = isFast ? 'fastActivation' : 'standAloneActivation'
     const runActivate = fetch(`${API_URL}/activate`, {
         method: 'POST',
-        keepalive: true,
+        keepalive: isFast,
         headers: {
             'Content-Type': 'application/json',
             'x-api-key': API_KEY
         },
-        body: JSON.stringify(payload)
-    }).then(res => res.json())
+        body: JSON.stringify(body)
+    }).then(res => isFast ? undefined : res.json())
 
-    if (body.activationMode === 'lightweight') {
-        return {
-            ...payload,
-            status: 200,
-            url: body.networkUrl!,
-            iframeUrl: iframeUrl!,
-            token: activationToken!
-        } as ActivateResponse
+    if (body.activationPayload) {
+        return body.activationPayload
     }
    
     return await runActivate

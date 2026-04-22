@@ -12,7 +12,9 @@ import parseTime from '../../utils/parseTime'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 import activate from '../../api/activate'
-import { OB_ACTIVATE_QUIET_TIME, THIRTY_MIN_MS } from '../../config'
+import { OB_ACTIVATE_QUIET_TIME } from '../../config'
+
+const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const Offerbar = () => {
   const {

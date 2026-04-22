@@ -6,7 +6,8 @@ import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle } from '../../utils/iframeStyles'
 import compareVersions from '../../utils/compareVersions'
 import parseTime from '../../utils/parseTime'
-import { THIRTY_MIN_MS } from '../../config'
+
+const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const Home = () => {
   const { version, variant, platformName, domain, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as LoaderData

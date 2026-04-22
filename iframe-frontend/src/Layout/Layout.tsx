@@ -1,24 +1,34 @@
 import { Outlet, useLoaderData } from "react-router-dom"
 import { useEffect } from "react"
 import { GoogleAnalyticsProvider } from "../context/googleAnalyticsContext"
+import { useGoogleAnalytics } from "../hooks/useGoogleAnalytics"
 import WalletAddressProvider from "../context/walletAddressContext"
 import { GA_MEASUREMENT_ID } from "../config"
 import Beamer from "../components/Beamer/Beamer"
-import useTimeout from "../hooks/useTimeout"
 import { sendMessage, ACTIONS } from "../utils/sendMessage"
+
+const AutoCloseTimer = ({ timeout }: { timeout?: number }) => {
+    const { sendGaEvent } = useGoogleAnalytics()
+
+    useEffect(() => {
+        if (typeof timeout !== 'number' || timeout <= 0) return
+        const timer = setTimeout(async () => {
+            await sendGaEvent('popup_close', {
+                category: 'system',
+                action: 'timeout',
+                details: 'extension'
+            })
+            sendMessage({ action: ACTIONS.CLOSE })
+        }, timeout)
+        return () => clearTimeout(timer)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    return null
+}
 
 const Layout = () => {
     const data = useLoaderData() as LoaderData
-
-    const { start: startAutoCloseTimer } = useTimeout({
-        callback: () => sendMessage({ action: ACTIONS.CLOSE }),
-        delay: data.timeout!
-    })
-
-    useEffect(() => {
-        if (data.timeout && data.timeout > 0) startAutoCloseTimer()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
     return (
         <>
@@ -40,6 +50,7 @@ const Layout = () => {
                     isOfferBar={data.isOfferBar}
                 >
                     <Beamer enabled={data.beamer} />
+                    <AutoCloseTimer timeout={data.timeout} />
                     <Outlet />
                 </GoogleAnalyticsProvider>
             </WalletAddressProvider>

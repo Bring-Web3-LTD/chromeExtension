@@ -3,7 +3,6 @@ export const API_KEY = import.meta.env.VITE_API_KEY
 export const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
 export const TEST_ID = import.meta.env.VITE_TEST_ID
 export const THIRTY_MIN_MS = 30 * 60 * 1000
-export const AUTO_CLOSE_TIMEOUT = Number(import.meta.env.VITE_AUTO_CLOSE_TIMEOUT) || THIRTY_MIN_MS
 export const ACTIVATE_QUIET_TIME = 2 * 60 * 60 * 1000
 export const OB_ACTIVATE_QUIET_TIME = 0.5 * 60 * 60 * 1000  // 30 minutes for Offerbar
 export const ENV = import.meta.env.VITE_ENV

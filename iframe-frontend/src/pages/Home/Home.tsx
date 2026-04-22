@@ -6,8 +6,7 @@ import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle } from '../../utils/iframeStyles'
 import compareVersions from '../../utils/compareVersions'
 import parseTime from '../../utils/parseTime'
-import useTimeout from '../../hooks/useTimeout'
-import { THIRTY_MIN_MS, AUTO_CLOSE_TIMEOUT } from '../../config'
+import { THIRTY_MIN_MS } from '../../config'
 
 const Home = () => {
   const { version, variant, platformName, domain, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as LoaderData
@@ -23,13 +22,6 @@ const Home = () => {
     }
     sendMessage({ action: ACTIONS.CLOSE, domain, time: parseTime(THIRTY_MIN_MS, version) })
   }
-
-  const { start: startAutoCloseTimer } = useTimeout({ callback: close, delay: AUTO_CLOSE_TIMEOUT })
-
-  useEffect(() => {
-    startAutoCloseTimer()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   if (variant === 'argentControl') {
     return <>

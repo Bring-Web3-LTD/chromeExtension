@@ -1,11 +1,24 @@
 import { Outlet, useLoaderData } from "react-router-dom"
+import { useEffect } from "react"
 import { GoogleAnalyticsProvider } from "../context/googleAnalyticsContext"
 import WalletAddressProvider from "../context/walletAddressContext"
 import { GA_MEASUREMENT_ID } from "../config"
 import Beamer from "../components/Beamer/Beamer"
+import useTimeout from "../hooks/useTimeout"
+import { sendMessage, ACTIONS } from "../utils/sendMessage"
 
 const Layout = () => {
     const data = useLoaderData() as LoaderData
+
+    const { start: startAutoCloseTimer } = useTimeout({
+        callback: () => sendMessage({ action: ACTIONS.CLOSE }),
+        delay: data.timeout!
+    })
+
+    useEffect(() => {
+        if (data.timeout && data.timeout > 0) startAutoCloseTimer()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <>

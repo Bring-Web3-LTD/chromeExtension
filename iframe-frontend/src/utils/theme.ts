@@ -238,6 +238,7 @@ export const themeNames = {
     tbOptOutConfirmFS: "--tb-opt-out-confirm-f-s",
     tbOptOutConfirmFW: "--tb-opt-out-confirm-f-w",
     tbIconFilter: "--tb-icon-filter",
+    tbBackIconFilter: "--tb-back-icon-filter",
 } as const
 
 /** All valid theme keys (derived from themeNames) */

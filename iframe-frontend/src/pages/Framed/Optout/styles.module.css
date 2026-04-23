@@ -41,6 +41,7 @@
     height: 13px;
     flex-shrink: 0;
     aspect-ratio: 1/1;
+    filter: var(--tb-back-icon-filter, none);
 }
 
 /* ── main box — center content ── */

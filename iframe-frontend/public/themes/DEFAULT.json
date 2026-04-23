@@ -420,7 +420,8 @@
         "tbActivateBtnHoverBg": "rgba(61, 90, 235, 0.85)",
         "tbOptOutBtnHoverFC": "rgba(107, 114, 128, 0.8)",
         "tbOptOutSecondaryBtnHoverBg": "rgba(61, 90, 235, 0.1)",
-        "tbIconFilter": "invert(1)",
+        "tbIconFilter": "brightness(0) saturate(100%) invert(31%) sepia(61%) saturate(5433%) hue-rotate(222deg) brightness(97%) contrast(101%)",
+        "tbBackIconFilter": "brightness(0) saturate(100%) invert(31%) sepia(61%) saturate(5433%) hue-rotate(222deg) brightness(97%) contrast(101%)",
         "tbFontFamily": "Inter, sans-serif"
     }
 }

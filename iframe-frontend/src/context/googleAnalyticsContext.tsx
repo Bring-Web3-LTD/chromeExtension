@@ -1,16 +1,16 @@
-import { FC, createContext, useEffect, ReactNode, useCallback } from 'react';
+import { FC, createContext, useEffect, ReactNode, useCallback, useRef } from 'react';
 import ReactGA from 'react-ga4';
 import { TEST_ID } from '../config';
 import { VariantKey } from '../utils/ABTest/platform-variants';
 import analytics from '../api/analytics';
 import { useWalletAddress } from '../hooks/useWalletAddress';
 
-type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer'
+type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer' | 'wallet_connected' | 'wallet_switched' | 'wallet_disconnected'
 
 interface GAEvent {
     category: "user_action" | "system";
     action?: "click" | "input" | "select" | "request";
-    details?: string;
+    details?: string | object;
     process?: "activate" | "initiate" | "submit";
 }
 
@@ -48,7 +48,9 @@ interface Props {
 }
 
 export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar }) => {
+    const isInitialMount = useRef(true)
     const { walletAddress } = useWalletAddress()
+    const previousWalletAddressRef = useRef<string | undefined>(walletAddress)
 
     const sendBackendEvent = useCallback(async (name: EventName, event: BackendEvent) => {
         const timestamp = Date.now()
@@ -114,6 +116,7 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         pendingPromises.set(name, eventPromise)
 
         return eventPromise
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flowId, platform, retailerName, testVariant, userId, walletAddress])
 
     useEffect(() => {
@@ -137,6 +140,57 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         });
 
     }, [measurementId, platform, testVariant, walletAddress]);
+
+    // Track wallet address changes
+    useEffect(() => {
+        if (window.origin.includes('localhost')) {
+            return
+        }
+
+        // Skip the very first mount
+        if (isInitialMount.current) {
+            isInitialMount.current = false
+            previousWalletAddressRef.current = walletAddress
+            return
+        }
+
+        const prev = previousWalletAddressRef.current
+        const current = walletAddress
+
+        // Only send event if wallet address actually changed
+        if (prev !== current) {
+            const details = {
+                prevWalletAddress: prev ?? null,
+                currentWalletAddress: current ?? null
+            }
+
+            if (!prev && current) {
+                // No wallet → wallet: user connected a wallet
+                sendGaEvent('wallet_connected', {
+                    category: 'user_action',
+                    action: 'click',
+                    details
+                })
+            } else if (prev && current) {
+                // Wallet A → wallet B: user switched wallets
+                sendGaEvent('wallet_switched', {
+                    category: 'user_action',
+                    action: 'click',
+                    details
+                })
+            } else if (prev && !current) {
+                // Wallet → no wallet: user disconnected
+                sendGaEvent('wallet_disconnected', {
+                    category: 'user_action',
+                    action: 'click',
+                    details
+                })
+            }
+        }
+        
+        previousWalletAddressRef.current = walletAddress
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [walletAddress])
 
     useEffect(() => {
         if (window.origin.includes('localhost')) {

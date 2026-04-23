@@ -203,17 +203,17 @@
     white-space: nowrap;
 }
 
-.tbOfferText strong,
-.tbOfferText b {
-    font-weight: var(--tb-offer-text-bold-f-w, 700);
+/* parseOfferText renders <span style="fontWeight:bold"> etc.
+   Override inline styles with TB-specific CSS variables */
+.tbOfferText span[style*="font-weight"] {
+    font-weight: var(--tb-offer-text-bold-f-w, 700) !important;
 }
 
-.tbOfferText mark {
-    background: none;
-    color: var(--tb-offer-text-highlight-f-c, #FF00B8);
+.tbOfferText span[style*="color"] {
+    color: var(--tb-offer-text-highlight-f-c, #FF00B8) !important;
 }
 
-.tbOfferText u {
+.tbOfferText span[style*="text-decoration"] {
     text-decoration-line: underline;
     text-decoration-style: solid;
     text-decoration-skip-ink: none;

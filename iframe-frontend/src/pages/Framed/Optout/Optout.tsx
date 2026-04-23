@@ -98,7 +98,7 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
                     <button
                         id="tb-optout-close-btn"
                         className={styles.closeBtn}
-                        onClick={closeFn}
+                        onClick={onConfirmClose}
                     >
                         <img src={`${import.meta.env.BASE_URL}icons/tb-close.svg`} alt="Close" />
                     </button>

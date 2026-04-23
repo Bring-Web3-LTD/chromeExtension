@@ -1,4 +1,4 @@
-{
+﻿{
     "dark": {
         "fontUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
         "fontFamily": "\"Inter\", sans-serif",
@@ -165,7 +165,7 @@
         "tbRetailerInitialsFC": "#333333",
         "tbPlatformNameFC": "#F3F4F6",
         "tbPlatformNameFS": "12px",
-        "tbPlatformNameFW": "600",
+        "tbPlatformNameFW": "500",
         "tbRetailerNameFC": "#F3F4F6",
         "tbRetailerNameFS": "12px",
         "tbRetailerNameUppercaseFS": "11px",
@@ -377,7 +377,7 @@
         "tbRetailerInitialsFC": "#333333",
         "tbPlatformNameFC": "#1F2937",
         "tbPlatformNameFS": "12px",
-        "tbPlatformNameFW": "600",
+        "tbPlatformNameFW": "500",
         "tbRetailerNameFC": "#1F2937",
         "tbRetailerNameFS": "12px",
         "tbRetailerNameUppercaseFS": "11px",

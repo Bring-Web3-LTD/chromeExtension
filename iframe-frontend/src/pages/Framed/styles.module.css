@@ -127,7 +127,7 @@
     width: 27px;
     height: 27px;
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
 }
 
@@ -356,7 +356,7 @@
     }
 
     .tbOptOutBtn {
-        width: 47px;
+        width: 80px;
         font-size: 12px;
         line-height: 15px;
     }

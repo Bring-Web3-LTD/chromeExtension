@@ -266,6 +266,10 @@
         font-size: 15px;
     }
 
+    .buttons {
+        gap: 10px;
+    }
+
     .optionBtn {
         width: 80px;
         height: 32px;
@@ -275,5 +279,11 @@
 
     .confirmationText {
         font-size: 15px;
+    }
+}
+
+@media (min-width: 497px) and (max-width: 599px) {
+    .cashbackWord {
+        display: none;
     }
 }

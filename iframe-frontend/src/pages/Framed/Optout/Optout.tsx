@@ -73,7 +73,7 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
                     <div className={styles.mainBox}>
                         <div className={styles.turnOff}>
                             <span id="tb-optout-title" className={styles.title}>
-                                Turn off cashback offers for
+                                Turn off <span className={styles.cashbackWord}>cashback </span>offers for
                             </span>
                         </div>
                         <div id="tb-optout-buttons" className={styles.buttons}>

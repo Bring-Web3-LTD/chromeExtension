@@ -193,6 +193,7 @@
     "tbOptOutBg": "linear-gradient(179deg, #00D6E9 0.68%, #00B0CF 99.85%)",
     "tbOptOutShadow": "none",
     "tbActivateBtnHoverBg": "#1A1A1AD9",
+    "tbActivateBtnActiveBg": "#1A1A1A",
     "tbOptOutBtnHoverFC": "#1A1A1ACC",
     "tbOptOutSecondaryBtnHoverBg": "rgba(26, 26, 26, 0.10)",
     "tbIconFilter": "brightness(0) saturate(100%)",

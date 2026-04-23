@@ -259,6 +259,10 @@
     background: var(--tb-activate-btn-hover-bg, rgba(255, 0, 184, 0.80));
 }
 
+.tbActivateBtn:active {
+    background: var(--tb-activate-btn-active-bg, var(--tb-activate-btn-hover-bg, rgba(255, 0, 184, 0.80)));
+}
+
 /* ── Stop Offers button ── */
 .tbOptOutBtn {
     display: flex;

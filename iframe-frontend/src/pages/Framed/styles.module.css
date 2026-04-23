@@ -60,7 +60,6 @@
     height: 68px;
     justify-content: flex-end;
     align-items: flex-start;
-    padding: 12px 0 8px 8px;    
     gap: 10px;
     flex-shrink: 1;
     box-sizing: border-box;
@@ -72,6 +71,13 @@
     justify-content: center;
     align-items: center;
     gap: 10px;
+    padding: 12px 0 8px 8px;   
+}
+
+@media (min-width: 1920px) {
+    .tbLogosRow {
+        padding: 10.5px 0 10px 9px;
+    }
 }
 
 /* ── Name label — absolutely positioned under its logo ── */

@@ -1,4 +1,4 @@
-﻿{
+{
     "dark": {
         "fontUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
         "fontFamily": "\"Inter\", sans-serif",
@@ -171,6 +171,8 @@
         "tbOfferTextFW": "600",
         "tbOfferTextFC": "#FFFFFF",
         "tbOfferTextLH": "22px",
+        "tbOfferTextBoldFW": "700",
+        "tbOfferTextHighlightFC": "#0A2EBF",
         "tbActivateBtnBg": "#FFFFFF",
         "tbActivateBtnFS": "16px",
         "tbActivateBtnFW": "700",
@@ -383,6 +385,8 @@
         "tbOfferTextFW": "600",
         "tbOfferTextFC": "#FFFFFF",
         "tbOfferTextLH": "22px",
+        "tbOfferTextBoldFW": "700",
+        "tbOfferTextHighlightFC": "#0A2EBF",
         "tbActivateBtnBg": "#FFFFFF",
         "tbActivateBtnFS": "16px",
         "tbActivateBtnFW": "700",

@@ -2,3 +2,9 @@ body {
     margin: 0;
     background: var(--popup-bg);
 }
+
+/* Framed pages (TB) override: the iframe covers the full viewport with a CSS mask,
+   so the body must be transparent for the host page to show through. */
+body:has(.framed-transparent) {
+    background: transparent !important;
+}

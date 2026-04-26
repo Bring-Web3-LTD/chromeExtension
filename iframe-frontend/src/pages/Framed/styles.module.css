@@ -135,6 +135,7 @@
 .tbPlus {
     color: var(--tb-plus-fc, #FFF);
     text-align: center;
+    font-family: 'Rubik', sans-serif;
     font-feature-settings: 'liga' off, 'clig' off;
     font-size: 22.86px;
     font-weight: 500;

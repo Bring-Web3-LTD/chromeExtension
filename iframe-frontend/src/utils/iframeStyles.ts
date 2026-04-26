@@ -52,9 +52,10 @@ const offerbarFramedStyle: Styles = {
             position: 'fixed',
             inset: '0',
             animation: 'slideIn .3s ease-in-out',
-            height: '100vh',
+            height: '71px',
             width: `100vw`,
             borderRadius: '0px',
+            pointerEvents: 'auto',
         }
     }
 }

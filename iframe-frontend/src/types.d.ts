@@ -47,6 +47,7 @@ declare global {
         searchTermPattern?: string,
         isOfferBar?: boolean
         offerText?: string
+        offerTextTb?: string
         networkUrl?: string
         offerBarSearch?: string
         offerBarPageUrl?: string

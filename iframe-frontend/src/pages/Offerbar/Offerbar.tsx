@@ -13,6 +13,7 @@ import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 import activate from '../../api/activate'
 import { OB_ACTIVATE_QUIET_TIME } from '../../config'
+import { useActivationPayload } from '../../hooks/useActivationPayload'
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
@@ -38,7 +39,6 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     isRegex,
-    activationPayload,
     iframeStyle: themeIframeStyle
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
@@ -46,6 +46,7 @@ const Offerbar = () => {
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
   const { sendGaEvent } = useGoogleAnalytics()
   const { walletAddress } = useWalletAddress()
+  const activationPayload = useActivationPayload()
 
   const close = async () => {
     await sendGaEvent('popup_close', {

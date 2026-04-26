@@ -153,6 +153,7 @@
     overflow: visible;
     flex-shrink: 0;
     box-sizing: border-box;
+    background: var(--tb-retailer-logo-bg, #FFF);
 }
 
 /* Border overlay — sits on top of the image so opacity blends with it */

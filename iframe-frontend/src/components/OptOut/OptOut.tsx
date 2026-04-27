@@ -75,9 +75,10 @@ interface Selection {
 
 interface Props {
     onClose: () => void;
+    onOpted?: () => void;
 }
 
-const OptOut = ({ onClose }: Props) => {
+const OptOut = ({ onClose, onOpted }: Props) => {
     const { cryptoSymbols, platformName, textMode, domain, name } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)  
@@ -98,6 +99,7 @@ const OptOut = ({ onClose }: Props) => {
     const handleOptOut = () => {
         if (isOpted) return
         setIsOpted(true)
+        onOpted?.()
         
         const { websites, duration } = selection
 

@@ -47,8 +47,15 @@ const Offer = ({ closeFn }: Props) => {
         cashbackSymbol,
         cashbackCurrency,
         offerText,        
-        isOfferBar
+        isOfferBar,
+        variant
     } = useRouteLoaderData('root') as LoaderData
+    const defaultOfferText = variant === 'testC'
+        ? `Up to <#${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}#> ${cryptoSymbols[0]} cashback`
+        : variant === 'testB'
+            ? `Earn up to <#${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}#> in ${cryptoSymbols[0]}`
+            : `Buy with any card and earn up to <#${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}#> in ${cryptoSymbols[0]}`
+
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
@@ -163,9 +170,7 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    {parseOfferText(offerText) || (
-                                        <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
-                                    )}
+                                    {parseOfferText(offerText || defaultOfferText)}
                                 </div>
                             </div>
                             <div id="offer-action-container" className={styles.action_container}>

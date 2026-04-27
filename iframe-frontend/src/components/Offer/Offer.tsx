@@ -45,7 +45,8 @@ const Offer = ({ closeFn }: Props) => {
         maxCashback,
         cashbackSymbol,
         cashbackCurrency,
-        offerText
+        offerText,
+        variant
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
@@ -158,7 +159,13 @@ const Offer = ({ closeFn }: Props) => {
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
                                     {offerText || (
-                                        <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
+                                        variant === 'testC' ? (
+                                            <>Up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> {cryptoSymbols[0]} cashback</>
+                                        ) : variant === 'testB' ? (
+                                            <>Earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
+                                        ) : (
+                                            <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
+                                        )
                                     )}
                                 </div>
                             </div>

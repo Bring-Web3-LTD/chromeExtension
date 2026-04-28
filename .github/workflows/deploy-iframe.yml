@@ -25,6 +25,13 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Ensure running on main branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "ERROR: This workflow can only be run from the main branch."
+          echo "Current branch: ${{ github.ref }}"
+          exit 1
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4

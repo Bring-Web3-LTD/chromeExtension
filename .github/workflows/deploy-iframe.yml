@@ -14,7 +14,6 @@ on:
 
 env:
   NODE_VERSION: 'lts/*'
-  VITE_ENV: prod
   AWS_REGION: eu-central-1
   VITE_API_URL: https://api.bringweb3.io/v1/extension
 

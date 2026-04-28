@@ -1,5 +1,5 @@
 import styles from './styles.module.css'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import OptOut from '../OptOut/OptOut'
 import activate from '../../api/activate'
@@ -50,11 +50,14 @@ const Offer = ({ closeFn }: Props) => {
         isOfferBar,
         variant
     } = useRouteLoaderData('root') as LoaderData
-    const defaultOfferText = variant === 'testC'
-        ? `Up to <#${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}#> ${cryptoSymbols[0]} cashback`
-        : variant === 'testB'
-            ? `Earn up to <#${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}#> in ${cryptoSymbols[0]}`
-            : `Buy with any card and earn up to <#${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}#> in ${cryptoSymbols[0]}`
+
+    const defaultOfferText = useMemo(() => {
+        const formattedCashback = formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)
+        const cryptoSymbol = cryptoSymbols[0]
+        if (variant === 'testC') return `Up to <#${formattedCashback}#> ${cryptoSymbol} cashback`
+        if (variant === 'testB') return `Earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
+        return `Buy with any card and earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
+    }, [variant, cryptoSymbols, maxCashback, cashbackCurrency, cashbackSymbol])
 
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isDemo, setIsDemo] = useState(false)

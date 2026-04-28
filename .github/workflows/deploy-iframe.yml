@@ -51,7 +51,7 @@ jobs:
             VERSION=$(node -p "require('./extension-files/bringweb3-sdk/package.json').version")
           else
             # Override: find the latest version folder in S3 prod/
-            VERSION=$(aws s3 ls "s3://${{ secrets.S3_BUCKET }}/prod/" \
+            VERSION=$(aws s3 ls "s3://${{ secrets.S3_BUCKET }}/${{ secrets.DEPLOY_ENV }}/" \
               | grep -oP 'v\d+\.\d+\.\d+' \
               | sort -V | tail -1 | sed 's/^v//')
 
@@ -73,25 +73,19 @@ jobs:
       - name: Build iframe frontend
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          BASE_PATH="/v${VERSION}/"
 
-          cd iframe-frontend
-          yarn install --frozen-lockfile
-
-          export VITE_API_URL="${{ env.VITE_API_URL }}"
-          export VITE_API_KEY="${{ secrets.VITE_API_KEY }}"
+          # VITE_* env vars are automatically picked up by Vite during build
           export VITE_GA_MEASUREMENT_ID="${{ secrets.VITE_GA_MEASUREMENT_ID }}"
           export VITE_TEST_ID="${{ secrets.VITE_TEST_ID }}"
-          export VITE_BASE_PATH="$BASE_PATH"
 
-          MSYS_NO_PATHCONV=1 yarn build --base="$BASE_PATH"
+          bash ./scripts/build.sh --iframe-only --iframe-api-key "${{ secrets.VITE_API_KEY }}" --version "$VERSION"
         env:
           NODE_ENV: production
 
       - name: Upload to S3
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          S3_PATH="prod/v${VERSION}"
+          S3_PATH="${{ secrets.DEPLOY_ENV }}/v${VERSION}"
           S3_BUCKET="${{ secrets.S3_BUCKET }}"
           MODE="${{ github.event.inputs.deployment_mode }}"
 
@@ -102,7 +96,7 @@ jobs:
               exit 1
             fi
           fi
-
+          # copy from local builds to s3
           aws s3 sync iframe-frontend/dist/ "s3://${S3_BUCKET}/${S3_PATH}/" \
             --delete \
             --cache-control "public, max-age=31536000" \
@@ -123,7 +117,7 @@ jobs:
           KVS_ARN="${{ secrets.CLOUDFRONT_KVS_ARN }}"
 
           # Read current state of S3 and rebuild the value
-          VERSIONS=$(aws s3 ls "s3://${S3_BUCKET}/prod/" \
+          VERSIONS=$(aws s3 ls "s3://${S3_BUCKET}/${{ secrets.DEPLOY_ENV }}/" \
             | grep -oP 'v\d+\.\d+\.\d+' \
             | sed 's/^v//' \
             | sort -V \
@@ -140,29 +134,28 @@ jobs:
           ETAG=$(aws cloudfront-keyvaluestore describe-key-value-store \
             --kvs-arn "$KVS_ARN" \
             --query 'ETag' --output text 2>/dev/null || echo "")
-
           if [ -n "$ETAG" ] && [ "$ETAG" != "None" ]; then
             aws cloudfront-keyvaluestore put-key \
               --kvs-arn "$KVS_ARN" \
-              --key "prod" \
+              --key "${{ secrets.DEPLOY_ENV }}" \
               --value "$VERSIONS" \
               --if-match "$ETAG"
           else
             aws cloudfront-keyvaluestore put-key \
               --kvs-arn "$KVS_ARN" \
-              --key "prod" \
+              --key "${{ secrets.DEPLOY_ENV }}" \
               --value "$VERSIONS"
           fi
 
-          echo "✅ Updated KVS key 'prod' → $VERSIONS"
+          echo "✅ Updated KVS key '${{ secrets.DEPLOY_ENV }}' → $VERSIONS"
 
       - name: Invalidate CloudFront
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           aws cloudfront create-invalidation \
             --distribution-id "${{ secrets.CLOUDFRONT_ID }}" \
-            --paths "/prod/v${VERSION}/*"
-          echo "✅ Invalidation created for /prod/v${VERSION}/*"
+            --paths "/${{ secrets.DEPLOY_ENV }}/v${VERSION}/*"
+          echo "✅ Invalidation created for /${{ secrets.DEPLOY_ENV }}/v${VERSION}/*"
 
       - name: Summary
         run: |
@@ -172,5 +165,5 @@ jobs:
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Mode | ${{ github.event.inputs.deployment_mode }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Version | v${VERSION} |" >> $GITHUB_STEP_SUMMARY
-          echo "| S3 Path | prod/v${VERSION}/ |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3 Path | ${{ secrets.DEPLOY_ENV }}/v${VERSION}/ |" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY

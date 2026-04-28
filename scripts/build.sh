@@ -30,10 +30,11 @@ ARGUMENTS:
                             If omitted, builds for production
 
 OPTIONS:
-    --identifier VALUE       Extension identifier key (required)
-    --wallet VALUE          Wallet address for testing (required)
+    --identifier VALUE       Extension identifier key (required for full build)
+    --wallet VALUE          Wallet address for testing (required for full build)
     --iframe-api-key VALUE  API key for iframe-frontend (required or use .env.local)
     --version VALUE         SDK version (optional)
+    --iframe-only           Build only the iframe-frontend (skip SDK, extension, zip)
     -h, --help             Show this help message
 
 EXAMPLES:
@@ -73,6 +74,7 @@ validate_version() {
 # Parse command line arguments
 HOST=api.bringweb3.io
 ENV_PARAM=""
+IFRAME_ONLY=false
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
@@ -94,6 +96,10 @@ while [[ $# -gt 0 ]]; do
             SDK_VERSION="$2"
             validate_version "$SDK_VERSION"
             shift 2
+            ;;
+        --iframe-only)
+            IFRAME_ONLY=true
+            shift
             ;;
         --*)
             echo "Unknown option: $1"
@@ -153,11 +159,13 @@ echo ""
 
 # Check that all required variables are set
 MISSING_VARS=()
-if [ -z "$PLATFORM_IDENTIFIER" ]; then
-    MISSING_VARS+=("PLATFORM_IDENTIFIER")
-fi
-if [ -z "$WALLET_ADDRESS" ]; then
-    MISSING_VARS+=("WALLET_ADDRESS")
+if [ "$IFRAME_ONLY" = false ]; then
+    if [ -z "$PLATFORM_IDENTIFIER" ]; then
+        MISSING_VARS+=("PLATFORM_IDENTIFIER")
+    fi
+    if [ -z "$WALLET_ADDRESS" ]; then
+        MISSING_VARS+=("WALLET_ADDRESS")
+    fi
 fi
 if [ -z "$VITE_API_KEY" ]; then
     MISSING_VARS+=("VITE_API_KEY")
@@ -178,54 +186,64 @@ if [ ${#MISSING_VARS[@]} -gt 0 ]; then
 fi
 # Start build timer
 BUILD_START_TIME=$(date +%s)
-# Run setup script to ensure project is properly configured
-echo "========================================"
-echo "Running setup script..."
-echo "========================================"
-bash scripts/setup.sh
-echo "✓ Setup complete"
-echo ""
+if [ "$IFRAME_ONLY" = true ]; then
+    # Install iframe-frontend dependencies only
+    echo "========================================"
+    echo "Installing iframe-frontend dependencies..."
+    echo "========================================"
+    yarn install --cwd iframe-frontend --frozen-lockfile
+    echo "✓ Dependencies installed"
+    echo ""
+elif [ "$IFRAME_ONLY" = false ]; then
+    # Run setup script to ensure project is properly configured
+    echo "========================================"
+    echo "Running setup script..."
+    echo "========================================"
+    bash scripts/setup.sh
+    echo "✓ Setup complete"
+    echo ""
 
-# Build SDK
-echo "========================================"
-echo "Building SDK..."
-echo "========================================"
-cd extension-files/bringweb3-sdk
-if [ -n "$SDK_VERSION" ]; then
-    echo "Using SDK version: $SDK_VERSION"
-    yarn build --env.VERSION="$SDK_VERSION"
-else
+    # Build SDK
+    echo "========================================"
+    echo "Building SDK..."
+    echo "========================================"
+    cd extension-files/bringweb3-sdk
+    if [ -n "$SDK_VERSION" ]; then
+        echo "Using SDK version: $SDK_VERSION"
+        yarn build --env.VERSION="$SDK_VERSION"
+    else
+        yarn build
+    fi
+    cd ../..
+    echo "✓ SDK build complete"
+    echo ""
+
+    # Build test-extension
+    echo "========================================"
+    echo "Building test-extension..."
+    echo "========================================"
+    cd extension-files/test-extension
+    export PLATFORM_IDENTIFIER
+    export WALLET_ADDRESS
     yarn build
-fi
-cd ../..
-echo "✓ SDK build complete"
-echo ""
+    cd ../..
+    echo "✓ Test extension build complete"
+    echo ""
 
-# Build test-extension
-echo "========================================"
-echo "Building test-extension..."
-echo "========================================"
-cd extension-files/test-extension
-export PLATFORM_IDENTIFIER
-export WALLET_ADDRESS
-yarn build
-cd ../..
-echo "✓ Test extension build complete"
-echo ""
+    # Get version before zipping
+    if [ -n "$SDK_VERSION" ]; then
+        ZIP_VERSION="$SDK_VERSION"
+    else
+        ZIP_VERSION=$(node -p "require('./extension-files/bringweb3-sdk/package.json').version")
+        validate_version "$ZIP_VERSION"
+    fi
 
-# Get version before zipping
-if [ -n "$SDK_VERSION" ]; then
-    ZIP_VERSION="$SDK_VERSION"
-else
-    ZIP_VERSION=$(node -p "require('./extension-files/bringweb3-sdk/package.json').version")
-    validate_version "$ZIP_VERSION"
-fi
-
-# Zip the built extension
-if [ -n "$ENV_PARAM" ]; then
-    node scripts/zip-extension.js "$ENV_PARAM" "$ZIP_VERSION"
-else
-    node scripts/zip-extension.js "prod" "$ZIP_VERSION"
+    # Zip the built extension
+    if [ -n "$ENV_PARAM" ]; then
+        node scripts/zip-extension.js "$ENV_PARAM" "$ZIP_VERSION"
+    else
+        node scripts/zip-extension.js "prod" "$ZIP_VERSION"
+    fi
 fi
 
 # Build iframe-frontend
@@ -262,16 +280,18 @@ cd ..
 echo "✓ Iframe frontend build complete"
 echo ""
 
-# Copy iframe-frontend build to builds directory
-echo "Copying iframe-frontend build to builds directory..."
-if [ -n "$ENV_PARAM" ]; then
-    BUILD_OUTPUT_DIR="builds/$ENV_PARAM/v$VERSION"
-else
-    BUILD_OUTPUT_DIR="builds/prod/v$VERSION"
+if [ "$IFRAME_ONLY" = false ]; then
+    # Copy iframe-frontend build to builds directory
+    echo "Copying iframe-frontend build to builds directory..."
+    if [ -n "$ENV_PARAM" ]; then
+        BUILD_OUTPUT_DIR="builds/$ENV_PARAM/v$VERSION"
+    else
+        BUILD_OUTPUT_DIR="builds/prod/v$VERSION"
+    fi
+    mkdir -p "$BUILD_OUTPUT_DIR"
+    cp -r iframe-frontend/dist "$BUILD_OUTPUT_DIR/iframe-frontend"
+    echo "✓ Iframe frontend copied to: $BUILD_OUTPUT_DIR/iframe-frontend"
 fi
-mkdir -p "$BUILD_OUTPUT_DIR"
-cp -r iframe-frontend/dist "$BUILD_OUTPUT_DIR/iframe-frontend"
-echo "✓ Iframe frontend copied to: $BUILD_OUTPUT_DIR/iframe-frontend"
 echo ""
 
 # Calculate and display build time
@@ -281,7 +301,11 @@ BUILD_MINUTES=$((BUILD_DURATION / 60))
 BUILD_SECONDS=$((BUILD_DURATION % 60))
 
 echo "=========================================="
-echo "✓ All builds completed successfully!"
+if [ "$IFRAME_ONLY" = true ]; then
+    echo "✓ Iframe frontend build completed successfully!"
+else
+    echo "✓ All builds completed successfully!"
+fi
 if [ $BUILD_MINUTES -gt 0 ]; then
     echo "⏱️  Total build time: ${BUILD_MINUTES}m ${BUILD_SECONDS}s"
 else

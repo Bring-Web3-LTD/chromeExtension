@@ -13,6 +13,7 @@ import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 import activate from '../../api/activate'
 import { OB_ACTIVATE_QUIET_TIME } from '../../config'
+import { useActivationPayload } from '../../hooks/useActivationPayload'
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
@@ -45,6 +46,7 @@ const Offerbar = () => {
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
   const { sendGaEvent } = useGoogleAnalytics()
   const { walletAddress } = useWalletAddress()
+  const activationPayload = useActivationPayload()
 
   const close = async () => {
     await sendGaEvent('popup_close', {
@@ -75,7 +77,8 @@ const Offerbar = () => {
       networkUrl,
       searchEngineDomain,
       offerBarPageUrl: url,
-      offerBarSearch
+      offerBarSearch,
+      activationPayload
     }
 
     const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
@@ -106,7 +109,7 @@ const Offerbar = () => {
       details: name
     })
 
-  }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
+  }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
     sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, themeIframeStyle) })

@@ -10,6 +10,7 @@ import splitWordMaxFive from '../../utils/splitWordMaxFive'
 import { useRouteLoaderData } from 'react-router-dom'
 import toCaseString from '../../utils/toCaseString'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
+import { useActivationPayload } from '../../hooks/useActivationPayload'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ACTIVATE_QUIET_TIME } from '../../config'
 import parseTime from '../../utils/parseTime'
@@ -31,6 +32,7 @@ interface Props {
 const Offer = ({ closeFn }: Props) => {
     const { sendGaEvent } = useGoogleAnalytics()
     const { walletAddress, setWalletAddress } = useWalletAddress()
+    const activationPayload = useActivationPayload()
     const {
         textMode,
         flowId,
@@ -46,8 +48,8 @@ const Offer = ({ closeFn }: Props) => {
         maxCashback,
         cashbackSymbol,
         cashbackCurrency,
-        offerText,        
-        isOfferBar
+        offerText,
+        isOfferBar,
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [isOpted, setIsOpted] = useState(false)
@@ -67,7 +69,8 @@ const Offer = ({ closeFn }: Props) => {
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
-            isOfferBar
+            isOfferBar,
+            activationPayload,
         }
 
         if (isTester && isDemo) body.isDemo = true
@@ -99,7 +102,7 @@ const Offer = ({ closeFn }: Props) => {
             details: name
         })
 
-    }, [cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [activationPayload, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {

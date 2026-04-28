@@ -57,6 +57,8 @@ declare global {
         }
         inlineSearchLink?: string
         matchedKeyword?: string
+        activationPayload?: ActivateResponse | null
+        timeout?: number
     }
 
     interface LoaderData extends Info {

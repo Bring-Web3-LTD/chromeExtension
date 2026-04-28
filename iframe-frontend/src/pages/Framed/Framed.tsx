@@ -9,6 +9,7 @@ import parseTime from "../../utils/parseTime"
 import activate from "../../api/activate"
 import { useGoogleAnalytics } from "../../hooks/useGoogleAnalytics"
 import { useWalletAddress } from "../../hooks/useWalletAddress"
+import { useActivationPayload } from "../../hooks/useActivationPayload"
 import { OB_ACTIVATE_QUIET_TIME } from "../../config"
 import Optout from "./Optout/Optout"
 import { getInitials } from "../../utils/getInitials"
@@ -48,6 +49,7 @@ const Framed = () => {
     const [status, setStatus] = useState<'idle' | 'activating' | 'done'>('idle')
     const { sendGaEvent } = useGoogleAnalytics()
     const { walletAddress } = useWalletAddress()
+    const activationPayload = useActivationPayload()
     const [fallbackLogo, setFallbackLogo] = useState<string | null>(
         !iconUrl || iconUrl.trim() === '' ? getInitials(name) : null
     )
@@ -81,7 +83,8 @@ const Framed = () => {
             networkUrl,
             searchEngineDomain,
             offerBarPageUrl: url,
-            offerBarSearch
+            offerBarSearch,
+            activationPayload
         }
 
         const { status, url: redirectUrl, iframeUrl, token } = await activate(body)
@@ -113,7 +116,7 @@ const Framed = () => {
         })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
+    }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
 
     useEffect(() => {
         sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, themeIframeStyle) })

@@ -9,14 +9,14 @@ type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific
 
 interface GAEvent {
     category: "user_action" | "system";
-    action?: "click" | "input" | "select" | "request";
+    action?: "click" | "input" | "select" | "request" | "timeout";
     details?: string;
     process?: "activate" | "initiate" | "submit";
 }
 
 interface BackendEvent {
     category?: "user_action" | "system";
-    action?: "click" | "input" | "select" | "request";
+    action?: "click" | "input" | "select" | "request" | "timeout";
     details?: unknown;
     process?: "activate" | "initiate" | "submit";
 }

@@ -50,6 +50,7 @@ const Offer = ({ closeFn }: Props) => {
         isOfferBar
     } = useRouteLoaderData('root') as LoaderData
     const [optOutOpen, setOptOutOpen] = useState(false)
+    const [isOpted, setIsOpted] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
     
@@ -119,7 +120,7 @@ const Offer = ({ closeFn }: Props) => {
 
     return (
         <>
-            <CloseBtn />
+            <CloseBtn withTime={!isOpted} />
             <AnimatePresence>
                 {
                     !optOutOpen ?
@@ -235,6 +236,7 @@ const Offer = ({ closeFn }: Props) => {
                         >
                             <OptOut
                                 onClose={() => setOptOutOpen(false)}
+                                onOpted={() => setIsOpted(true)}
                             />
                         </motion.div>
                 }

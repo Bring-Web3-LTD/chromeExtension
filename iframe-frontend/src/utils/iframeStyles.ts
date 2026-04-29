@@ -1,3 +1,4 @@
+import compareVersions from "./compareVersions"
 
 interface Styles {
     [key: string]: { [key: string]: { [key: string]: string } }
@@ -112,15 +113,20 @@ const styleMap: Record<IframePage, Styles> = {
 export const getIframeStyle = (
     page: IframePage,
     platformName: string,
-    themeIframeStyle?: Record<string, string>
-): { [key: string]: { [key: string]: string } } => {
+    version: string,
+    themeIframeStyle?: Record<string, string>,
+): { [key: string]: { [key: string]: string } } | { [key: string]: string } => {
     const styles = styleMap[page]
     const baseIframeStyle = styles[platformName.toLowerCase()] || styles['default']
-    if (!themeIframeStyle) return baseIframeStyle
-    return {
-        iframe: {
-            ...baseIframeStyle.iframe,
-            ...themeIframeStyle
-        }
+    const isLegacy = compareVersions(version, '1.6.0') === -1
+
+    if (isLegacy) {
+        return themeIframeStyle
+            ? { ...baseIframeStyle.iframe, ...themeIframeStyle }
+            : baseIframeStyle.iframe
     }
+
+    return themeIframeStyle
+        ? { iframe: { ...baseIframeStyle.iframe, ...themeIframeStyle } }
+        : baseIframeStyle
 }

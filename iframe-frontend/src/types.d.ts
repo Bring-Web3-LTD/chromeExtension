@@ -75,6 +75,7 @@ declare global {
     interface ActivatedData extends Info {
         tokenSymbol: string
         iconsPath: string
+        version: string
     }
 
     interface Message {

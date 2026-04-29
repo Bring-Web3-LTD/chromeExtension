@@ -109,7 +109,7 @@ const Offerbar = () => {
   }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
-    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, themeIframeStyle) })
+    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, version, themeIframeStyle) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

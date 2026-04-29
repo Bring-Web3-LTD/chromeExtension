@@ -112,11 +112,11 @@ const Framed = () => {
             details: name
         })
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cryptoSymbols, domain, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
 
     useEffect(() => {
-        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, themeIframeStyle) })
+        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, version, themeIframeStyle) })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -125,9 +125,9 @@ const Framed = () => {
             {/* Top bar — fixed 71px strip at top of viewport */}
             <div id="tb-container" className={styles.tbBar}>
                 {showOptout ? (
-                    <Optout 
-                        closeFn={() => setShowOptout(false)} 
-                        onOptOut={() => setIsOptedOut(true)} 
+                    <Optout
+                        closeFn={() => setShowOptout(false)}
+                        onOptOut={() => setIsOptedOut(true)}
                         onConfirmClose={close}
                     />
                 ) : (

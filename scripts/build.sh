@@ -192,11 +192,11 @@ fi
 # Start build timer
 BUILD_START_TIME=$(date +%s)
 if [ "$IFRAME_ONLY" = true ]; then
-    # Install iframe-frontend dependencies only
+    # Install iframe-frontend dependencies (including devDependencies for build tools)
     echo "========================================"
     echo "Installing iframe-frontend dependencies..."
     echo "========================================"
-    yarn install --cwd iframe-frontend --frozen-lockfile
+    NODE_ENV=development yarn install --cwd iframe-frontend --frozen-lockfile
     echo "✓ Dependencies installed"
     echo ""
 elif [ "$IFRAME_ONLY" = false ]; then

@@ -118,18 +118,15 @@ export const getIframeStyle = (
 ): { [key: string]: { [key: string]: string } } | { [key: string]: string } => {
     const styles = styleMap[page]
     const baseIframeStyle = styles[platformName.toLowerCase()] || styles['default']
-    if (!themeIframeStyle) return baseIframeStyle
-    const versionComparison = compareVersions(version, '1.6.0')
-    if (versionComparison === -1) {
-        return {
-            ...baseIframeStyle.iframe,
-            ...themeIframeStyle
-        }
+    const isLegacy = compareVersions(version, '1.6.0') === -1
+
+    if (isLegacy) {
+        return themeIframeStyle
+            ? { ...baseIframeStyle.iframe, ...themeIframeStyle }
+            : baseIframeStyle.iframe
     }
-    return {
-        iframe: {
-            ...baseIframeStyle.iframe,
-            ...themeIframeStyle
-        }
-    }
+
+    return themeIframeStyle
+        ? { iframe: { ...baseIframeStyle.iframe, ...themeIframeStyle } }
+        : baseIframeStyle
 }

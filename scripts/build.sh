@@ -5,15 +5,17 @@
 # Examples:
 #   ./scripts/build.sh          # Build for production (no env parameter)
 #   ./scripts/build.sh danielk  # Build for danielk environment
-#   ./scripts/build.sh sandbox --identifier my-id --wallet addr1qy... --iframe-api-key my-key
+#   ./scripts/build.sh --identifier my-id --wallet addr1qy... --iframe-api-key my-key
 #   ./scripts/build.sh --identifier prod-id --iframe-api-key prod-key
+#   ./scripts/build.sh --iframe-only --iframe-api-key my-key --version 1.6.4
 #
 # Arguments:
-#   environment              - Optional environment name (sandbox, danielk, etc.)
+#   environment              - Optional environment name (danielk, automation, etc.)
 #   --identifier VALUE       - Extension identifier key (PLATFORM_IDENTIFIER)
 #   --wallet VALUE           - Wallet address for testing (WALLET_ADDRESS)
 #   --iframe-api-key VALUE   - API key for iframe-frontend (VITE_API_KEY)
 #   --version VALUE          - SDK version (optional)
+#   --iframe-only            - Build only the iframe-frontend (skips SDK & extension)
 
 set -e  # Exit on error
 
@@ -26,33 +28,36 @@ USAGE:
     ./scripts/build.sh [environment] [options]
 
 ARGUMENTS:
-    environment              Optional environment name (sandbox, danielk, etc.)
+    environment              Optional environment name (danielk, automation, etc.)
                             If omitted, builds for production
 
 OPTIONS:
     --identifier VALUE       Extension identifier key (required for full build)
     --wallet VALUE          Wallet address for testing (required for full build)
     --iframe-api-key VALUE  API key for iframe-frontend (required or use .env.local)
-    --version VALUE         SDK version (optional)
+    --version VALUE         SDK version (optional, reads from package.json if omitted)
     --iframe-only           Build only the iframe-frontend (skip SDK, extension, zip)
     -h, --help             Show this help message
 
 EXAMPLES:
-    # Production build
+    # Full production build
     ./scripts/build.sh --identifier prod-id --wallet addr1qy... --iframe-api-key prod-key
 
-    # Sandbox environment build
-    ./scripts/build.sh sandbox --identifier sandbox-id --wallet addr1qy... --iframe-api-key sandbox-key
+    # Custom environment full build
+    ./scripts/build.sh danielk --identifier dev-id --wallet addr1qy... --iframe-api-key dev-key
+
+    # Iframe-only build (CI mode)
+    ./scripts/build.sh --iframe-only --iframe-api-key my-key --version 1.6.4
+
+    # Iframe-only for a custom environment
+    ./scripts/build.sh automation --iframe-only --iframe-api-key my-key --version 1.6.4
 
     # Using .env.local for iframe API key
     ./scripts/build.sh --identifier my-id --wallet addr1qy...
 
-    # Custom environment
-    ./scripts/build.sh danielk --identifier dev-id --wallet addr1qy... --iframe-api-key dev-key
-
 NOTES:
     - VITE_API_KEY can be loaded from iframe-frontend/.env.local if not provided
-    - PLATFORM_IDENTIFIER and WALLET_ADDRESS must be provided via command line or environment
+    - --identifier and --wallet are NOT required when using --iframe-only
     - Production build uses https://api.bringweb3.io/v1/extension
     - Other environments use https://api.bringweb3.io/[env]/v1/extension
 

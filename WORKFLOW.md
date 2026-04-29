@@ -1,76 +1,53 @@
-# Branch Sync Workflow
+# GitHub Actions Workflows
 
-## Problem Solved
+## deploy-iframe.yml — Deploy Iframe Frontend
 
-Previously, changeset `.md` files accumulated in dev/sandbox branches because they weren't synced back after production releases. This caused incorrect version calculations when deploying to sandbox.
+Deploys the iframe frontend to AWS (S3 + CloudFront).
 
-## New Workflow
+### Trigger
 
-### Automatic Sync
-After each production release (when SDK version changes in main):
-1. **Sync workflow automatically triggers** 
-2. **Merges main → dev** (removes processed changesets)
-3. **Merges main → sandbox** (removes processed changesets)
-4. **Clean branches** ready for next development cycle
+- **`workflow_dispatch` only** — must be triggered manually from the GitHub Actions UI.
+- **Main branch only** — the workflow hard-fails if run from any other branch.
+- There is no `target_environment` input. The deploy environment is controlled by the `DEPLOY_ENV` repo secret (e.g. `prod` or `automation`).
 
-### Manual Sync
-You can also manually trigger the sync:
-```bash
-# Via GitHub Actions UI
-Actions → Sync Main to Dev Branches → Run workflow
-```
+### Inputs
 
-## Branch States
+| Input | Type | Default | Description |
+|-------|------|---------|-------------|
+| `deployment_mode` | choice | `override` | `override` — rebuild & replace the latest version in S3. `new_version` — deploy a new version (read from SDK `package.json`). |
 
-### Before (Problematic)
-```
-main: v1.2.0 (changesets A,B,C processed & deleted)
-sandbox: v1.1.0 + changesets A,B,C,D,E (accumulated!)
-         ↳ Version calculation: v1.2.0 + all 5 changesets = wrong!
-```
+### What it does
 
-### After (Clean)
-```
-main: v1.2.0 (changesets A,B,C processed & deleted)  
-sandbox: v1.2.0 + changesets D,E (synced from main)
-         ↳ Version calculation: v1.2.0 + 2 new changesets = correct!
-```
+1. **Checkout & setup** — Node.js + Yarn cache
+2. **AWS credentials** — OIDC via `AWS_ROLE_ARN` secret
+3. **Determine version** — `new_version` reads from `extension-files/bringweb3-sdk/package.json`; `override` finds the latest `vX.Y.Z` folder in S3 under `DEPLOY_ENV/`
+4. **Build** — runs `scripts/build.sh --iframe-only` (passes `DEPLOY_ENV` as positional arg for non-prod envs)
+5. **Upload to S3** — syncs `iframe-frontend/dist/` to `s3://{BUCKET}/{DEPLOY_ENV}/v{VERSION}/`
+6. **Update CloudFront KVS** — rebuilds the version list for the `DEPLOY_ENV` key
+7. **Invalidate CloudFront** — invalidates `/{DEPLOY_ENV}/v{VERSION}/*`
+8. **Summary** — writes a deployment summary to the GitHub step summary
 
-## Your Development Flow
+### Required secrets
 
-1. **Develop** on `dev` branch
-2. **Test** by pushing to `sandbox` 
-3. **Release** by pushing to `main`
-4. **Auto-sync** happens after main release ✨
-5. **Continue** development on clean branches
+| Secret | Description |
+|--------|-------------|
+| `AWS_ROLE_ARN` | IAM OIDC role ARN for GitHub Actions |
+| `S3_BUCKET` | Target S3 bucket name |
+| `CLOUDFRONT_ID` | CloudFront distribution ID |
+| `CLOUDFRONT_KVS_ARN` | CloudFront KeyValueStore ARN |
+| `DEPLOY_ENV` | Environment prefix in S3 (`prod`, `automation`, etc.) |
+| `VITE_API_KEY` | API key passed to the iframe build |
+| `VITE_GA_MEASUREMENT_ID` | Google Analytics measurement ID |
+| `VITE_TEST_ID` | Test identifier |
 
-## Files Changed
+---
 
-- ✅ **Reverted** complex changeset filtering in `deploy-iframe.yml`
-- ✅ **Added** `sync-branches.yml` workflow
-- ✅ **Updated** test script (can be deleted now)
+## main.yml — CI-SDK
 
-## Manual Sync Commands
+Runs SDK lint & build. Trigger: `workflow_dispatch` only.
 
-If you need to sync manually:
+---
 
-```bash
-# Sync dev branch
-git checkout dev
-git pull origin main
-git push origin dev
+## publish.yml — Publish SDK to NPM
 
-# Sync sandbox branch  
-git checkout sandbox
-git pull origin main
-git push origin sandbox
-```
-
-## Benefits
-
-- ✅ **No more changeset accumulation**
-- ✅ **Accurate version calculations** 
-- ✅ **Cleaner git history**
-- ✅ **Automated process**
-- ✅ **Handles merge conflicts gracefully**
-- ✅ **Manual fallback available**
+Triggered by successful completion of CI-SDK. Publishes the SDK package via changesets.

@@ -56,7 +56,7 @@ jobs:
             # Read version from the SDK package.json (same source as build.sh)
             VERSION=$(node -p "require('./extension-files/bringweb3-sdk/package.json').version")
           else
-            # Override: find the latest version folder in S3 prod/
+            # Override: find the latest version folder in S3
             VERSION=$(aws s3 ls "s3://${{ secrets.S3_BUCKET }}/${{ secrets.DEPLOY_ENV }}/" \
               | grep -oP 'v\d+\.\d+\.\d+' \
               | sort -V | tail -1 | sed 's/^v//')
@@ -84,7 +84,13 @@ jobs:
           export VITE_GA_MEASUREMENT_ID="${{ secrets.VITE_GA_MEASUREMENT_ID }}"
           export VITE_TEST_ID="${{ secrets.VITE_TEST_ID }}"
 
-          bash ./scripts/build.sh --iframe-only --iframe-api-key "${{ secrets.VITE_API_KEY }}" --version "$VERSION"
+          DEPLOY_ENV="${{ secrets.DEPLOY_ENV }}"
+          # If DEPLOY_ENV is set, pass it as positional arg; otherwise build.sh defaults to prod
+          if [ -n "$DEPLOY_ENV" ]; then
+            bash ./scripts/build.sh "$DEPLOY_ENV" --iframe-only --iframe-api-key "${{ secrets.VITE_API_KEY }}" --version "$VERSION"
+          else
+            bash ./scripts/build.sh --iframe-only --iframe-api-key "${{ secrets.VITE_API_KEY }}" --version "$VERSION"
+          fi
         env:
           NODE_ENV: production
 
@@ -131,11 +137,11 @@ jobs:
             | sed 's/,$//')
 
           if [ -z "$VERSIONS" ]; then
-            echo "ERROR: No versions found in S3 prod folder"
+            echo "ERROR: No versions found in S3 ${{ secrets.DEPLOY_ENV }}/ folder"
             exit 1
           fi
 
-          echo "KVS value for prod: $VERSIONS"
+          echo "KVS value for ${{ secrets.DEPLOY_ENV }}: $VERSIONS"
 
           ETAG=$(aws cloudfront-keyvaluestore describe-key-value-store \
             --kvs-arn "$KVS_ARN" \

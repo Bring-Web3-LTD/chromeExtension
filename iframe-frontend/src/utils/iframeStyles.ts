@@ -119,9 +119,7 @@ export const getIframeStyle = (
     const styles = styleMap[page]
     const baseIframeStyle = styles[platformName.toLowerCase()] || styles['default']
     if (!themeIframeStyle) return baseIframeStyle
-    console.log('current version:', version)
     const versionComparison = compareVersions(version, '1.6.0')
-    console.log('Version comparison result:', versionComparison)
     if (versionComparison === -1) {
         return {
             ...baseIframeStyle.iframe,

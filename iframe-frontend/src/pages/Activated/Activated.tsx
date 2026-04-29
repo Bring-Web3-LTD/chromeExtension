@@ -13,7 +13,7 @@ import { getIframeStyle } from '../../utils/iframeStyles'
 import { ENV, ACTIVATE_QUIET_TIME, OB_ACTIVATE_QUIET_TIME } from '../../config'
 
 const Activated = () => {
-    const { topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
+    const { version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const [markdownContent, setMarkdownContent] = useState('')
     // const [loading, setLoading] = useState(true)
@@ -21,7 +21,7 @@ const Activated = () => {
     useEffect(() => {
         const controller = new AbortController()
 
-        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, themeIframeStyle) })
+        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, version, themeIframeStyle) })
 
         const loadAllMarkdown = async () => {
             try {
@@ -65,8 +65,8 @@ const Activated = () => {
                 <p id="activated-text" className={styles.p}>Reward approval may take up to 48 hours.</p>
                 <div id="activated-backed-by" className={styles.backed_by}>Backed by {toCapital(platformName)} Wallet</div>
             </div>
-            <Markdown 
-                className={styles.markdown} 
+            <Markdown
+                className={styles.markdown}
                 rehypePlugins={[rehypeRaw]}
                 components={{
                     a: ({ href, children, ...props }) => {

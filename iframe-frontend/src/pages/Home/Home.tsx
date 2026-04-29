@@ -13,7 +13,7 @@ const Home = () => {
   const { version, variant, platformName, domain, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as LoaderData
 
   useEffect(() => {
-    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, themeIframeStyle) })
+    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, version, themeIframeStyle) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

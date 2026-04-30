@@ -3,7 +3,6 @@ import { sendMessage, ACTIONS } from "../../utils/sendMessage"
 import { getIframeStyle } from "../../utils/iframeStyles"
 import { useRouteLoaderData } from "react-router-dom"
 import PlatformLogo from "../../components/PlatformLogo/PlatformLogo"
-import toCapital from "../../utils/toCapital"
 import formatCashback from "../../utils/formatCashback"
 import parseTime from "../../utils/parseTime"
 import activate from "../../api/activate"
@@ -20,6 +19,7 @@ const THIRTY_MIN_MS = 30 * 60 * 1000
 const Framed = () => {
     const {
         platformName,
+        displayPlatformName,
         domain,
         cryptoSymbols,
         maxCashback,
@@ -143,7 +143,7 @@ const Framed = () => {
                                     <div id="tb-platform-logo" className={styles.tbPlatformLogo}>
                                         <PlatformLogo size='tb' platformName={platformName} />
                                         <span id="tb-platform-name" className={styles.tbPlatformName}>
-                                            {toCapital(platformName)}
+                                            {displayPlatformName || platformName}
                                         </span>
                                     </div>
                                     <span id="tb-plus" className={styles.tbPlus}>+</span>

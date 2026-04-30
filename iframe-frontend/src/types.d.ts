@@ -23,6 +23,7 @@ declare global {
     interface Info {
         walletAddress: WalletAddress
         platformName: string
+        displayPlatformName?: string
         platformId: number
         retailerId: string
         retailerDomain: string

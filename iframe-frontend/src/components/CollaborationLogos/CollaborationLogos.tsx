@@ -1,12 +1,11 @@
 import styles from './styles.module.css'
 import PlatformLogo from '../PlatformLogo/PlatformLogo';
 import { useRouteLoaderData } from 'react-router-dom';
-import toCapital from '../../utils/toCapital';
 import { getInitials } from '../../utils/getInitials';
 import { useState } from 'react';
 
 const CollaborationLogos = () => {
-    const { iconUrl, name, platformName } = useRouteLoaderData('root') as LoaderData    
+    const { iconUrl, name, platformName, displayPlatformName } = useRouteLoaderData('root') as LoaderData    
     const [fallbackLogo, setFallbackLogo] = useState<string | null>(
         !iconUrl || iconUrl.trim() === '' ? getInitials(name) : null
     )         
@@ -50,7 +49,7 @@ const CollaborationLogos = () => {
                         platformName={platformName}
                     />
                 </div>
-                <div id="platform-logo-text" className={styles.logo_text}>{toCapital(platformName)} wallet</div>
+                <div id="platform-logo-text" className={styles.logo_text}>{displayPlatformName || platformName}</div>
             </div>
         </div>
     )

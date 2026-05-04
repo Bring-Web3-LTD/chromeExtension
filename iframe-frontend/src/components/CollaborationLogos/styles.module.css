@@ -19,12 +19,21 @@
     justify-content: center;
     width: var(--logo-size);
     height: var(--logo-size);
-    background: var(--logo-bg, white);
     border-radius: var(--logo-radius, 50%);
-    border-width: var(--logo-border-w, 0);
-    border-color: var(--logo-border-c, transparent);
     border-style: solid;
     box-sizing: border-box;
+}
+
+.retailer_logo_wrapper {
+    background: var(--retailer-logo-bg, white);
+    border-width: var(--retailer-logo-border-w, 0);
+    border-color: var(--retailer-logo-border-c, transparent);
+}
+
+.platform_logo_wrapper {
+    background: var(--platform-logo-bg, white);
+    border-width: var(--platform-logo-border-w, 0);
+    border-color: var(--platform-logo-border-c, transparent);
 }
 
 .logo_wrapper_initials {

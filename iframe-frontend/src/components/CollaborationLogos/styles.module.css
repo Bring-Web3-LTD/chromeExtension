@@ -42,8 +42,8 @@
 
 .logo {
     border-radius: var(--logo-radius, 50%);
-    width: var(--logo-size);
-    height: var(--logo-size);
+    width: 100%;
+    height: 100%;
 }
 
 .logo_initials{    

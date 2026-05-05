@@ -15,7 +15,7 @@ const CollaborationLogos = () => {
             <div id="retailer-logo-container" className={styles.logo_container} >
                 <div 
                     id="retailer-logo-wrapper" 
-                    className={`${styles.logo_wrapper} ${fallbackLogo ? styles.logo_wrapper_initials : ''}`}
+                    className={`${styles.logo_wrapper} ${styles.retailer_logo_wrapper} ${fallbackLogo ? styles.logo_wrapper_initials : ''}`}
                 >
                     {fallbackLogo ? (
                         <div 
@@ -44,7 +44,7 @@ const CollaborationLogos = () => {
                 className={styles.plus_logo}
             />
             <div id="platform-logo-container" className={styles.logo_container} >
-                <div id="platform-logo-wrapper" className={styles.logo_wrapper} >
+                <div id="platform-logo-wrapper" className={`${styles.logo_wrapper} ${styles.platform_logo_wrapper}`} >
                     <PlatformLogo
                         platformName={platformName}
                     />

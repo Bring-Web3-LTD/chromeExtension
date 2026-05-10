@@ -3,7 +3,6 @@ import { sendMessage, ACTIONS } from "../../utils/sendMessage"
 import { getIframeStyle } from "../../utils/iframeStyles"
 import { useRouteLoaderData } from "react-router-dom"
 import PlatformLogo from "../../components/PlatformLogo/PlatformLogo"
-import toCapital from "../../utils/toCapital"
 import formatCashback from "../../utils/formatCashback"
 import parseTime from "../../utils/parseTime"
 import activate from "../../api/activate"
@@ -21,6 +20,7 @@ const THIRTY_MIN_MS = 30 * 60 * 1000
 const Framed = () => {
     const {
         platformName,
+        displayPlatformName,
         domain,
         cryptoSymbols,
         maxCashback,
@@ -115,11 +115,11 @@ const Framed = () => {
             details: name
         })
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
 
     useEffect(() => {
-        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, themeIframeStyle) })
+        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, version, themeIframeStyle) })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -128,9 +128,9 @@ const Framed = () => {
             {/* Top bar — fixed 71px strip at top of viewport */}
             <div id="tb-container" className={styles.tbBar}>
                 {showOptout ? (
-                    <Optout 
-                        closeFn={() => setShowOptout(false)} 
-                        onOptOut={() => setIsOptedOut(true)} 
+                    <Optout
+                        closeFn={() => setShowOptout(false)}
+                        onOptOut={() => setIsOptedOut(true)}
                         onConfirmClose={close}
                     />
                 ) : (
@@ -146,7 +146,7 @@ const Framed = () => {
                                     <div id="tb-platform-logo" className={styles.tbPlatformLogo}>
                                         <PlatformLogo size='tb' platformName={platformName} />
                                         <span id="tb-platform-name" className={styles.tbPlatformName}>
-                                            {toCapital(platformName)}
+                                            {displayPlatformName || platformName}
                                         </span>
                                     </div>
                                     <span id="tb-plus" className={styles.tbPlus}>+</span>

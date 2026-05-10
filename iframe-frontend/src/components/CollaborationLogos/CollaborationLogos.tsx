@@ -1,12 +1,11 @@
 import styles from './styles.module.css'
 import PlatformLogo from '../PlatformLogo/PlatformLogo';
 import { useRouteLoaderData } from 'react-router-dom';
-import toCapital from '../../utils/toCapital';
 import { getInitials } from '../../utils/getInitials';
 import { useState } from 'react';
 
 const CollaborationLogos = () => {
-    const { iconUrl, name, platformName } = useRouteLoaderData('root') as LoaderData    
+    const { iconUrl, name, platformName, displayPlatformName } = useRouteLoaderData('root') as LoaderData    
     const [fallbackLogo, setFallbackLogo] = useState<string | null>(
         !iconUrl || iconUrl.trim() === '' ? getInitials(name) : null
     )         
@@ -16,7 +15,7 @@ const CollaborationLogos = () => {
             <div id="retailer-logo-container" className={styles.logo_container} >
                 <div 
                     id="retailer-logo-wrapper" 
-                    className={`${styles.logo_wrapper} ${fallbackLogo ? styles.logo_wrapper_initials : ''}`}
+                    className={`${styles.logo_wrapper} ${styles.retailer_logo_wrapper} ${fallbackLogo ? styles.logo_wrapper_initials : ''}`}
                 >
                     {fallbackLogo ? (
                         <div 
@@ -45,12 +44,12 @@ const CollaborationLogos = () => {
                 className={styles.plus_logo}
             />
             <div id="platform-logo-container" className={styles.logo_container} >
-                <div id="platform-logo-wrapper" className={styles.logo_wrapper} >
+                <div id="platform-logo-wrapper" className={`${styles.logo_wrapper} ${styles.platform_logo_wrapper}`} >
                     <PlatformLogo
                         platformName={platformName}
                     />
                 </div>
-                <div id="platform-logo-text" className={styles.logo_text}>{toCapital(platformName)} wallet</div>
+                <div id="platform-logo-text" className={styles.logo_text}>{displayPlatformName || platformName}</div>
             </div>
         </div>
     )

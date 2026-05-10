@@ -23,6 +23,7 @@ declare global {
     interface Info {
         walletAddress: WalletAddress
         platformName: string
+        displayPlatformName?: string
         platformId: number
         retailerId: string
         retailerDomain: string
@@ -77,6 +78,7 @@ declare global {
     interface ActivatedData extends Info {
         tokenSymbol: string
         iconsPath: string
+        version: string
     }
 
     interface Message {

@@ -1,5 +1,5 @@
 import styles from './styles.module.css'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import OptOut from '../OptOut/OptOut'
 import activate from '../../api/activate'
@@ -50,8 +50,19 @@ const Offer = ({ closeFn }: Props) => {
         cashbackCurrency,
         offerText,
         isOfferBar,
+        variant
     } = useRouteLoaderData('root') as LoaderData
+
+    const defaultOfferText = useMemo(() => {
+        const formattedCashback = formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)
+        const cryptoSymbol = cryptoSymbols[0]
+        if (variant === 'testC') return `Up to <#${formattedCashback}#> ${cryptoSymbol} cashback`
+        if (variant === 'testB') return `Earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
+        return `Buy with any card and earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
+    }, [variant, cryptoSymbols, maxCashback, cashbackCurrency, cashbackSymbol])
+
     const [optOutOpen, setOptOutOpen] = useState(false)
+    const [isOpted, setIsOpted] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
     
@@ -122,7 +133,7 @@ const Offer = ({ closeFn }: Props) => {
 
     return (
         <>
-            <CloseBtn />
+            <CloseBtn withTime={!isOpted} />
             <AnimatePresence>
                 {
                     !optOutOpen ?
@@ -166,9 +177,7 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    {parseOfferText(offerText) || (
-                                        <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
-                                    )}
+                                    {parseOfferText(offerText || defaultOfferText)}
                                 </div>
                             </div>
                             <div id="offer-action-container" className={styles.action_container}>
@@ -238,6 +247,7 @@ const Offer = ({ closeFn }: Props) => {
                         >
                             <OptOut
                                 onClose={() => setOptOutOpen(false)}
+                                onOpted={() => setIsOpted(true)}
                             />
                         </motion.div>
                 }

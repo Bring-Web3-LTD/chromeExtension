@@ -10,6 +10,8 @@ const formatCashback = (amount: number, symbol: string, currency: string) => {
         return amount.toLocaleString(undefined, {
             style: 'currency',
             currency: currency,
+            currencyDisplay: 'narrowSymbol',
+            minimumFractionDigits: 0,
             maximumFractionDigits: 2
         })
 

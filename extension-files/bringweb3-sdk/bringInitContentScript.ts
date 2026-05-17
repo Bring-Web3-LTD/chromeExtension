@@ -151,8 +151,13 @@ const bringInitContentScript = async ({
                         sendResponse({ status: 'failed', message: 'Domain already changed' });
                         return true
                     } else if (isIframeOpen) {
-                        sendResponse({ status: 'failed', message: 'iframe already open' });
-                        return true
+                        // On SPA navigations, pagehide doesn't fire, so close the old popup before injecting.
+                        if (request.isSpaNavigation) {
+                            removeElements();
+                        } else {
+                            sendResponse({ status: 'failed', message: 'iframe already open' });
+                            return true
+                        }
                     }
 
                     const isReferrer = !!referrer && referrers.includes(getDomain(referrer))

@@ -41,8 +41,15 @@ interface TabState {
 
 const tabStates = new Map<number, TabState>();
 
+const hasWebNavigation = typeof chrome !== 'undefined'
+    && chrome.webNavigation
+    && typeof chrome.webNavigation.onCommitted?.addListener === 'function';
+
+// Tracks URLs per tab for each event source to coordinate between onCommitted and onHistoryStateUpdated.
+const navUrls = new Map<number, { committed?: string; history?: string }>();
+
 const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
-    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineSearchResult?: { match: string | string[], type?: string }) => {
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineSearchResult?: { match: string | string[], type?: string }, isSpaNavigation: boolean = false) => {
 
         if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') return;
 
@@ -96,7 +103,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 domain: url,
                 userId,
                 page: phase,
-                placement  // Pass placement configuration from payload
+                placement,  // Pass placement configuration from payload
+                isSpaNavigation
             });
             return;
         } else if (phase === 'quiet') {
@@ -167,7 +175,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             flowId: popupData.flowId,
             stylesheet: popupData.stylesheet,
             placement: popupData.placement,
-            framed: popupData.framed
+            framed: popupData.framed,
+            isSpaNavigation
         });
 
         if (res?.action) {
@@ -191,40 +200,81 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             })
         }
     };
-    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-        if (!tab?.url?.startsWith('http')) return
-
+    // Inline-search: scrape page links after load.
+    const onPageComplete = async (tabId: number, url: string) => {
         const isPopupEnabled = await storage.get('popupEnabled');
-
         if (!isPopupEnabled) return;
 
-        if (changeInfo.url) {
-            tabStates.delete(tabId);
-            await checkPostPurchasePage(tab.url);
-            validateAndInject(tab.url, tabId, tab, false);
-        }
+        const inlineSearchResult = await getRelevantDomain(url, "i");
+        if (!inlineSearchResult.matched) return;
 
-        if (changeInfo.status === 'complete') {
-            const inlineSearchResult = await getRelevantDomain(tab.url, "i");
-            if (!inlineSearchResult.matched) return;
+        const quietInlineSearch = await getQuietDomain(parseUrl(url), "i");
+        if (quietInlineSearch.phase === 'quiet') return;
 
-            const quietInlineSearch = await getQuietDomain(parseUrl(tab.url), "i");
-            if (quietInlineSearch.phase === 'quiet') return;
+        const tab = await chrome.tabs.get(tabId);
 
-            const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' }, undefined, 0);
+        const response = await sendMessage(tabId, { action: 'GET_PAGE_LINKS' }, undefined, 0);
 
-            if (response?.status !== 'success' || !response.links?.length) return;
+        if (response?.status !== 'success' || !response.links?.length) return;
 
-            const uniqueLinks = [...new Set(response.links)] as string[];
+        const uniqueLinks = [...new Set(response.links)] as string[];
 
-            await Promise.allSettled(
-                uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, { match: inlineSearchResult.match, type: inlineSearchResult.type }))
-            );
-        }
-    })
+        await Promise.allSettled(
+            uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, { match: inlineSearchResult.match, type: inlineSearchResult.type }))
+        );
+    };
+
+    const onMainNavigation = async (tabId: number, url: string, isSpaNavigation: boolean = false) => {
+        const isPopupEnabled = await storage.get('popupEnabled');
+        if (!isPopupEnabled) return;
+
+        const tab = await chrome.tabs.get(tabId);
+        tabStates.delete(tabId);
+        await checkPostPurchasePage(url);
+
+        await validateAndInject(url, tabId, tab, false, undefined, isSpaNavigation);
+    };
+
+    if (hasWebNavigation) {
+        // Full navigations — always processes.
+        chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
+            if (frameId !== 0) return;
+            const entry = navUrls.get(tabId);
+            entry ? (entry.committed = url) : navUrls.set(tabId, { committed: url });
+            onMainNavigation(tabId, url).catch(() => {});
+        }, { url: [{ schemes: ['http', 'https'] }] });
+
+        // SPA navigations — only processes if onCommitted hasn't handled this URL.
+        chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId, url }) => {
+            if (frameId !== 0) return;
+            if (navUrls.get(tabId)?.committed === url) return;
+            const entry = navUrls.get(tabId);
+            entry ? (entry.history = url) : navUrls.set(tabId, { history: url });
+            onMainNavigation(tabId, url, true).catch(() => {});
+        }, { url: [{ schemes: ['http', 'https'] }] });
+
+        chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
+            if (frameId !== 0) return;
+            onPageComplete(tabId, url).catch(() => {});
+        }, { url: [{ schemes: ['http', 'https'] }] });
+    } else {
+        // Fallback when webNavigation permission is unavailable.
+        chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+            if (!tab?.url?.startsWith('http')) return;
+
+            if (changeInfo.url) {
+                onMainNavigation(tabId, tab.url).catch(() => {});
+            }
+
+            if (changeInfo.status === 'complete') {
+                onPageComplete(tabId, tab.url).catch(() => {});
+            }
+        });
+    }
 
     chrome.tabs.onRemoved.addListener((tabId) => {
         tabStates.delete(tabId);
+        navUrls.delete(tabId);
     });
 }
 

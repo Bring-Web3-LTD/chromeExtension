@@ -12,6 +12,7 @@ interface Message {
     placement?: PlacementConfig
     framed?: FrameModeOptions | null
     stylesheet?: string
+    isSpaNavigation?: boolean
 }
 
 const sendMessage = (tabId: number, message: Message, maxRetries?: number, frameId?: number): Promise<any> => {

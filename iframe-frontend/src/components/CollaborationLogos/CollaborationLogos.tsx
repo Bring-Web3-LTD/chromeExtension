@@ -5,7 +5,7 @@ import { getInitials } from '../../utils/getInitials';
 import { useState } from 'react';
 
 const CollaborationLogos = () => {
-    const { iconUrl, name, platformName, displayPlatformName } = useRouteLoaderData('root') as LoaderData    
+    const { iconUrl, name, platformName, displayPlatformName, backgroundColor } = useRouteLoaderData('root') as LoaderData    
     const [fallbackLogo, setFallbackLogo] = useState<string | null>(
         !iconUrl || iconUrl.trim() === '' ? getInitials(name) : null
     )         
@@ -16,6 +16,7 @@ const CollaborationLogos = () => {
                 <div 
                     id="retailer-logo-wrapper" 
                     className={`${styles.logo_wrapper} ${styles.retailer_logo_wrapper} ${fallbackLogo ? styles.logo_wrapper_initials : ''}`}
+                    style={backgroundColor ? { background: backgroundColor } : undefined}
                 >
                     {fallbackLogo ? (
                         <div 

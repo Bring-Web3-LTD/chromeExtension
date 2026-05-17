@@ -41,6 +41,7 @@ const Framed = () => {
         isRegex,
         iconUrl,
         offerTextTb,
+        backgroundColor,
         iframeStyle: themeIframeStyle
     } = useRouteLoaderData('root') as LoaderData
 
@@ -150,7 +151,7 @@ const Framed = () => {
                                         </span>
                                     </div>
                                     <span id="tb-plus" className={styles.tbPlus}>+</span>
-                                    <div id="tb-retailer-logo" className={styles.tbRetailerLogo}>
+                                    <div id="tb-retailer-logo" className={styles.tbRetailerLogo} style={backgroundColor ? { background: backgroundColor } : undefined}>
                                         {fallbackLogo ? (
                                             <span id="tb-retailer-initials" className={styles.tbRetailerInitials}>
                                                 {fallbackLogo}

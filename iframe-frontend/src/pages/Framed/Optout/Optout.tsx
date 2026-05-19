@@ -13,13 +13,13 @@ interface Props {
 const durationOptions = [
     { label: '24 hours', value: 24 * 60 * 60 * 1000 },
     { label: '30 days', value: 30 * 24 * 60 * 60 * 1000 },
-    { label: 'Forever', value: 999999999999999 },
+    { label: 'forever', value: 999999999999999 },
 ]
 
 const dict = {
     '24 hours': '24Hours',
     '30 days': '30Days',
-    'Forever': 'forever'
+    'forever': 'forever'
 }
 
 const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
@@ -85,7 +85,7 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
                                         selectedOption.label === option.label
                                             ? styles.selectedBtn
                                             : styles.unselectedBtn
-                                    } ${option.label === 'Forever' ? styles.foreverBtn : ''}`}
+                                    } ${option.label === 'forever' ? styles.foreverBtn : ''}`}
                                     onClick={() => handleButtonClick(option)}
                                 >
                                     {option.label}

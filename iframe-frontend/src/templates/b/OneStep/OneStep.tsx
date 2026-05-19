@@ -19,6 +19,7 @@ import splitStringWithDots from "../../../utils/splitStringWithDots"
 import { sendMessage, ACTIONS } from "../../../utils/sendMessage"
 import { ACTIVATE_QUIET_TIME, ENV } from "../../../config"
 import parseTime from '../../../utils/parseTime'
+import { useActivationPayload } from "../../../hooks/useActivationPayload"
 
 
 const slideVariants = {
@@ -42,6 +43,7 @@ const slideVariants = {
 
 const OneStep = () => {
     const { cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar } = useRouteLoaderData('root') as LoaderData
+    const activationPayload = useActivationPayload()
     const [[isShowingTerms, direction], setIsShowingTerms] = useState([false, 0])
     const [markdownContent, setMarkdownContent] = useState('')
     const [isShowingTurnoff, setIsShowingTurnoff] = useState(false)
@@ -103,7 +105,8 @@ const OneStep = () => {
             tokenSymbol,
             flowId,
             userId,
-            isOfferBar
+            isOfferBar,
+            activationPayload
         }
 
         if (isTester && isDemo) {

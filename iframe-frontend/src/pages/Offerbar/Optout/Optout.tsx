@@ -13,13 +13,13 @@ interface Props {
 const durationOptions = [
     { label: '24 hours', value: 24 * 60 * 60 * 1000 },
     { label: '30 days', value: 30 * 24 * 60 * 60 * 1000 },
-    { label: 'Forever', value: 999999999999999 },
+    { label: 'forever', value: 999999999999999 },
 ]
 
 const dict = {
     '24 hours': '24Hours',
     '30 days': '30Days',
-    'Forever': 'forever'
+    'forever': 'forever'
 }
 
 const Optout = ({ closeFn, onOptOut }: Props) => {

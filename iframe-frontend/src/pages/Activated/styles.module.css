@@ -120,10 +120,14 @@
     text-decoration: underline;
 }
 
+.markdown a:hover {
+    color: var(--markdown-f-c);
+}
+
 .externalLink {
    color: var(--markdown-f-c);
-    text-decoration: underline;
-    cursor: pointer;
+   text-decoration: underline;
+   cursor: pointer;
 }
 
 

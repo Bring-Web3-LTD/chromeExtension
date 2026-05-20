@@ -121,13 +121,13 @@
 }
 
 .markdown a:hover {
-    color: var(--primary-btn-bg);
+    color: var(--markdown-f-c);
 }
 
 .externalLink {
-   color: var(--primary-btn-bg);
-    text-decoration: underline;
-    cursor: pointer;
+   color: var(--markdown-f-c);
+   text-decoration: underline;
+   cursor: pointer;
 }
 
 

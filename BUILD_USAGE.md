@@ -2,19 +2,34 @@
 
 The `build.sh` script supports configurable environment variables via command-line arguments or .env files.
 
+## Build Modes
+
+### Full build (default)
+
+Builds the SDK, test extension, and iframe frontend. All variables below are required.
+
+### Iframe-only build (`--iframe-only`)
+
+Builds only the iframe frontend. `PLATFORM_IDENTIFIER` and `WALLET_ADDRESS` are **not required**. This is the mode used by the CI deploy workflow.
+
 ## Required Variables
 
-All three variables are **mandatory** for the build to succeed:
-
-### Test Extension
-- **PLATFORM_IDENTIFIER** - Your extension identifier key (required)
-- **WALLET_ADDRESS** - Wallet address for testing (required)
-
-### Iframe Frontend
-- **VITE_API_KEY** - API key for iframe (required)
+| Variable | Full build | `--iframe-only` |
+|----------|-----------|------------------|
+| `PLATFORM_IDENTIFIER` | ✅ Required | ❌ Not needed |
+| `WALLET_ADDRESS` | ✅ Required | ❌ Not needed |
+| `VITE_API_KEY` | ✅ Required | ✅ Required |
 
 ### Optional
-- **BUILD_ENV** - Environment name for API routing (optional)
+- **BUILD_ENV** - Environment name for API routing (positional arg, e.g. `automation`)
+
+## Available Flags
+
+- `--identifier VALUE` - Sets PLATFORM_IDENTIFIER
+- `--wallet VALUE` - Sets WALLET_ADDRESS
+- `--iframe-api-key VALUE` - Sets VITE_API_KEY
+- `--version VALUE` - Sets SDK_VERSION (skip reading from package.json)
+- `--iframe-only` - Build only the iframe frontend (skips SDK & extension)
 
 ## Usage Methods
 
@@ -26,9 +41,6 @@ Pass variables directly in the build command:
 # Production build with all options
 ./scripts/build.sh --identifier my-id --wallet addr1qy... --iframe-api-key my-key
 
-# Sandbox build with options
-./scripts/build.sh sandbox --identifier my-id --iframe-api-key my-key
-
 # Production with just required values
 ./scripts/build.sh --identifier my-id --iframe-api-key my-key
 
@@ -36,23 +48,19 @@ Pass variables directly in the build command:
 ./scripts/build.sh danielk --identifier my-id --wallet custom-addr --iframe-api-key my-key
 ```
 
-**Available Flags:**
-- `--identifier VALUE` - Sets PLATFORM_IDENTIFIER
-- `--wallet VALUE` - Sets WALLET_ADDRESS
-- `--iframe-api-key VALUE` - Sets VITE_API_KEY
-### Method 3: Hybrid Approach
-
-Command-line arguments take precedence over .env files:
+#### Iframe-only examples
 
 ```bash
-# Use .env file values but override wallet address
-./scripts/build.sh sandbox --wallet different-address
+# Build iframe only for production (version from package.json)
+./scripts/build.sh --iframe-only --iframe-api-key my-key
 
-# Use .env files but override API key
-./scripts/build.sh --iframe-api-key different-key
+# Build iframe only with explicit version
+./scripts/build.sh --iframe-only --iframe-api-key my-key --version 1.6.4
+
+# Build iframe only for a custom environment
+./scripts/build.sh automation --iframe-only --iframe-api-key my-key --version 1.6.4
 ```
 
-### Method 4: Environment Variables
 ### Method 2: Using .env Files
 
 Create `.env` files with your configuration:
@@ -71,13 +79,10 @@ Create `.env` files with your configuration:
 Then run the build script:
 ```bash
 ./scripts/build.sh          # Production build
-./scripts/build.sh sandbox  # Sandbox environment
 ./scripts/build.sh danielk  # Custom environment
 ```
 
-### Method 2: Environment Variables on Command Line
-
-Set variables before running the script:
+### Method 3: Environment Variables
 
 ```bash
 # One-time build with specific values
@@ -87,7 +92,19 @@ PLATFORM_IDENTIFIER=my-id WALLET_ADDRESS=addr1qy... VITE_API_KEY=my-key ./script
 export PLATFORM_IDENTIFIER=my-id
 export WALLET_ADDRESS=addr1qy...
 export VITE_API_KEY=my-key
-./scripts/build.sh sandbox
+./scripts/build.sh
+```
+
+### Method 4: Hybrid Approach
+
+Command-line arguments take precedence over .env files:
+
+```bash
+# Use .env file values but override wallet address
+./scripts/build.sh danielk --wallet different-address
+
+# Use .env files but override API key
+./scripts/build.sh --iframe-api-key different-key
 ```
 
 **Priority Order** (highest to lowest):
@@ -100,7 +117,7 @@ export VITE_API_KEY=my-key
 Combine any of the above methods:
 
 ```bash
-# Override WALLET_ADDRESS from .env file
+# Override WALLET_ADDRESS from .env file using an environment variable
 WALLET_ADDRESS=different-address ./scripts/build.sh
 ```
 
@@ -112,34 +129,29 @@ WALLET_ADDRESS=different-address ./scripts/build.sh
 ./scripts/build.sh --identifier prod-id --iframe-api-key prod-key
 ```
 
-### Sandbox Build with All Options
+### Environment-Specific Builds
 ```bash
-./scripts/build.sh sandbox --identifier sandbox-id --wallet addr1qytest... --iframe-api-key sandbox-key
+# Development
+./scripts/build.sh danielk --identifier dev-id --iframe-api-key dev-key
+
+# Automation / Testing
+./scripts/build.sh automation --identifier test-id --iframe-api-key test-key
+
+# Production
+./scripts/build.sh --identifier prod-id --iframe-api-key prod-key
 ```
 
 ### Using .env Files
 ```bash
 # Just run build - reads from .env files
 ./scripts/build.sh
-./scripts/build.sh sandbox
+./scripts/build.sh danielk  # Custom environment
 ```
 
 ### Override One Value from .env
 ```bash
 # Use .env for most values, override API key
 ./scripts/build.sh --iframe-api-key different-key
-```
-
-### Environment-Specific Builds
-```bash
-# Development
-./scripts/build.sh danielk --identifier dev-id --iframe-api-key dev-key
-
-# Staging
-./scripts/build.sh sandbox --identifier staging-id --iframe-api-key staging-key
-
-# Production
-./scripts/build.sh --identifier prod-id --iframe-api-key prod-key
 ```
 
 ## Configuration Check
@@ -153,7 +165,7 @@ Configuration Check
 PLATFORM_IDENTIFIER: your-id-here
 WALLET_ADDRESS: addr1qy...
 VITE_API_KEY: TfWwmWc13...
-BUILD_ENV: sandbox
+BUILD_ENV: (none)
 ```
 
 ## Warnings
@@ -173,6 +185,6 @@ The build will continue but may not work correctly without these values.
 
 - **Security**: Never commit `.env` or `.env.local` files to version control
 - **Team Setup**: Share a template `.env.example` file with your team
-- **CI/CD**: Set environment variables in your CI/CD pipeline
+- **CI/CD**: Use `--iframe-only` mode with secrets in your CI pipeline. See `deploy-iframe.yml` for reference.
+- **Production**: Use environment variables or secrets management for production builds
 - **Development**: Use `.env` files for local development
-- **Production**: Use environment variables or secrets management in production builds

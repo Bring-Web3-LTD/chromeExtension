@@ -3,7 +3,7 @@ import { useRouteLoaderData } from "react-router-dom"
 import PlatformLogo from "../../../components/PlatformLogo/PlatformLogo"
 
 const Logos = () => {
-    const { platformName, iconUrl } = useRouteLoaderData('root') as LoaderData
+    const { platformName, iconUrl, backgroundColor } = useRouteLoaderData('root') as LoaderData
     return (
         <div className={styles.container}>
             <div className={styles.platform_logo_container}>
@@ -13,6 +13,7 @@ const Logos = () => {
                 src={iconUrl}
                 className={styles.retailer_logo}
                 alt="retailer-logo"
+                style={backgroundColor ? { background: backgroundColor } : undefined}
             />
         </div>
     )

@@ -75,10 +75,11 @@ interface Selection {
 
 interface Props {
     onClose: () => void;
+    onOpted?: () => void;
 }
 
-const OptOut = ({ onClose }: Props) => {
-    const { cryptoSymbols, platformName, textMode, domain, name } = useRouteLoaderData('root') as LoaderData
+const OptOut = ({ onClose, onOpted }: Props) => {
+    const { cryptoSymbols, platformName, displayPlatformName, textMode, domain, name } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)  
     
@@ -98,6 +99,7 @@ const OptOut = ({ onClose }: Props) => {
     const handleOptOut = () => {
         if (isOpted) return
         setIsOpted(true)
+        onOpted?.()
         
         const { websites, duration } = selection
 
@@ -127,7 +129,7 @@ const OptOut = ({ onClose }: Props) => {
                     <div id="opt-out-card" className={styles.card}>
                         <div id="opt-out-title" className={styles.title}>Turn off cashback offers</div>
                         <div id="opt-out-description" className={styles.description}>
-                            With {toCapital(platformName)}'s cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
+                            With {cryptoSymbols[0]} cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
                         </div>
                                 <RadioGroup
                                     options={websiteOptions}
@@ -165,7 +167,7 @@ const OptOut = ({ onClose }: Props) => {
                         </div>
                         <div id="opt-out-confirmation-description" className={styles.description}>
                             Your request to turn off cashback offers has been received.<br />
-                            You will no longer see {toCapital(platformName)}'s cashback offers {!selection.websites.value ? 'on this website' : 'across all websites'} {selection.duration.label === 'forever' ? selection.duration.label : `for the next ${selection.duration.label}`}.
+                            You will no longer see {toCapital(displayPlatformName || platformName)}'s cashback offers {!selection.websites.value ? 'on this website' : 'across all websites'} {selection.duration.label === 'forever' ? selection.duration.label : `for the next ${selection.duration.label}`}.
                         </div>
 
                     </div>

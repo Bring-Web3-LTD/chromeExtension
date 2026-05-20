@@ -1,5 +1,5 @@
 import styles from './styles.module.css'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
 import OptOut from '../OptOut/OptOut'
 import activate from '../../api/activate'
@@ -10,6 +10,7 @@ import splitWordMaxFive from '../../utils/splitWordMaxFive'
 import { useRouteLoaderData } from 'react-router-dom'
 import toCaseString from '../../utils/toCaseString'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
+import { useActivationPayload } from '../../hooks/useActivationPayload'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ACTIVATE_QUIET_TIME } from '../../config'
 import parseTime from '../../utils/parseTime'
@@ -31,6 +32,7 @@ interface Props {
 const Offer = ({ closeFn }: Props) => {
     const { sendGaEvent } = useGoogleAnalytics()
     const { walletAddress, setWalletAddress } = useWalletAddress()
+    const activationPayload = useActivationPayload()
     const {
         textMode,
         flowId,
@@ -47,10 +49,20 @@ const Offer = ({ closeFn }: Props) => {
         cashbackSymbol,
         cashbackCurrency,
         offerText,
-        variant,
-        isOfferBar
+        isOfferBar,
+        variant
     } = useRouteLoaderData('root') as LoaderData
+
+    const defaultOfferText = useMemo(() => {
+        const formattedCashback = formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)
+        const cryptoSymbol = cryptoSymbols[0]
+        if (variant === 'testC') return `Up to <#${formattedCashback}#> ${cryptoSymbol} cashback`
+        if (variant === 'testB') return `Earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
+        return `Buy with any card and earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
+    }, [variant, cryptoSymbols, maxCashback, cashbackCurrency, cashbackSymbol])
+
     const [optOutOpen, setOptOutOpen] = useState(false)
+    const [isOpted, setIsOpted] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
     
@@ -67,7 +79,8 @@ const Offer = ({ closeFn }: Props) => {
             userId,
             tokenSymbol: cryptoSymbols[0],
             flowId,
-            isOfferBar
+            isOfferBar,
+            activationPayload,
         }
 
         if (isTester && isDemo) body.isDemo = true
@@ -99,7 +112,7 @@ const Offer = ({ closeFn }: Props) => {
             details: name
         })
 
-    }, [cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [activationPayload, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {
@@ -120,7 +133,7 @@ const Offer = ({ closeFn }: Props) => {
 
     return (
         <>
-            <CloseBtn />
+            <CloseBtn withTime={!isOpted} />
             <AnimatePresence>
                 {
                     !optOutOpen ?
@@ -164,9 +177,7 @@ const Offer = ({ closeFn }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    {parseOfferText(offerText) || (
-                                        <>Buy with any card and earn up to <span id="cashback-amount" className={styles.cashback_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</span> in {cryptoSymbols[0]}</>
-                                    )}
+                                    {parseOfferText(offerText || defaultOfferText)}
                                 </div>
                             </div>
                             <div id="offer-action-container" className={styles.action_container}>
@@ -177,7 +188,7 @@ const Offer = ({ closeFn }: Props) => {
                                     disabled={status !== 'idle'}
                                 >
                                     {status === 'idle' ?
-                                        toCaseString(variant === 'testB' ? `Earn ${cryptoSymbols[0]}` : "Activate", textMode)
+                                        toCaseString("Activate", textMode)
                                         :
                                         <Oval
                                             visible={true}
@@ -236,6 +247,7 @@ const Offer = ({ closeFn }: Props) => {
                         >
                             <OptOut
                                 onClose={() => setOptOutOpen(false)}
+                                onOpted={() => setIsOpted(true)}
                             />
                         </motion.div>
                 }

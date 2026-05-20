@@ -2,6 +2,7 @@ import styles from './styles.module.css'
 import { sendMessage, ACTIONS } from '../../../utils/sendMessage'
 import { useGoogleAnalytics } from '../../../hooks/useGoogleAnalytics'
 import { useRouteLoaderData } from 'react-router-dom'
+import Icon from '../../../components/Icon/Icon'
 import compareVersions from '../../../utils/compareVersions'
 import parseTime from '../../../utils/parseTime'
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const CloseBtn = ({ callback }: Props) => {
-    const { domain, version, iconsPath } = useRouteLoaderData('root') as LoaderData
+    const { domain, version } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
 
     const close = async () => {
@@ -36,7 +37,7 @@ const CloseBtn = ({ callback }: Props) => {
             }}
             className={styles.btn}
         >
-            <img id="template-close-btn-icon" src={`${iconsPath}/x-mark.svg`} alt="exit icon" />
+            <Icon id="template-close-btn-icon" name="x-mark.svg" alt="exit icon" />
         </button>
     )
 }

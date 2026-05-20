@@ -14,7 +14,7 @@ interface Message {
     stylesheet?: string
 }
 
-const sendMessage = (tabId: number, message: Message, maxRetries?: number): Promise<any> => {
+const sendMessage = (tabId: number, message: Message, maxRetries?: number, frameId?: number): Promise<any> => {
     maxRetries = maxRetries || 10;
     const baseDelay = 100; // 0.1 second
     const incrementalDelay = 20; // 0.02 seconds
@@ -28,7 +28,8 @@ const sendMessage = (tabId: number, message: Message, maxRetries?: number): Prom
                     return;
                 }
                 // Send message
-                chrome.tabs.sendMessage(tabId, { ...message, from: 'bringweb3' }, (response) => {
+                const options = frameId !== undefined ? { frameId } : {};
+                chrome.tabs.sendMessage(tabId, { ...message, from: 'bringweb3' }, options, (response) => {
                     if (chrome.runtime.lastError) {
                         if (attempt < maxRetries - 1) {
                             setTimeout(() => attemptSend(attempt + 1), baseDelay + incrementalDelay * attempt);

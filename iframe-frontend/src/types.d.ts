@@ -23,10 +23,12 @@ declare global {
     interface Info {
         walletAddress: WalletAddress
         platformName: string
+        displayPlatformName?: string
         platformId: number
         retailerId: string
         retailerDomain: string
         name: string
+        displayName: string
         maxCashback: string
         cashbackSymbol: string
         cashbackCurrency: string
@@ -46,6 +48,7 @@ declare global {
         searchTermPattern?: string,
         isOfferBar?: boolean
         offerText?: string
+        offerTextTb?: string
         networkUrl?: string
         offerBarSearch?: string
         offerBarPageUrl?: string
@@ -55,6 +58,8 @@ declare global {
         }
         inlineSearchLink?: string
         matchedKeyword?: string
+        activationPayload?: ActivateResponse | null
+        timeout?: number
     }
 
     interface LoaderData extends Info {
@@ -73,6 +78,7 @@ declare global {
     interface ActivatedData extends Info {
         tokenSymbol: string
         iconsPath: string
+        version: string
     }
 
     interface Message {

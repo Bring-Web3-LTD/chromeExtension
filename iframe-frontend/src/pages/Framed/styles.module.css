@@ -1,3 +1,15 @@
+/* ═══════════════════════════════════════════════════════════
+   TB (Top Bar / Framed) — matches Figma "OB Generic"
+   Font is controlled by --tb-font-family theme variable
+   ═══════════════════════════════════════════════════════════ */
+
+/* TB font override — uses theme variable */
+.tbBar,
+.tbBar * {
+    font-family: var(--tb-font-family, Inter);
+}
+
+/* Full-viewport overlay — pointer-events:none so host page is clickable */
 .frameContainer {
     position: fixed;
     inset: 0;
@@ -6,60 +18,376 @@
     height: 100vh;
 }
 
-.topFrame {
+/* ── OB Generic — the bar itself ── */
+.tbBar {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 80px;
+    height: 71px;
     pointer-events: auto;
-    background: lightseagreen;
+    background: var(--tb-bg, #1A1E3E);
+    box-shadow: var(--tb-shadow, none);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* ── Frame 1321317114 — inner wrapper ── */
+.tbInner {
+    display: flex;
+    padding-left: 16px;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+}
+
+/* ── Frame 1321317115 — left+center group ── */
+.tbLeftCenter {
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+}
+
+/* ── logos + names wrapper ── */
+.tbLogosNames {
+    display: flex;
+    width: 162px;
+    height: 68px;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 10px;
+    flex-shrink: 1;
+    box-sizing: border-box;
+}
+
+/* ── Logos row — layout anchor with fixed gap ── */
+.tbLogosRow {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0 8px 8px;   
+}
+
+/* ── Name label — absolutely positioned under its logo ── */
+.tbPlatformName {
+    --tb-name-lh: 12px;
+    position: absolute;
+    bottom: calc(-6px - var(--tb-name-lh));
+    color: var(--tb-platform-name-fc, #FFF);
+    text-align: center;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-size: var(--tb-platform-name-fs, 12px);
+    font-weight: var(--tb-platform-name-fw, 500);
+    line-height: var(--tb-name-lh);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.tbRetailerName {
+    --tb-name-lh: 12px;
+    position: absolute;
+    bottom: calc(-6px - var(--tb-name-lh));
+    color: var(--tb-retailer-name-fc, #FFF);
+    text-align: center;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-size: var(--tb-retailer-name-fs, 12px);
+    font-weight: var(--tb-retailer-name-fw, 500);
+    line-height: var(--tb-name-lh);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.tbRetailerNameUppercase {
+    font-size: var(--tb-retailer-name-uppercase-fs, 11px);
+}
+
+/* ── Partner (platform) logo ── */
+.tbPlatformLogo {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    background: var(--tb-platform-logo-bg, transparent);
+    border: var(--tb-platform-logo-border-w, 0) solid var(--tb-platform-logo-border-c, transparent);
+    overflow: visible;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
-.bottomFrame {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 80px;
-    pointer-events: auto;
-    background: lightseagreen;
+.tbPlatformLogo img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: contain;
+    object-position: center;
+}
+
+/* ── Plus sign ── */
+.tbPlus {
+    color: var(--tb-plus-fc, #FFF);
+    text-align: center;
+    font-family: 'Rubik', sans-serif;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-size: 22.86px;
+    font-weight: 500;
+    line-height: 12px;
+    width: 27px;
+}
+
+/* ── Retailer logo ── */
+.tbRetailerLogo {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    border-radius: 50%;
+    overflow: visible;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    background: var(--tb-retailer-logo-bg, #FFF);
 }
 
-.leftFrame {
+/* Border overlay — sits on top of the image so opacity blends with it */
+.tbRetailerLogo::after {
+    content: '';
     position: absolute;
-    left: 0;
-    top: 80px;
-    bottom: 80px;
+    inset: 0;
+    border-radius: 50%;
+    border: var(--tb-retailer-logo-border-w, 0) solid var(--tb-retailer-logo-border-c, transparent);
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.tbRetailerImg {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.tbRetailerInitials {
+    width: 27px;
+    height: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--tb-retailer-logo-bg, #FFF);
+    font-size: var(--tb-retailer-initials-fs, 11px);
+    font-weight: var(--tb-retailer-initials-fw, 600);
+    color: var(--tb-retailer-initials-fc, #333);
+    text-transform: uppercase;
+}
+
+/* ── Frame 1321317113 — main offering text ── */
+.tbOfferText {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    height: 71px;
+    padding: 24px 40px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--tb-offer-text-f-s, 19px);
+    font-weight: var(--tb-offer-text-f-w, 600);
+    color: var(--tb-offer-text-f-c, #FFF);
+    line-height: var(--tb-offer-text-l-h, 22px);
+    font-feature-settings: 'liga' off, 'clig' off;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+}
+
+.tbOfferText span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 2px;
+}
+
+/* parseOfferText renders <span style="fontWeight:bold"> etc.
+   Override inline styles with TB-specific CSS variables */
+.tbOfferText span[style*="font-weight"] {
+    font-weight: var(--tb-offer-text-bold-f-w, 700) !important;
+}
+
+.tbOfferText span[style*="color"] {
+    color: var(--tb-offer-text-highlight-f-c, #FF00B8) !important;
+}
+
+.tbOfferText span[style*="text-decoration"] {
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: none;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+    text-underline-position: from-font;
+}
+
+/* ── buttons ── */
+.tbButtons {
+    display: flex;
+    height: 71px;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+/* ── CTA / Earn button ── */
+.tbActivateBtn {
+    display: flex;
+    width: 145px;
+    height: 34px;
+    padding: 6px 12px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border-radius: var(--tb-activate-btn-radius, 6px);
+    background: var(--tb-activate-btn-bg, #FF00B8);
+    color: var(--tb-activate-btn-f-c, #FFF);
+    font-size: var(--tb-activate-btn-f-s, 16px);
+    font-weight: var(--tb-activate-btn-f-w, 700);
+    line-height: var(--tb-activate-btn-l-h, 15.284px);
+    font-feature-settings: 'liga' off, 'clig' off;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    box-sizing: border-box;
+}
+
+.tbActivateBtn:hover {
+    background: var(--tb-activate-btn-hover-bg, rgba(255, 0, 184, 0.80));
+}
+
+.tbActivateBtn:active {
+    background: var(--tb-activate-btn-active-bg, var(--tb-activate-btn-hover-bg, rgba(255, 0, 184, 0.80)));
+}
+
+/* ── Stop Offers button ── */
+.tbOptOutBtn {
+    display: flex;
     width: 80px;
-    pointer-events: auto;
-    background: lightseagreen;
-    display: flex;
-    align-items: center;
+    padding: 6px 15px;
     justify-content: center;
-    color: white;
-    writing-mode: vertical-rl;
+    align-items: center;
+    gap: 4.208px;
+    background: var(--tb-opt-out-btn-bg, transparent);
+    color: var(--tb-opt-out-btn-f-c, #FFF);
+    font-size: var(--tb-opt-out-btn-f-s, 12px);
+    font-weight: var(--tb-opt-out-btn-f-w, 600);
+    line-height: var(--tb-opt-out-btn-l-h, 15px);
+    font-feature-settings: 'liga' off, 'clig' off;
+    text-transform: uppercase;
+    text-align: center;
+    border: none;
+    border-radius: var(--tb-opt-out-btn-radius, 0);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: color 0.15s;
+    box-sizing: border-box;
 }
 
-.rightFrame {
-    position: absolute;
-    right: 0;
-    top: 80px;
-    bottom: 80px;
-    width: 80px;
-    pointer-events: auto;
-    background: lightseagreen;
+.tbOptOutBtn:hover {
+    color: var(--tb-opt-out-btn-hover-fc, #FFFFFFCC);
+}
+
+/* ── Close button ── */
+.tbCloseBtn {
+    position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    writing-mode: vertical-rl;
+    width: 40px;
+    height: 71px;
+    padding: 16px 16px 0 5px;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+/* hover/click background circle behind the X */
+.tbCloseBtn::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 12px;
+    width: 21px;
+    height: 21px;
+    aspect-ratio: 1/1;
+    border-radius: 3px;
+    background: transparent;
+    transition: background 0.15s;
+}
+
+.tbCloseBtn:hover::before,
+.tbCloseBtn:active::before {
+    background: var(--tb-close-btn-hover-bg, rgba(255, 255, 255, 0.40));
+}
+
+.tbCloseBtn img {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    filter: var(--tb-icon-filter, none);
+}
+
+/* ══════════════════════════════════════════════════════════
+   Medium screen — logos wrapper loses fixed width
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 1050px) {
+    .tbLogosNames {
+        width: 119px;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Medium screen — less Padding for the logos row
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 1021px) {
+    .tbLogosRow {
+        padding: 10.5px 0 10px 9px;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Small screen — offer text hidden, buttons shrink
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 599px) {
+    .tbOfferText {
+        display: none;
+    }
+
+    .tbActivateBtn {
+        width: 110px;
+        font-size: 15px;
+    }
+
+    .tbOptOutBtn {
+        width: 80px;
+        font-size: 12px;
+        line-height: 15px;
+    }
 }

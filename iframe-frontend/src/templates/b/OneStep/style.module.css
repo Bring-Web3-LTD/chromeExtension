@@ -242,10 +242,14 @@
     text-decoration: underline;
 }
 
-.externalLink {
+.markdown a:hover {
     color: var(--markdown-f-c);
-    text-decoration: underline;
-    cursor: pointer;
+}
+
+.externalLink {
+   color: var(--markdown-f-c);
+   text-decoration: underline;
+   cursor: pointer;
 }
 
 .markdown::-webkit-scrollbar {

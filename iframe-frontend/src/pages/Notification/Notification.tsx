@@ -9,6 +9,8 @@ import toCaseString from '../../utils/toCaseString'
 import useTimeout from '../../hooks/useTimeout'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 
+const PAIRING_DIMS = { width: '699px', height: '70px' }
+
 const formatDate = (str: number): string => {
     const date = new Date(str);
     const formatted = date.toLocaleDateString('en-US', {
@@ -90,10 +92,11 @@ interface Notification {
     expiredAt: number | null
     isRemindingPeriod: boolean
     promptPairing: boolean
+    version: string
 }
 
 const Notification = () => {
-    const { platformName, textMode, cashbackUrl, new: _new, eligible, total, expiredAt, promptPairing, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as Notification & { iframeStyle?: Record<string, string> }
+    const { platformName, textMode, cashbackUrl, new: _new, eligible, total, expiredAt, promptPairing, iframeStyle: themeIframeStyle, version } = useRouteLoaderData('root') as Notification & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const ctaText = !promptPairing ? 'Details' : eligible ? 'Claim' : 'Connect'
     const isExtraBtn = !_new
@@ -103,16 +106,16 @@ const Notification = () => {
     })
 
     useEffect(() => {
-        const style = getIframeStyle('notification', platformName, themeIframeStyle)
-
-        if (promptPairing) {
-            style.iframe.width = '699px';
-            style.iframe.height = '70px';
-        }
+        const base = getIframeStyle('notification', platformName, version, themeIframeStyle)
+        const style = !promptPairing
+            ? base
+            : 'iframe' in base && typeof base.iframe === 'object'
+                ? { ...base, iframe: { ...base.iframe, ...PAIRING_DIMS } }
+                : { ...base, ...PAIRING_DIMS }
 
         sendMessage({ action: ACTIONS.OPEN, style })
 
-    }, [platformName, promptPairing, themeIframeStyle])
+    }, [platformName, promptPairing, themeIframeStyle, version])
 
     useEffect(() => {
         start()

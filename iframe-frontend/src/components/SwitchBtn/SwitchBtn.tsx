@@ -1,13 +1,14 @@
 import { useRouteLoaderData } from 'react-router-dom'
 import styles from './styles.module.css'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
+import Icon from '../Icon/Icon'
 
 interface Props {
     callback?: () => void
 }
 
 const SwitchBtn = ({ callback }: Props) => {
-    const { iconsPath, switchWallet } = useRouteLoaderData('root') as LoaderData
+    const { switchWallet } = useRouteLoaderData('root') as LoaderData
 
     const promptLogin = () => {
         sendMessage({ action: ACTIONS.PROMPT_LOGIN })
@@ -24,9 +25,9 @@ const SwitchBtn = ({ callback }: Props) => {
             className={styles.switch_btn}
             onClick={promptLogin}
         >
-            <img
+            <Icon
                 id="switch-btn-icon"
-                src={`${iconsPath}/switch.svg`}
+                name="switch.svg"
                 alt="switch icon"
             />
         </button>

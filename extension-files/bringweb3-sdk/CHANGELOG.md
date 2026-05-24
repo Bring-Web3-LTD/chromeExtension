@@ -1,5 +1,11 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.7.0
+
+### Minor Changes
+
+- 829080e: Add support for webNavigation, enhancing user experience by making navigation detection more accurate.
+
 ## 1.6.4
 
 ### Patch Changes

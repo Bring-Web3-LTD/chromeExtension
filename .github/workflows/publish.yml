@@ -10,6 +10,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   contents: write
   pull-requests: write
+  id-token: write          # NEW - required for OIDC → npm
 
 defaults:
   run:
@@ -20,15 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Debug directory structure
-        run: |
-          pwd
-          ls -la
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: 'yarn'
           cache-dependency-path: 'extension-files/bringweb3-sdk/yarn.lock'
+          registry-url: 'https://registry.npmjs.org'   # NEW - ensures .npmrc points at npmjs
+
+      - name: Upgrade npm to OIDC-capable version
+        run: npm install -g npm@latest   # NEW - need >= 11.5.1; lts/* ships with npm 10.x
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -43,4 +44,3 @@ jobs:
           title: "chore(release): version SDK package"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -7,7 +7,8 @@ interface ValidateDomainProps {
         country?: string
         phase?: 'new' | 'activated'
         quietDomains?: any[],
-        matches: { match: string | string[], type: string }[]
+        matches?: { match: string | string[], type: string }[],
+        followups?: any[],
     }
 }
 

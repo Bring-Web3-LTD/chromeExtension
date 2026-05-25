@@ -5,7 +5,8 @@ import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
 import addQuietDomain from "./addQuietDomain";
-import checkPostPurchasePage from "./checkPostPurchasePage";
+import applyQuietDomainsUpdate from "./applyQuietDomainsUpdate";
+import { armFollowups, cleanupTabFollowups, processNavigation } from "./followups";
 import getQuietDomain from "./getQuietDomain";
 import getRelevantDomain from "./getRelevantDomain";
 import getUserId from "./getUserId";
@@ -49,6 +50,51 @@ const hasWebNavigation = typeof chrome !== 'undefined'
 const navUrls = new Map<number, { committed?: string; history?: string }>();
 
 const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
+
+    // Sends an INJECT to the content script and reacts to its response (activate / no_popup analytics).
+    // Used both by validateAndInject (normal popup-check) and by the followups engine on a fire-response.
+    const injectPopup = async (tabId: number, tab: chrome.tabs.Tab, popupData: any, phase: string, address: WalletAddress, sourceUrl?: string, isSpaNavigation: boolean = false) => {
+        const userId = await getUserId()
+
+        const res = await sendMessage(tabId, {
+            action: 'INJECT',
+            token: popupData.token,
+            domain: parseUrl(tab.url!),
+            iframeUrl: popupData.iframeUrl,
+            userId,
+            referrers: popupData.portalReferrers,
+            page: popupData.framed ? 'framed' : (popupData.isOfferBar ? 'offerbar' : (phase === 'new' ? '' : phase)),
+            flowId: popupData.flowId,
+            stylesheet: popupData.stylesheet,
+            placement: popupData.placement,
+            framed: popupData.framed,
+            isSpaNavigation
+        });
+
+        if (res?.action) {
+            switch (res.action) {
+                case 'activate':
+                    handleActivate(popupData.verifiedMatch.match, chrome.runtime.id, 'popup', cashbackPagePath, popupData.quietDomainType, popupData.verifiedMatch.isRegex, popupData.time, tabId)
+                    break;
+                default:
+                    console.error(`Unknown action: ${res.action}`);
+                    break;
+            }
+        }
+
+        if (res?.status !== 'success') {
+            analytics({
+                type: 'no_popup',
+                userId,
+                walletAddress: address,
+                details: { url: sourceUrl ?? tab.url, match: popupData.verifiedMatch?.match, iframeUrl: popupData.iframeUrl, reason: res?.message, status: res?.status },
+                flowId: popupData.flowId
+            })
+        }
+
+        return res;
+    };
+
     const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineSearchResult?: { match: string | string[], type?: string }, isSpaNavigation: boolean = false) => {
 
         if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') return;
@@ -134,7 +180,15 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             }
         });
 
+        if (popupData?.quietDomainsChanged === true) {
+            await applyQuietDomainsUpdate(popupData.quietDomains);
+        }
+
         if (!popupData.time) popupData.time = DAY_MS;
+
+        if (Array.isArray(popupData.followups)) {
+            armFollowups(popupData.followups, tabId).catch(() => { });
+        }
 
         if (popupData.isValid === false) {
             addQuietDomain(popupData.verifiedMatch.match, popupData.time, popupData.quietDomainType, popupData.verifiedMatch.isRegex);
@@ -162,44 +216,9 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             }
         }
 
-        const userId = await getUserId()
-
-        const res = await sendMessage(tabId, {
-            action: 'INJECT',
-            token: popupData.token,
-            domain: parseUrl(tab.url!),
-            iframeUrl: popupData.iframeUrl,
-            userId,
-            referrers: popupData.portalReferrers,
-            page: popupData.framed ? 'framed' : (popupData.isOfferBar ? 'offerbar' : (phase === 'new' ? '' : phase)),
-            flowId: popupData.flowId,
-            stylesheet: popupData.stylesheet,
-            placement: popupData.placement,
-            framed: popupData.framed,
-            isSpaNavigation
-        });
-
-        if (res?.action) {
-            switch (res.action) {
-                case 'activate':
-                    handleActivate(popupData.verifiedMatch.match, chrome.runtime.id, 'popup', cashbackPagePath, popupData.quietDomainType, popupData.verifiedMatch.isRegex, popupData.time, tabId)
-                    break;
-                default:
-                    console.error(`Unknown action: ${res.action}`);
-                    break;
-            }
-        }
-
-        if (res?.status !== 'success') {
-            analytics({
-                type: 'no_popup',
-                userId,
-                walletAddress: address,
-                details: { url: urlToCheck, match, iframeUrl: popupData.iframeUrl, reason: res?.message, status: res?.status },
-                flowId: popupData.flowId
-            })
-        }
+        await injectPopup(tabId, tab, popupData, phase, address, urlToCheck, isSpaNavigation);
     };
+
     // Inline-search: scrape page links after load.
     const onPageComplete = async (tabId: number, url: string) => {
         const isPopupEnabled = await storage.get('popupEnabled');
@@ -230,7 +249,19 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         const tab = await chrome.tabs.get(tabId);
         tabStates.delete(tabId);
-        await checkPostPurchasePage(url);
+
+        // Fire-and-forget: followups run independently of the normal popup flow.
+        // The activated popup is allowed to re-show on the post-purchase page.
+        processNavigation(tabId, url).then(async (followupResult) => {
+            if (!followupResult) return;
+            if (Array.isArray(followupResult.followups)) {
+                await armFollowups(followupResult.followups, tabId).catch(() => { });
+            }
+            if (followupResult.iframeUrl && await isWhitelisted(followupResult.networkUrl)) {
+                const address = await getWalletAddress(tabId);
+                await injectPopup(tabId, tab, followupResult, 'new', address, url, isSpaNavigation);
+            }
+        }).catch(() => { });
 
         await validateAndInject(url, tabId, tab, false, undefined, isSpaNavigation);
     };
@@ -275,6 +306,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
     chrome.tabs.onRemoved.addListener((tabId) => {
         tabStates.delete(tabId);
         navUrls.delete(tabId);
+        cleanupTabFollowups(tabId).catch(() => { });
     });
 }
 

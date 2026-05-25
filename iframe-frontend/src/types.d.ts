@@ -60,6 +60,7 @@ declare global {
         matchedKeyword?: string
         activationPayload?: ActivateResponse | null
         timeout?: number
+        followups?: any[]
         zIndex?: number
     }
 
@@ -101,6 +102,7 @@ declare global {
         quietDomainType?: string,
         type?: string | string[], 
         isRegex?: boolean | boolean[]
+        followups?: any[]
     }
 
     interface GoogleAnalyticsContextType {

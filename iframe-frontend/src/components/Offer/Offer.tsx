@@ -49,6 +49,7 @@ const Offer = ({ closeFn }: Props) => {
         maxCashback,
         cashbackSymbol,
         cashbackCurrency,
+        followups,
         offerText,
         isOfferBar,
         variant
@@ -105,7 +106,8 @@ const Offer = ({ closeFn }: Props) => {
             token,
             flowId,
             platformName,
-            quietDomainType: 'kds'
+            quietDomainType: 'kds',
+            followups
         })
 
         sendGaEvent('retailer_shop', {

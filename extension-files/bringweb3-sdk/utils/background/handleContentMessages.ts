@@ -17,8 +17,8 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
 
         switch (action) {
             case 'ACTIVATE': {
-                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, quietDomainType, isRegex } = request
-                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, quietDomainType, isRegex, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl)
+                const { domain, extensionId, time, redirectUrl, iframeUrl, token, flowId, quietDomainType, isRegex, followups } = request
+                handleActivate(domain, extensionId, source, cashbackPagePath, showNotifications, quietDomainType, isRegex, time, sender.tab?.id, iframeUrl, token, flowId, redirectUrl, followups)
                     .then(() => sendResponse());
                 return true;
             }

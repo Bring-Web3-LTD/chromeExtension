@@ -44,6 +44,7 @@ interface BringEvent {
         type?: string | string[],
         quietDomainType?: string, 
         isRegex?: boolean | boolean[]
+        followups?: unknown
     }
 }
 type ScaleOptions = 'w' | 'h' | 'n'

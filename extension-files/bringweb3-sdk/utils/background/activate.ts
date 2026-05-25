@@ -5,8 +5,9 @@ import getCashbackUrl from "./getCashbackUrl";
 import isWhitelisted from "./isWhitelisted";
 import { DAY_MS } from "../constants";
 import closeAllPopups from "./closeAllPopups";
+import { armFollowups } from "./followups";
 
-const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, type: string, isRegex:boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string) => {
+const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, type: string, isRegex:boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string, followups?: any) => {
     const now = Date.now();
 
     const isSameExtension = extensionId === chrome.runtime.id
@@ -23,6 +24,10 @@ const handleActivate = async (domain: string, extensionId: string, source: strin
 
 
     if (domain) addQuietDomain(domain, time || DAY_MS, type,isRegex, { iframeUrl, token, flowId }, phase);
+
+    if (isSameExtension && followups) {
+        armFollowups(followups, tabId).catch(() => { });
+    }
 
     closeAllPopups(domain, tabId || -1, extensionId);
 

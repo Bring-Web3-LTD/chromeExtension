@@ -160,8 +160,9 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
                 followups: wire,
             }
         })
-        if (response?.followups) await armFollowups(response.followups, tabId)
-        return response?.isValid ? response : null
+        // Return the full response — the caller (handleTabEvents.handlePopupResponse) decides
+        // what to do based on isValid / verifiedMatch / followups (mirrors validateAndInject).
+        return response ?? null
     } catch {
         return null
     }

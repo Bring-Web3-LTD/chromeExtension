@@ -73,12 +73,11 @@ const isValid = (f: any): f is IncomingFollowup =>
 
 export const armFollowups = async (incoming: any, originatingTabId?: number) => {
     if (!Array.isArray(incoming)) return
-    console.log('[followups] armFollowups called', JSON.stringify(incoming), 'tabId:', originatingTabId)
 
     const now = Date.now()
     const newRecords: FollowupRecord[] = []
     for (const f of incoming) {
-        if (!isValid(f)) { console.log('[followups] invalid followup skipped', JSON.stringify(f)); continue }
+        if (!isValid(f)) continue
         if (f.ctl.scope === 'tab' && (originatingTabId === undefined || originatingTabId < 0)) continue
         newRecords.push({
             id: f.id,
@@ -106,9 +105,6 @@ export const armFollowups = async (incoming: any, originatingTabId?: number) => 
 
 export const processNavigation = async (tabId: number, url: string): Promise<any | null> => {
     if (!url) return null
-    console.log('[followups] processNavigation', tabId, url)
-    const stored = await read()
-    console.log('[followups] stored records:', JSON.stringify(stored))
 
     const fired: Array<FollowupRecord & { matches: MatchEntry[] }> = []
 

@@ -69,12 +69,16 @@
     appearance: none;
     width: 16px;
     height: 16px;
-    border: 2px solid var(--secondary-btn-border-c);
+    border: 2px solid var(--radio-btn-border-c, var(--secondary-btn-border-c, #8A8E94));
     border-radius: 50%;
     background: transparent;
     cursor: pointer;
     position: relative;
     margin: 0;
+}
+
+.radio:checked {
+    border-color: var(--radio-btn-checked-c, var(--secondary-btn-border-c, var(--label-desc-f-c, var(--label-f-c, currentColor))));
 }
 
 .radio:checked::after {
@@ -85,8 +89,12 @@
     transform: translate(-50%, -50%);
     width: 8px;
     height: 8px;
-    background: var(--secondary-btn-border-c);
+    background: var(--radio-btn-dot-c, var(--radio-btn-checked-c, var(--secondary-btn-border-c, var(--label-desc-f-c, var(--label-f-c, currentColor)))));
     border-radius: 50%;
+}
+
+.radio:checked + .label {
+    color: var(--radio-btn-label-checked-c, var(--optout-desc-f-c, #F5F8FF));
 }
 
 .btn {

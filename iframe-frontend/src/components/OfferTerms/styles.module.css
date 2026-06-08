@@ -1,0 +1,99 @@
+.backBtn {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.backLabel {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 22px;
+    color: var(--details-title-f-c);
+}
+
+.backIcon {
+    width: 16px;
+    height: 16px;
+    background: var(--details-title-f-c);
+    -webkit-mask-size: 100%;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-size: 100%;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.termsBox {
+    height: calc(100vh - 72px);
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 40px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--markdown-radius);
+    border-width: var(--markdown-border-w);
+    border-style: solid;
+    border-color: var(--markdown-border-c);
+    background: var(--markdown-bg);
+}
+
+.termsHeader {
+    flex-shrink: 0;
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--details-title-f-c);
+    line-height: 22px;
+}
+
+.markdown {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 8px;
+    font-size: var(--markdown-f-s);
+    font-weight: var(--markdown-f-w);
+    color: var(--markdown-f-c);
+    overflow-y: scroll;
+    line-height: 20px;
+}
+
+.markdown h3 {
+    font-size: var(--markdown-title-f-s, var(--markdown-f-s));
+    font-weight: var(--markdown-title-f-w, var(--markdown-f-w));
+    color: var(--markdown-title-f-c, var(--markdown-f-c));
+}
+
+.markdown a {
+    color: var(--markdown-f-c);
+    text-decoration: underline;
+}
+
+.markdown a:hover {
+    color: var(--markdown-f-c);
+}
+
+.externalLink {
+    color: var(--markdown-f-c);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.markdown::-webkit-scrollbar {
+    width: 4px;
+}
+
+.markdown::-webkit-scrollbar-thumb {
+    background: var(--markdown-scrollbar-c);
+    border-radius: 32px;
+}

@@ -89,6 +89,8 @@
     "obActivateBtnBorderW": "0",
     "secondaryBtnFS": "12px",
     "detailsTitleFC": "white",
+    "agreeLinkFC": "#00DFF3",
+    "agreeFC": "#A8ADBF",
     "obCloseBtnLH": "13px",
     "detailsTitleFS": "15px",
     "detailsSubtitleFW": "500",

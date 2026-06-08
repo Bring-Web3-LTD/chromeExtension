@@ -160,3 +160,19 @@
     line-height: 22px;
     user-select: none;
 }
+
+.agree {
+    text-align: center;
+    font-size: var(--agree-f-s, 14px);
+    font-weight: var(--agree-f-w, 400);
+    color: var(--agree-f-c);
+    line-height: 22px;
+    margin-top: auto;
+    user-select: none;
+}
+
+.terms {
+    color: var(--agree-link-f-c);
+    text-decoration: underline;
+    cursor: pointer;
+}

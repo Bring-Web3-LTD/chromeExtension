@@ -100,6 +100,8 @@ export const themeNames = {
     clarifyFS: "--clarify-f-s",
     clarifyFW: "--clarify-f-w",
     clarifyFC: "--clarify-f-c",
+    agreeFC: "--agree-f-c",
+    agreeLinkFC: "--agree-link-f-c",
     notificationFS: "--notification-f-s",
     notificationFW: "--notification-f-w",
     notificationFC: "--notification-f-c",

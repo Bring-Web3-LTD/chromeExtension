@@ -91,6 +91,8 @@
     "clarifyFS": "14px",
     "clarifyFW": "400",
     "clarifyFC": "#E1E6F5",
+    "agreeLinkFC": "#4B6DDE",
+    "agreeFC": "#E1E6F5",
     "notificationFS": "16px",
     "notificationFW": "400",
     "notificationFC": "#E1E6F5",

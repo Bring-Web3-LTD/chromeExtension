@@ -18,6 +18,7 @@ import { Oval } from 'react-loader-spinner'
 import CollaborationLogos from '../CollaborationLogos/CollaborationLogos'
 import formatCashback from '../../utils/formatCashback'
 import parseOfferText from '../../utils/parseOfferText'
+import OfferTerms from '../OfferTerms/OfferTerms'
 
 interface BringEventData {
     from: string;
@@ -62,6 +63,7 @@ const Offer = ({ closeFn }: Props) => {
     }, [variant, cryptoSymbols, maxCashback, cashbackCurrency, cashbackSymbol])
 
     const [optOutOpen, setOptOutOpen] = useState(false)
+    const [showTerms, setShowTerms] = useState(false)
     const [isOpted, setIsOpted] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
@@ -133,10 +135,22 @@ const Offer = ({ closeFn }: Props) => {
 
     return (
         <>
-            <CloseBtn withTime={!isOpted} />
+            <CloseBtn withTime={!isOpted && !showTerms} />
             <AnimatePresence>
                 {
-                    !optOutOpen ?
+                    showTerms ?
+                        <motion.div
+                            id="offer-terms-container"
+                            key="terms"
+                            className={styles.container}
+                            initial={{ x: "100%", opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: "100%", opacity: 0 }}
+                            transition={{ duration: .2, ease: "easeInOut" }}
+                        >
+                            <OfferTerms onBack={() => setShowTerms(false)} />
+                        </motion.div>
+                        : !optOutOpen ?
                         <motion.div
                             id="offer-container"
                             key="main"
@@ -232,7 +246,9 @@ const Offer = ({ closeFn }: Props) => {
                                     </button>
                                 </div>
 
-                                <div id="offer-clarify-text" className={styles.clarify}>No extra steps required - just shop and get {cryptoSymbols[0]}</div>
+                            </div>
+                            <div id="offer-agree-text" className={styles.agree}>
+                                By activating you agree to the <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Terms</span>
                             </div>
                         </motion.div>
                         :

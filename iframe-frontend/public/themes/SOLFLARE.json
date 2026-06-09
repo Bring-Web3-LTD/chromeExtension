@@ -21,7 +21,7 @@
     "secondaryBtnBorderW": "0",
     "secondaryBtnRadius": "100px",
 
-    "markdownBg": "rgba(27, 30, 36, 0.7)",
+    "markdownBg": "rgba(27, 30, 36, 0.2)",
     "markdownFS": "12px",
     "markdownFW": "400",
     "markdownFC": "rgba(245, 248, 255, 0.8)",
@@ -129,8 +129,8 @@
     "activateSubtitleFS": "14px",
     "activateSubtitleFW": "400",
     "activateSubtitleFC": "#8A8E94",
-    "activateWalletNameFS": "14px",
-    "activateWalletNameFW": "700",
+    "activateWalletNameFS": "10px",
+    "activateWalletNameFW": "400",
     "activateWalletNameFC": "#FFEF46",
 
     "obBg": "#090C11",

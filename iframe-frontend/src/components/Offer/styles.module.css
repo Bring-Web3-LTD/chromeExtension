@@ -174,5 +174,6 @@
 .terms {
     color: var(--agree-link-f-c);
     text-decoration: underline;
+    text-underline-offset: 2px;
     cursor: pointer;
 }

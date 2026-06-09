@@ -248,7 +248,7 @@ const Offer = ({ closeFn }: Props) => {
 
                             </div>
                             <div id="offer-agree-text" className={styles.agree}>
-                                By activating you agree to the <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Terms</span>
+                                By activating, you agree to the <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Terms</span>
                             </div>
                         </motion.div>
                         :

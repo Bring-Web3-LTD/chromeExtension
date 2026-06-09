@@ -18,10 +18,10 @@
     height: 24px;
     background: var(--x-btn-f-c, var(--close-f-c));
 
-    -webkit-mask-size: 100%;
+    -webkit-mask-size: 16px;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
-    mask-size: 100%;
+    mask-size: 16px;
     mask-repeat: no-repeat;
     mask-position: center;
 }

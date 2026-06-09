@@ -65,7 +65,6 @@ const OfferTerms = ({ onBack }: Props) => {
                 <span id="offer-terms-back-label" className={styles.backLabel}>Back</span>
             </button>
             <div id="offer-terms-box" className={styles.termsBox}>
-                <h1 id="offer-terms-header" className={styles.termsHeader}>Cashback Terms</h1>
                 <Markdown
                     className={styles.markdown}
                     rehypePlugins={[rehypeRaw]}

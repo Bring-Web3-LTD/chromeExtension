@@ -43,6 +43,7 @@ export const themeNames = {
     detailsTitleFS: "--details-title-f-s",
     detailsTitleFW: "--details-title-f-w",
     detailsTitleFC: "--details-title-f-c",
+    backFC: "--back-f-c",
     detailsSubtitleFS: "--details-subtitle-f-s",
     detailsSubtitleFW: "--details-subtitle-f-w",
     detailsSubtitleFC: "--details-subtitle-f-c",

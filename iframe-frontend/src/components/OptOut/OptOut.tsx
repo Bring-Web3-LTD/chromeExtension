@@ -153,7 +153,7 @@ const OptOut = ({ onClose, onOpted }: Props) => {
                     </button>
                     <button
                         id="opt-out-back-btn"
-                        className={`${styles.btn} ${styles.close_btn}`}
+                        className={`${styles.btn} ${styles.descriptiveBackBtn}`}
                         onClick={handleClose}
                     >
                         {toCaseString('Back to activation', textMode)}

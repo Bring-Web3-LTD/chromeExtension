@@ -119,6 +119,17 @@
     margin-top: 16px;
 }
 
+.descriptiveBackBtn{
+    background: transparent;
+    color: var(--descriptive-back-btn-f-c, var(--close-f-c, white));
+    font-size: var(--descriptive-back-btn-f-s, var(--close-f-s, 14px));
+    font-weight: var(--descriptive-back-btn-f-w, var(--close-f-w, 500));
+    border: none;
+    outline: none;
+    cursor: pointer;
+    line-height: 22px;
+    margin-top: 8px;
+}
 .close_btn {
     background: transparent;
     color: var(--close-f-c, white);

@@ -61,6 +61,7 @@
     "platformLogoBorderW": "0",
     "platformLogoBorderC": "transparent",
     "logoRadius": "50%",
+    "plusFC": "#B9BBBF",
     "logoTxtFS": "15px",
     "logoTxtFW": "500",
     "logoTxtFC": "#F5F8FF",
@@ -95,6 +96,9 @@
     "closeFS": "15px",
     "closeFW": "700",
     "closeFC": "#E8EBF2",
+    "descriptiveBackBtnFS": "15px",
+    "descriptiveBackBtnFW": "400",
+    "descriptiveBackBtnFC": "#F5F8FF",
 
     "tokenBg": "rgba(245, 248, 255, 0.08)",
     "tokenFS": "15px",

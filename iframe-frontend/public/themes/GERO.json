@@ -40,6 +40,8 @@
     "obOfferTextLH": "13px",
     "detailsBorderC": "transparent",
     "secondaryBtnBorderC": "rgba(149, 176, 178, 0.50)",
+    "radioButtonBorderC": "rgba(149, 176, 178, 0.50)",
+    "radioButtonCheckedC": "rgba(149, 176, 178, 0.50)",
     "notificationBtnRadius": "8px",
     "obOptOutTitleFC": "#1A1A1A",
     "obOfferAmountLH": "17px",

@@ -21,6 +21,8 @@ export const themeNames = {
     secondaryBtnBorderC: "--secondary-btn-border-c",
     secondaryBtnBorderW: "--secondary-btn-border-w",
     secondaryBtnRadius: "--secondary-btn-radius",
+    radioButtonBorderC: "--radio-button-border-c",
+    radioButtonCheckedC: "--radio-button-checked-c",
     markdownBg: "--markdown-bg",
     markdownFS: "--markdown-f-s",
     markdownFW: "--markdown-f-w",

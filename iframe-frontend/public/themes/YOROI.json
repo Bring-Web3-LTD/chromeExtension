@@ -16,6 +16,8 @@
     "secondaryBtnFW": "500",
     "secondaryBtnFC": "#7892E8",
     "secondaryBtnBorderC": "#7892E8",
+    "radioButtonBorderC": "#7892E8",
+    "radioButtonCheckedC": "#7892E8",
     "secondaryBtnBorderW": "2px",
     "secondaryBtnRadius": "8px",
     "markdownBg": "#15171F",

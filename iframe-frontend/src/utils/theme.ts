@@ -119,6 +119,7 @@ export const themeNames = {
     activateTitleFS: "--activate-title-f-s",
     activateTitleFW: "--activate-title-f-w",
     activateTitleFC: "--activate-title-f-c",
+    activateTitleLS: "--activate-title-l-s",
     activateSubtitleFS: "--activate-subtitle-f-s",
     activateSubtitleFW: "--activate-subtitle-f-w",
     activateSubtitleFC: "--activate-subtitle-f-c",

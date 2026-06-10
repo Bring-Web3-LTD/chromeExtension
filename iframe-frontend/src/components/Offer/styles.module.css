@@ -166,6 +166,7 @@
     font-size: var(--agree-f-s, 14px);
     font-weight: var(--agree-f-w, 400);
     color: var(--agree-f-c);
+    letter-spacing: var(--agree-l-s);
     line-height: 22px;
     margin-top: auto;
     user-select: none;

@@ -42,6 +42,7 @@
     "detailsTitleFC": "#FBFBFB",
     "backFC": "#FFF",
     "agreeLinkFC": "#FFFFFF",
+    "agreeFS": "13px",
     "agreeFC": "#AEB0BB",
     "detailsSubtitleFS": "16px",
     "detailsSubtitleFW": "400",

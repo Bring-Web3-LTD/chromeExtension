@@ -1,38 +1,31 @@
 import storage from "../storage/storage"
 import validateDomain from "../api/validateDomain"
+import applyQuietDomainsUpdate from "./applyQuietDomainsUpdate"
 import parseUrl from "../parseUrl"
 import { searchRegexArray } from "./domainsListSearch"
 
 // Server-defined navigation watchers persisted across SW restarts. See WORKFLOW.md.
 
-// 't' = Trigger-On-Find (fire+drop), 'f' = Fire-On-Threshold (fire when cnt<=0)
+// 't' = TOF → Terminate On Fire, 'f' = FOT → Fire On Terminate
 type FollowupType = 't' | 'f'
-type FollowupScope = 'tab' | 'browser'
 
-interface FollowupCtl {
-    type: FollowupType
-    scope: FollowupScope
-    regex: string
-    cnt: number
-}
-
-interface IncomingFollowup {
-    id: string
-    ctl: FollowupCtl
-    ttl: number     // duration in ms
-    trigger: string // regex (reverse-host compressed)
-    meta?: string  // opaque server context, echoed back on fire
-}
+// Wire shape lives in the ambient `Followup` interface (types.d.ts); FollowupType
+// here just names its ctl.type union for MatchEntry/matchTrigger reuse.
 
 interface MatchEntry {
     match: string[]
     type: FollowupType
 }
 
-interface FollowupRecord extends IncomingFollowup {
+interface FollowupRecord extends Followup {
     expiresAt: number
     tabId: number | null  // null = browser-scope
-    fotMatches: MatchEntry[]
+    matches: MatchEntry[]
+    // Compiled once by the `followups` storage helper (see storage/helpers.ts).
+    // Present on records read from storage; absent on freshly-armed records until
+    // the next read. The raw `trigger`/`ctl.regex` strings stay the source of truth.
+    triggerRegex?: RegExp
+    ctlRegex?: RegExp
 }
 
 const STORAGE_KEY = 'followups'
@@ -50,25 +43,32 @@ const read = async (): Promise<FollowupRecord[]> => {
     return Array.isArray(raw) ? raw : []
 }
 
-const write = (records: FollowupRecord[]) => storage.set(STORAGE_KEY, records)
+// Strip the cached compiled RegExp before persisting — chrome.storage holds only
+// the raw string form; the `followups` storage helper recompiles into cache.
+const serializeRecord = ({ triggerRegex, ctlRegex, ...rest }: FollowupRecord) => rest
+const write = (records: FollowupRecord[]) => storage.set(STORAGE_KEY, records.map(serializeRecord))
 
-/** Match a followup trigger via `searchRegexArray`; tag the result with the followup's own type. */
-const matchTrigger = async (pattern: string, url: string, type: FollowupType): Promise<MatchEntry | null> => {
+/** Match a precompiled followup regex via `searchRegexArray`; tag the result with the followup's own type. */
+const matchTrigger = async (regex: RegExp, url: string, type: FollowupType): Promise<MatchEntry | null> => {
     try {
-        const res = await searchRegexArray([new RegExp(pattern)], parseUrl(url))
+        const res = await searchRegexArray([regex], parseUrl(url))
         return res.matched ? { match: res.match, type } : null
     } catch {
         return null
     }
 }
 
-const isValid = (f: any): f is IncomingFollowup =>
+const canCompile = (pattern: string): boolean => {
+    try { new RegExp(pattern); return true } catch { return false }
+}
+
+const isValid = (f: any): f is Followup =>
     f && typeof f.id === 'string' && f.id.length > 0
-    && typeof f.trigger === 'string'
+    && typeof f.trigger === 'string' && canCompile(f.trigger)
     && typeof f.ttl === 'number' && f.ttl > 0
     && f.ctl && (f.ctl.type === 't' || f.ctl.type === 'f')
     && (f.ctl.scope === 'tab' || f.ctl.scope === 'browser')
-    && typeof f.ctl.regex === 'string'
+    && typeof f.ctl.regex === 'string' && canCompile(f.ctl.regex)
     && typeof f.ctl.cnt === 'number' && f.ctl.cnt > 0
 
 export const armFollowups = async (incoming: any, originatingTabId?: number) => {
@@ -79,34 +79,31 @@ export const armFollowups = async (incoming: any, originatingTabId?: number) => 
     for (const f of incoming) {
         if (!isValid(f)) continue
         if (f.ctl.scope === 'tab' && (originatingTabId === undefined || originatingTabId < 0)) continue
+        // Deep-clone the wire record so any future server fields carry over
+        // automatically; only stamp the locally-derived bookkeeping fields.
         newRecords.push({
-            id: f.id,
-            ctl: { ...f.ctl },
-            ttl: f.ttl,
-            trigger: f.trigger,
-            meta: f.meta,
+            ...structuredClone(f),
             expiresAt: now + f.ttl,
             tabId: f.ctl.scope === 'tab' ? originatingTabId! : null,
-            fotMatches: [],
+            matches: [],
         })
     }
     if (!newRecords.length) return
 
-    // Dedupe by (id, meta, tabId): re-arming replaces, not duplicates.
-    // Browser-scope tabId is null → one record per (id, meta) globally.
-    const keyOf = (r: FollowupRecord) => `${r.id}|${r.meta ?? ''}|${r.tabId ?? ''}`
-    const incomingKeys = new Set(newRecords.map(keyOf))
-
+    // Append — re-arming adds records, it does not replace. Multiple records of the
+    // same (id, meta, tabId) are allowed to coexist.
     await serialize(async () => {
-        const kept = (await read()).filter(r => !incomingKeys.has(keyOf(r)))
-        await write([...kept, ...newRecords])
+        const existing = await read()
+        await write(existing.concat(newRecords))
     })
 }
 
 export const processNavigation = async (tabId: number, url: string): Promise<any | null> => {
     if (!url) return null
 
-    const fired: Array<FollowupRecord & { matches: MatchEntry[] }> = []
+    // One `matches` array per record — disambiguate by `ctl.type` ('t' = single
+    // trigger match; 'f' = accumulated matches) and by `matches.length`.
+    const fired: FollowupRecord[] = []
 
     await serialize(async () => {
         const now = Date.now()
@@ -117,29 +114,31 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
 
         for (const rec of records) {
             if (rec.tabId !== null && rec.tabId !== tabId) continue
+            if (!rec.triggerRegex || !rec.ctlRegex) { dropped.add(rec); continue }
 
-            // Every in-scope navigation costs one cnt budget (for 't' and 'f' alike).
-            // Trigger is checked first so a match on the boundary navigation still fires.
-            const scopeMatch = await matchTrigger(rec.ctl.regex, url, rec.ctl.type)
-            const triggerMatch = await matchTrigger(rec.trigger, url, rec.ctl.type)
+            // Scope gates everything: an out-of-scope navigation can't fire or spend
+            // budget, so skip the trigger check entirely. An in-scope navigation costs
+            // one cnt budget (for 't' and 'f' alike), charged immediately.
+            const scopeMatch = await matchTrigger(rec.ctlRegex, url, rec.ctl.type)
+            if (!scopeMatch) continue
+            rec.ctl.cnt -= 1
 
+            const triggerMatch = await matchTrigger(rec.triggerRegex, url, rec.ctl.type)
             if (triggerMatch) {
                 if (rec.ctl.type === 't') {
                     fired.push({ ...rec, matches: [triggerMatch] })
                     dropped.add(rec)
                     continue
                 } else {
-                    rec.fotMatches.push(triggerMatch)
+                    rec.matches.push(triggerMatch)
                 }
             }
-
-            if (scopeMatch) rec.ctl.cnt -= 1
         }
 
         for (const rec of records) {
             if (dropped.has(rec)) continue
             if (rec.ctl.cnt <= 0) {
-                if (rec.ctl.type === 'f') fired.push({ ...rec, matches: rec.fotMatches.slice() })
+                if (rec.ctl.type === 'f') fired.push({ ...rec, matches: rec.matches.slice() })
                 dropped.add(rec)
             } else if (rec.expiresAt <= now) {
                 dropped.add(rec)
@@ -154,7 +153,7 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
     // All fires repost to /check/popup — the backend dispatches by id
     // (emits analytics for TnxAnalytics, returns a popup payload for others, …).
     try {
-        const wire = fired.map(({ tabId: _t, fotMatches: _f, expiresAt: _e, ...rest }) => rest)
+        const wire = fired.map(({ tabId: _t, matches: _f, expiresAt: _e, triggerRegex: _tr, ctlRegex: _cr, ...rest }) => rest)
         const quietDomains = (await storage.get('quietDomains')) || []
         const response = await validateDomain({
             body: {
@@ -165,6 +164,9 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
                 followups: wire,
             }
         })
+        if (response?.quietDomainsChanged === true) {
+            await applyQuietDomainsUpdate(response.quietDomains)
+        }
         // Return the full response — the caller (handleTabEvents.handlePopupResponse) decides
         // what to do based on isValid / verifiedMatch / followups (mirrors validateAndInject).
         return response ?? null

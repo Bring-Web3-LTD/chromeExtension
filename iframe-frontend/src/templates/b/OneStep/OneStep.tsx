@@ -42,7 +42,7 @@ const slideVariants = {
 
 
 const OneStep = () => {
-    const { cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar, followups } = useRouteLoaderData('root') as LoaderData
+    const { cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar } = useRouteLoaderData('root') as LoaderData
     const activationPayload = useActivationPayload()
     const [[isShowingTerms, direction], setIsShowingTerms] = useState([false, 0])
     const [markdownContent, setMarkdownContent] = useState('')
@@ -120,7 +120,7 @@ const OneStep = () => {
             return
         }
 
-        sendMessage({ action: ACTIONS.ACTIVATE, url, domain, time: parseTime(ACTIVATE_QUIET_TIME, version), redirectUrl, quietDomainType: 'kds', followups })
+        sendMessage({ action: ACTIONS.ACTIVATE, url, domain, time: parseTime(ACTIVATE_QUIET_TIME, version), redirectUrl, quietDomainType: 'kds' })
         sendGaEvent('retailer_shop', {
             category: 'user_action',
             action: 'click',

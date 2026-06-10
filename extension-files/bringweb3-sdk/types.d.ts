@@ -24,6 +24,17 @@ interface PlacementConfig {
     parent?: string  // Optional parent element type (e.g., 'div')
 }
 
+// Server-defined navigation watcher. Mirrors `IncomingFollowup` in
+// utils/background/followups.ts (duplicated here because this ambient .d.ts
+// can't import without becoming a module and losing its global declarations).
+interface Followup {
+    id: string
+    ctl: { type: 't' | 'f', scope: 'tab' | 'browser', regex: string, cnt: number }
+    ttl: number      // duration in ms
+    trigger: string  // regex (reverse-host compressed)
+    meta?: string    // opaque server context, echoed back on fire
+}
+
 interface BringEvent {
     data: {
         from: string
@@ -44,7 +55,7 @@ interface BringEvent {
         type?: string | string[],
         quietDomainType?: string, 
         isRegex?: boolean | boolean[]
-        followups?: unknown
+        followups?: Followup[]
     }
 }
 type ScaleOptions = 'w' | 'h' | 'n'

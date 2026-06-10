@@ -36,10 +36,29 @@ const buildRegExpArray = (obj: { regexes: string[], flags: string[] }) => {
     }
 }
 
+// Compile each followup's `trigger` + `ctl.regex` to RegExp once on storage
+// so navigation matching reuses the cached RegExp instead of recompiling on every page load.
+// chrome.storage keeps the raw string form; the cache holds the compiled form.
+const buildFollowupRegexes = (records: any) => {
+    if (!Array.isArray(records)) return records
+    return records.map(r => {
+        try {
+            return { ...r, triggerRegex: new RegExp(r.trigger), ctlRegex: new RegExp(r.ctl.regex) }
+        } catch (error) {
+            console.error('Error building followup RegExp:', error)
+            return r
+        }
+    })
+}
+
 const helpers: Helpers = {
     relevantDomains: {
         get: buildRegExpArray,
         set: buildRegExpArray
+    },
+    followups: {
+        get: buildFollowupRegexes,
+        set: buildFollowupRegexes
     }
 }
 

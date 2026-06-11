@@ -19,11 +19,11 @@
     "secondaryBtnBorderW": "2px",
     "secondaryBtnRadius": "8px",
     "markdownBg": "#15171F",
-    "markdownFS": "14px",
+    "markdownFS": "12px",
     "markdownFW": "400",
     "markdownFC": "#E1E6F5",
-    "markdownTitleFS": "14px",
-    "markdownTitleFW": "500",
+    "markdownTitleFS": "13px",
+    "markdownTitleFW": "600",
     "markdownTitleFC": "#E1E6F5",
     "markdownBorderW": "1px",
     "markdownRadius": "8px",
@@ -112,5 +112,6 @@
     "activateSubtitleFC": "#E1E6F5",
     "activateWalletNameFS": "12px",
     "activateWalletNameFW": "400",
-    "activateWalletNameFC": "45deg, #17D1AA 0%, #1ACBAF 15%, #21B8BC 37%, #2E9BD3 62%, #3F71F1 89%, #475FFF 100%"
+    "activateWalletNameFC": "45deg, #17D1AA 0%, #1ACBAF 15%, #21B8BC 37%, #2E9BD3 62%, #3F71F1 89%, #475FFF 100%",
+    "markdownStrongFW": "700"
 }

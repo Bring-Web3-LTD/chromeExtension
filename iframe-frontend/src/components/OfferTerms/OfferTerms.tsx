@@ -58,8 +58,8 @@ const OfferTerms = ({ onBack }: Props) => {
                     id="offer-terms-back-icon"
                     className={styles.backIcon}
                     style={{
-                        maskImage: `url(${import.meta.env.BASE_URL}icons/tb-back.svg)`,
-                        WebkitMaskImage: `url(${import.meta.env.BASE_URL}icons/tb-back.svg)`
+                        maskImage: `url(${import.meta.env.BASE_URL}icons/back-arrow.svg)`,
+                        WebkitMaskImage: `url(${import.meta.env.BASE_URL}icons/back-arrow.svg)`
                     }}
                 />
                 <span id="offer-terms-back-label" className={styles.backLabel}>Back</span>

@@ -74,6 +74,20 @@
     color: var(--markdown-title-f-c, var(--markdown-f-c));
 }
 
+/* strong: same size/color as regular, only weight differs */
+.markdown strong {
+    font-size: var(--markdown-f-s);
+    font-weight: var(--markdown-strong-f-w, var(--markdown-f-w));
+    color: var(--markdown-f-c);
+}
+
+/* strong inside h3 inherits the full h3 style */
+.markdown h3 strong {
+    font-size: var(--markdown-title-f-s, var(--markdown-f-s));
+    font-weight: var(--markdown-title-f-w, var(--markdown-f-w));
+    color: var(--markdown-title-f-c, var(--markdown-f-c));
+}
+
 .markdown a {
     color: var(--markdown-f-c);
     text-decoration: underline;

@@ -89,6 +89,7 @@
     "obActivateBtnBorderW": "0",
     "secondaryBtnFS": "12px",
     "detailsTitleFC": "white",
+    "backFC": "#A8ADBF",
     "agreeLinkFC": "#00DFF3",
     "agreeLS": "-0.5px",
     "agreeFC": "#A8ADBF",
@@ -117,7 +118,7 @@
     "markdownFS": "12px",
     "obCloseBtnFW": "500",
     "walletFC": "white",
-    "markdownFC": "#DADCE5",
+    "markdownFC": "#A8ADBF",
     "walletBg": "#1a1a1a",
     "obOptOutMainBtnRadius": "4px",
     "obActivateBtnBorderC": "transparent",
@@ -205,5 +206,10 @@
     "tbOptOutBtnHoverFC": "#1A1A1ACC",
     "tbOptOutSecondaryBtnHoverBg": "rgba(26, 26, 26, 0.10)",
     "tbIconFilter": "brightness(0) saturate(100%)",
-    "tbFontFamily": "Inter, sans-serif"
+    "tbFontFamily": "Inter, sans-serif",
+    "markdownFW": "400",
+    "markdownTitleFC": "#A8ADBF",
+    "markdownTitleFS": "13px",
+    "markdownTitleFW": "700",
+    "markdownStrongFW": "600"
 }

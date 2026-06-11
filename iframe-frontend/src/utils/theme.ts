@@ -28,6 +28,7 @@ export const themeNames = {
     markdownTitleFS: "--markdown-title-f-s",
     markdownTitleFW: "--markdown-title-f-w",
     markdownTitleFC: "--markdown-title-f-c",
+    markdownStrongFW: "--markdown-strong-f-w",
     markdownBorderW: "--markdown-border-w",
     markdownRadius: "--markdown-radius",
     markdownBorderC: "--markdown-border-c",

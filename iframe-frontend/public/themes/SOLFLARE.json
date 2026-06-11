@@ -4,7 +4,6 @@
     "popupBg": "#090C11",
     "popupShadow": "0px 2px 10px 0px rgba(0, 0, 0, 0.04), 0px 15px 50px 0px rgba(0, 0, 0, 0.10)",
     "xBtnFC": "#8A8E94",
-
     "primaryBtnBg": "#FFEF46",
     "primaryBtnFS": "17px",
     "primaryBtnFW": "700",
@@ -12,7 +11,6 @@
     "primaryBtnBorderC": "transparent",
     "primaryBtnBorderW": "0",
     "primaryBtnRadius": "100px",
-
     "secondaryBtnBg": "rgba(245, 248, 255, 0.08)",
     "secondaryBtnFS": "15px",
     "secondaryBtnFW": "700",
@@ -20,19 +18,17 @@
     "secondaryBtnBorderC": "#FFEF46",
     "secondaryBtnBorderW": "0",
     "secondaryBtnRadius": "100px",
-
     "markdownBg": "#090C111A",
     "markdownFS": "12px",
     "markdownFW": "400",
-    "markdownFC": "rgba(245, 248, 255, 0.8)",
-    "markdownTitleFS": "14px",
-    "markdownTitleFW": "500",
+    "markdownFC": "#F5F8FF",
+    "markdownTitleFS": "13px",
+    "markdownTitleFW": "700",
     "markdownTitleFC": "#F5F8FF",
     "markdownBorderW": "1px",
     "markdownRadius": "8px",
     "markdownBorderC": "rgba(138, 142, 148, 0.5)",
     "markdownScrollbarC": "rgba(138, 142, 148, 0.50)",
-
     "walletBg": "rgba(138, 142, 148, 0.2)",
     "walletFS": "14px",
     "walletFW": "400",
@@ -40,12 +36,11 @@
     "walletBorderC": "transparent",
     "walletBorderW": "0",
     "walletRadius": "100px",
-
     "detailsBg": "#1B1E24",
     "detailsTitleFS": "20px",
     "detailsTitleFW": "500",
     "detailsTitleFC": "#F5F8FF",
-    "backFC": "#797A7D",
+    "backFC": "#8A8E94",
     "agreeLinkFC": "#DDE5FC",
     "agreeFC": "#636772",
     "detailsSubtitleFS": "15px",
@@ -56,7 +51,6 @@
     "detailsBorderC": "transparent",
     "detailsAmountFC": "#FFEF46",
     "detailsAmountFW": "900",
-
     "retailerLogoBg": "#FFFFFF",
     "retailerLogoBorderW": "1px",
     "retailerLogoBorderC": "#BCBDC1",
@@ -67,14 +61,12 @@
     "logoTxtFS": "15px",
     "logoTxtFW": "500",
     "logoTxtFC": "#F5F8FF",
-
     "overlayWaitingBg": "#090C11",
     "overlayBg": "rgba(9, 12, 17, 0.8)",
     "overlayFS": "16px",
     "overlayFW": "400",
     "overlayFC": "#F5F8FF",
     "loaderBg": "#FFEF46",
-
     "optoutBg": "rgba(27, 30, 36, 0.7)",
     "optoutFS": "20px",
     "optoutFW": "500",
@@ -83,7 +75,6 @@
     "optoutDescFS": "15px",
     "optoutDescFW": "400",
     "optoutDescFC": "#F5F8FF",
-
     "labelFS": "15px",
     "labelFW": "400",
     "labelFC": "#8A8E94",
@@ -94,11 +85,9 @@
     "radioBtnCheckedC": "#FFEF46",
     "radioBtnDotC": "#FFEF46",
     "radioBtnLabelCheckedC": "#F5F8FF",
-
     "closeFS": "15px",
     "closeFW": "700",
     "closeFC": "#E8EBF2",
-
     "tokenBg": "rgba(245, 248, 255, 0.08)",
     "tokenFS": "15px",
     "tokenFW": "700",
@@ -106,11 +95,9 @@
     "tokenBorderW": "0",
     "tokenBorderC": "transparent",
     "tokenRadius": "100px",
-
     "clarifyFS": "14px",
     "clarifyFW": "400",
     "clarifyFC": "#636772",
-
     "notificationFS": "15px",
     "notificationFW": "500",
     "notificationFC": "#F5F8FF",
@@ -121,7 +108,6 @@
     "notificationBtnBorderW": "0",
     "notificationBtnBorderC": "transparent",
     "notificationBtnRadius": "100px",
-
     "activateTitleFS": "19px",
     "activateTitleFW": "700",
     "activateTitleFC": "#F5F8FF",
@@ -131,7 +117,6 @@
     "activateWalletNameFS": "14px",
     "activateWalletNameFW": "700",
     "activateWalletNameFC": "#FFEF46",
-
     "obBg": "#090C11",
     "obOfferTextFS": "15px",
     "obOfferTextFW": "500",
@@ -169,7 +154,6 @@
     "obRetailerLogoBorderW": "1px",
     "obRetailerLogoBg": "#FFFFFF",
     "obPlatformWalletLogoBg": "#FFEF46",
-
     "obOptOutTitleFS": "20px",
     "obOptOutTitleFW": "500",
     "obOptOutTitleFC": "#F5F8FF",
@@ -194,7 +178,6 @@
     "obOptOutBackBtnFW": "400",
     "obOptOutBackBtnFC": "#F5F8FF",
     "obOptOutBackBtnLH": "24px",
-
     "tbBg": "#090C11",
     "tbShadow": "0px 2px 10px 0px rgba(0, 0, 0, 0.04), 0px 15px 50px 0px rgba(0, 0, 0, 0.10)",
     "tbPlatformLogoBg": "#FFEF46",
@@ -252,5 +235,6 @@
     "tbOptOutConfirmFS": "17px",
     "tbOptOutConfirmFW": "600",
     "tbIconFilter": "none",
-    "tbBackIconFilter": "none"
+    "tbBackIconFilter": "none",
+    "markdownStrongFW": "700"
 }

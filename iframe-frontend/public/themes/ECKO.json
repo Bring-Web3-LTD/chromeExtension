@@ -19,7 +19,7 @@
     "secondaryBtnBorderW": "2px",
     "secondaryBtnRadius": "100px",
     "markdownBg": "#1A1E3E",
-    "markdownFS": "14px",
+    "markdownFS": "12px",
     "markdownFW": "400",
     "markdownFC": "#FFF",
     "markdownTitleFS": "13px",
@@ -219,5 +219,6 @@
     "tbOptOutBtnHoverFC": "#FFFFFFCC",
     "tbOptOutSecondaryBtnHoverBg": "rgba(255, 0, 184, 0.10)",
     "tbIconFilter": "none",
-    "tbFontFamily": "Inter, sans-serif"
+    "tbFontFamily": "Inter, sans-serif",
+    "markdownStrongFW": "600"
 }

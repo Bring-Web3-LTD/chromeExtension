@@ -47,6 +47,7 @@ export const themeNames = {
     detailsTitleFW: "--details-title-f-w",
     detailsTitleFC: "--details-title-f-c",
     backFC: "--back-f-c",
+    backTextTransform: "--back-text-transform",
     detailsSubtitleFS: "--details-subtitle-f-s",
     detailsSubtitleFW: "--details-subtitle-f-w",
     detailsSubtitleFC: "--details-subtitle-f-c",

@@ -43,6 +43,7 @@
     "detailsTitleFW": "500",
     "detailsTitleFC": "#F5F8FF",
     "backFC": "#8A8E94",
+    "backTextTransform": "capitalize",
     "agreeLinkFC": "#DDE5FC",
     "agreeFC": "#636772",
     "detailsSubtitleFS": "15px",

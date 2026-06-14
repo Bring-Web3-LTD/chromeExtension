@@ -70,8 +70,10 @@
 
 .plus_logo {
     --plus-height: 16px;
+    width: 18px;
     height: var(--plus-height);
     margin-top: calc(calc(var(--logo-size) / 2) - calc(var(--plus-height) / 2));
+    color: var(--plus-f-c, #FFFFFF);
 }
 
 .logo_text {

@@ -48,6 +48,7 @@
     font-size: var(--activate-title-f-s, 20px);
     font-weight: var(--activate-title-f-w, 500);
     color: var(--activate-title-f-c);
+    letter-spacing: var(--activate-title-l-s);
     line-height: 28px;
 }
 
@@ -66,7 +67,7 @@
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    line-height: 12px;
+    line-height: max(12px, 1em);
     margin-top: 8px;
     margin-bottom: 10px;
 }

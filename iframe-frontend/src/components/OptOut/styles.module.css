@@ -69,12 +69,16 @@
     appearance: none;
     width: 16px;
     height: 16px;
-    border: 2px solid var(--secondary-btn-border-c);
+    border: 2px solid var(--radio-button-border-c, var(--secondary-btn-border-c));
     border-radius: 50%;
     background: transparent;
     cursor: pointer;
     position: relative;
     margin: 0;
+}
+
+.radio:checked {
+    border-color: var(--radio-button-checked-c, var(--secondary-btn-border-c));
 }
 
 .radio:checked::after {
@@ -85,7 +89,7 @@
     transform: translate(-50%, -50%);
     width: 8px;
     height: 8px;
-    background: var(--secondary-btn-border-c);
+    background: var(--radio-button-checked-c, var(--secondary-btn-border-c));
     border-radius: 50%;
 }
 
@@ -117,6 +121,18 @@
 
 .apply_btn {
     margin-top: 16px;
+}
+
+.descriptiveBackBtn{
+    background: transparent;
+    color: var(--descriptive-back-btn-f-c, var(--close-f-c, white));
+    font-size: var(--descriptive-back-btn-f-s, var(--close-f-s, 14px));
+    font-weight: var(--descriptive-back-btn-f-w, var(--close-f-w, 500));
+    border: none;
+    outline: none;
+    cursor: pointer;
+    line-height: 22px;
+    margin-top: 8px;
 }
 
 .close_btn {

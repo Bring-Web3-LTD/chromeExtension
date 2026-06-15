@@ -66,7 +66,7 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
                         className={styles.backBtn}
                         onClick={closeFn}
                     >
-                        <img src={`${import.meta.env.BASE_URL}icons/tb-back.svg`} alt="Back" />
+                        <img src={`${import.meta.env.BASE_URL}icons/back-arrow.svg`} alt="Back" />
                     </button>
 
                     {/* Main box — text + buttons */}

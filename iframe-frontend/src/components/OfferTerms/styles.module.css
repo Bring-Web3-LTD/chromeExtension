@@ -1,0 +1,114 @@
+.backBtn {
+    position: absolute;
+    left: 20px;
+    top: 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.backLabel {
+    font-size: var(--back-f-s, 13px);
+    font-weight: var(--back-f-w, 500);
+    line-height: 22px;
+    color: var(--back-f-c, var(--details-title-f-c));
+    letter-spacing: var(--back-l-s, normal);
+    text-transform: var(--back-text-transform, uppercase);
+}
+
+.backIcon {
+    padding: 0;
+    width: 14px;
+    height: 14px;
+    background: var(--back-f-c, var(--details-title-f-c));
+    -webkit-mask-size: 100%;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-size: 100%;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.termsBox {
+    height: calc(100vh - 72px);
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--markdown-radius);
+    border-width: var(--markdown-border-w);
+    border-style: solid;
+    border-color: var(--markdown-border-c);
+    background: var(--markdown-bg);
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+
+.markdown {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    font-size: var(--markdown-f-s);
+    font-weight: var(--markdown-f-w);
+    color: var(--markdown-f-c);
+    overflow-y: scroll;
+    line-height: 20px;
+}
+
+.markdown h3 {
+    font-size: var(--markdown-title-f-s, var(--markdown-f-s));
+    font-weight: var(--markdown-title-f-w, var(--markdown-f-w));
+    color: var(--markdown-title-f-c, var(--markdown-f-c));
+}
+
+/* strong: same size/color as regular, only weight differs */
+.markdown strong {
+    font-size: var(--markdown-f-s);
+    font-weight: var(--markdown-strong-f-w, var(--markdown-f-w));
+    color: var(--markdown-f-c);
+}
+
+/* strong inside h3 inherits the full h3 style */
+.markdown h3 strong {
+    font-size: var(--markdown-title-f-s, var(--markdown-f-s));
+    font-weight: var(--markdown-title-f-w, var(--markdown-f-w));
+    color: var(--markdown-title-f-c, var(--markdown-f-c));
+}
+
+.markdown a {
+    color: var(--markdown-f-c);
+    text-decoration: underline;
+}
+
+.markdown a:hover {
+    color: var(--markdown-f-c);
+}
+
+.externalLink {
+    color: var(--markdown-f-c);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.markdown::-webkit-scrollbar {
+    width: 3px;
+}
+
+.markdown::-webkit-scrollbar-thumb {
+    background: var(--markdown-scrollbar-c);
+    border-radius: 32px;
+}

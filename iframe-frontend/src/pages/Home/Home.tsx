@@ -10,10 +10,10 @@ import parseTime from '../../utils/parseTime'
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const Home = () => {
-  const { version, variant, platformName, domain, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as LoaderData
+  const { version, variant, platformName, domain, iframeStyle: themeIframeStyle, zIndex } = useRouteLoaderData('root') as LoaderData
 
   useEffect(() => {
-    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, version, themeIframeStyle) })
+    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, version, themeIframeStyle, zIndex) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

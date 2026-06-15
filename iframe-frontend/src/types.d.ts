@@ -60,6 +60,7 @@ declare global {
         matchedKeyword?: string
         activationPayload?: ActivateResponse | null
         timeout?: number
+        zIndex?: number
     }
 
     interface LoaderData extends Info {

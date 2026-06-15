@@ -115,7 +115,7 @@ const Notification = () => {
 
         sendMessage({ action: ACTIONS.OPEN, style })
 
-    }, [platformName, promptPairing, themeIframeStyle, version])
+    }, [platformName, promptPairing, themeIframeStyle, version, zIndex])
 
     useEffect(() => {
         start()

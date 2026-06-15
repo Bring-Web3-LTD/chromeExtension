@@ -96,7 +96,7 @@ interface Notification {
 }
 
 const Notification = () => {
-    const { platformName, textMode, cashbackUrl, new: _new, eligible, total, expiredAt, promptPairing, iframeStyle: themeIframeStyle, version, zIndex } = useRouteLoaderData('root') as Notification & { iframeStyle?: Record<string, string>; zIndex?: number }
+    const { platformName, textMode, cashbackUrl, new: _new, eligible, total, expiredAt, promptPairing, iframeStyle: themeIframeStyle, version } = useRouteLoaderData('root') as Notification & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const ctaText = !promptPairing ? 'Details' : eligible ? 'Claim' : 'Connect'
     const isExtraBtn = !_new
@@ -106,7 +106,7 @@ const Notification = () => {
     })
 
     useEffect(() => {
-        const base = getIframeStyle('notification', platformName, version, themeIframeStyle, zIndex)
+        const base = getIframeStyle('notification', platformName, version, themeIframeStyle)
         const style = !promptPairing
             ? base
             : 'iframe' in base && typeof base.iframe === 'object'
@@ -115,7 +115,7 @@ const Notification = () => {
 
         sendMessage({ action: ACTIONS.OPEN, style })
 
-    }, [platformName, promptPairing, themeIframeStyle, version, zIndex])
+    }, [platformName, promptPairing, themeIframeStyle, version])
 
     useEffect(() => {
         start()

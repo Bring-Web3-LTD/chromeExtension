@@ -91,7 +91,7 @@ export const armFollowups = async (incoming: any, originatingTabId?: number) => 
     if (!newRecords.length) return
 
     // Append — re-arming adds records, it does not replace. Multiple records of the
-    // same (id, meta, tabId) are allowed to coexist.
+    // same (id, tabId) are allowed to coexist.
     await serialize(async () => {
         const existing = await read()
         await write(existing.concat(newRecords))

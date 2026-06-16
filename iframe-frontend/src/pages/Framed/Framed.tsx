@@ -42,7 +42,8 @@ const Framed = () => {
         iconUrl,
         offerTextTb,
         backgroundColor,
-        iframeStyle: themeIframeStyle
+        iframeStyle: themeIframeStyle,
+        zIndex
     } = useRouteLoaderData('root') as LoaderData
 
     const [showOptout, setShowOptout] = useState(false)
@@ -120,7 +121,7 @@ const Framed = () => {
     }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
 
     useEffect(() => {
-        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, version, themeIframeStyle) })
+        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, version, themeIframeStyle, zIndex) })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

@@ -39,7 +39,8 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     isRegex,
-    iframeStyle: themeIframeStyle
+    iframeStyle: themeIframeStyle,
+    zIndex
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
   const [isOptedOut, setIsOptedOut] = useState(false)
@@ -112,7 +113,7 @@ const Offerbar = () => {
   }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
-    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, version, themeIframeStyle) })
+    sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, version, themeIframeStyle, zIndex) })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

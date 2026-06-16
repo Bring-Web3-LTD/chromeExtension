@@ -12,7 +12,7 @@ import { getIframeStyle } from '../../utils/iframeStyles'
 import { ENV, ACTIVATE_QUIET_TIME, OB_ACTIVATE_QUIET_TIME } from '../../config'
 
 const Activated = () => {
-    const { version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, displayPlatformName, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
+    const { version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, displayPlatformName, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle, zIndex } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const [markdownContent, setMarkdownContent] = useState('')
     // const [loading, setLoading] = useState(true)
@@ -20,7 +20,7 @@ const Activated = () => {
     useEffect(() => {
         const controller = new AbortController()
 
-        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, version, themeIframeStyle) })
+        sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('popup', platformName, version, themeIframeStyle, zIndex) })
 
         const loadAllMarkdown = async () => {
             try {

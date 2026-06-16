@@ -115,18 +115,24 @@ export const getIframeStyle = (
     platformName: string,
     version: string,
     themeIframeStyle?: Record<string, string>,
+    zIndex?: number,
 ): { [key: string]: { [key: string]: string } } | { [key: string]: string } => {
     const styles = styleMap[page]
     const baseIframeStyle = styles[platformName.toLowerCase()] || styles['default']
     const isLegacy = compareVersions(version, '1.6.0') === -1
 
+    // Server-driven per-platform stacking priority: just another iframe-style override
+    const iframeStyleOverrides = zIndex !== undefined
+        ? { ...themeIframeStyle, zIndex: String(zIndex) }
+        : themeIframeStyle
+
     if (isLegacy) {
-        return themeIframeStyle
-            ? { ...baseIframeStyle.iframe, ...themeIframeStyle }
+        return iframeStyleOverrides
+            ? { ...baseIframeStyle.iframe, ...iframeStyleOverrides }
             : baseIframeStyle.iframe
     }
 
-    return themeIframeStyle
-        ? { iframe: { ...baseIframeStyle.iframe, ...themeIframeStyle } }
+    return iframeStyleOverrides
+        ? { iframe: { ...baseIframeStyle.iframe, ...iframeStyleOverrides } }
         : baseIframeStyle
 }

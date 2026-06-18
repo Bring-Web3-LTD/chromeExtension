@@ -1,4 +1,5 @@
 import storage from "../storage/storage";
+import { normalizeUrl } from "../normalizeUrl";
 
 type SearchArrayResult =
     | { matched: false, match: undefined }
@@ -10,20 +11,11 @@ type SearchRegexResult =
 
 
 export const searchRegexArray = async (regexArray: RegExp[], url: string, searchType?: string): Promise<SearchRegexResult> => {
+    const noMatch: SearchRegexResult = { matched: false, match: undefined, type: undefined };
 
-    if (!url.includes('/')) {
-        url += '/';
-    }
+    const testStr = normalizeUrl(url);
 
-    const slashIndex = url.indexOf('/');
-    const host = url.substring(0, slashIndex);
-    const path = url.substring(slashIndex);
-
-    const unescapedPath = decodeURIComponent(path.replace(/\+/g, ' '));
-
-    const revHost = host.split('').reverse().join('');
-
-    const testStr = revHost + unescapedPath;
+    if (!testStr) return noMatch;
 
     const domainsTypes = await storage.get('domainsTypes');
 
@@ -40,18 +32,10 @@ export const searchRegexArray = async (regexArray: RegExp[], url: string, search
         if (matchResult && matchResult.index === 0 && matchResult[0]) {
             const rawGroups = Array.from(matchResult);
             const matchGroups = rawGroups.filter(g => g !== undefined) as string[];
-            return {
-                matched: true,
-                match: matchGroups,
-                type: type
-            };
+            return { matched: true, match: matchGroups, type };
         }
     }
-    return {
-        matched: false,
-        match: undefined,
-        type: undefined
-    };
+    return noMatch;
 }
 
 export const searchSingle = (entry: string, query: string, regex?: boolean): boolean => {
@@ -81,10 +65,8 @@ export const searchSingle = (entry: string, query: string, regex?: boolean): boo
         return true;
     }
 
-    const decodedQueryPath = decodeURIComponent(queryPath.replace(/\+/g, ' '));
-
     if (!regex) {
-        if (decodedQueryPath.startsWith(entryPath)) {
+        if (queryPath.startsWith(entryPath)) {
             return true;
         }
     }
@@ -93,7 +75,7 @@ export const searchSingle = (entry: string, query: string, regex?: boolean): boo
         // Try regex
         try {
             const regex = new RegExp(entryPath);
-            if (regex.test(decodedQueryPath)) {
+            if (regex.test(queryPath)) {
                 return true;
             }
         } catch (error) {
@@ -105,10 +87,15 @@ export const searchSingle = (entry: string, query: string, regex?: boolean): boo
     return false;
 }
 
-export const searchArray = (entries: string[] | { domain: string, regex: boolean }[], query: string): SearchArrayResult => {
+export const searchArray = (entries: string[] | { domain: string, regex: boolean }[], url: string): SearchArrayResult => {
+    const query = normalizeUrl(url, { reverseHost: false });
+
+    if (!query) return { matched: false, match: undefined };
+
     for (const entry of entries) {
         const domain = typeof entry === 'string' ? entry : entry.domain;
         const regex = typeof entry === 'string' ? false : entry.regex;
+
         if (searchSingle(domain, query, regex)) {
             return { matched: true, match: domain };
         }

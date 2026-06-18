@@ -1,9 +1,11 @@
 import injectIFrame from "./utils/contentScript/injectIFrame.js";
 import handleIframeMessages from "./utils/contentScript/handleIframeMessages.js";
 import startListenersForWalletAddress from "./utils/contentScript/startLIstenersForWalletAddress.js";
-import getDomain from "./utils/getDomain.js";
+import { normalizeUrl } from "./utils/normalizeUrl.js";
 import removeTrailingSlash from "./utils/background/removeTrailingSlash.js";
 import { contentScriptCleanup } from "./utils/contentScript/cleanupManager.js";
+
+const getHost = (url: string): string | null => normalizeUrl(url, { reverseHost: false, hostOnly: true });
 
 let iframeEl: IFrame = null
 let iframePath: `/${string}` | undefined = undefined
@@ -135,7 +137,7 @@ const bringInitContentScript = async ({
                 }
                 return true
             case 'CLOSE_POPUP':
-                if (iframeEl && iframePath === request.path && getDomain(location.href) === getDomain(request.domain)) {
+                if (iframeEl && iframePath === request.path && getHost(location.href) === getHost(request.domain)) {
                     removeElements();
                     sendResponse({ status: 'success', message: 'Popup closed', location: window.document.location.href, flowId })
                 } else {
@@ -147,7 +149,7 @@ const bringInitContentScript = async ({
                     const { referrer } = document
                     const referrers = request.referrers || []
 
-                    if (getDomain(location.href) !== getDomain(request.domain)) {
+                    if (getHost(location.href) !== getHost(request.domain)) {
                         sendResponse({ status: 'failed', message: 'Domain already changed' });
                         return true
                     } else if (isIframeOpen) {
@@ -160,10 +162,10 @@ const bringInitContentScript = async ({
                         }
                     }
 
-                    const isReferrer = !!referrer && referrers.includes(getDomain(referrer))
+                    const isReferrer = !!referrer && referrers.includes(getHost(referrer) ?? '')
 
                     if (isReferrer && request.page === '') {
-                        sendResponse({ status: 'failed', message: `already activated by ${getDomain(referrer)}`, action: 'activate' });
+                        sendResponse({ status: 'failed', message: `already activated by ${getHost(referrer)}`, action: 'activate' });
                         return true
                     }
 

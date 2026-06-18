@@ -1,7 +1,7 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
 import { DAY_MS } from "../constants";
-import parseUrl from "../parseUrl";
+import { normalizeUrl } from "../normalizeUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
 import addQuietDomain from "./addQuietDomain";
@@ -53,7 +53,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') return;
 
-        const url = parseUrl(urlToCheck);
+        const url = normalizeUrl(urlToCheck, { reverseHost: false, decodeTail: false }) ?? '';
 
         const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 's' : 'kd');
 
@@ -167,7 +167,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         const res = await sendMessage(tabId, {
             action: 'INJECT',
             token: popupData.token,
-            domain: parseUrl(tab.url!),
+            domain: normalizeUrl(tab.url!, { reverseHost: false, decodeTail: false }) ?? '',
             iframeUrl: popupData.iframeUrl,
             userId,
             referrers: popupData.portalReferrers,
@@ -208,7 +208,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         const inlineSearchResult = await getRelevantDomain(url, "i");
         if (!inlineSearchResult.matched) return;
 
-        const quietInlineSearch = await getQuietDomain(parseUrl(url), "i");
+        const quietInlineSearch = await getQuietDomain(normalizeUrl(url, { reverseHost: false, decodeTail: false }) ?? '', "i");
         if (quietInlineSearch.phase === 'quiet') return;
 
         const tab = await chrome.tabs.get(tabId);

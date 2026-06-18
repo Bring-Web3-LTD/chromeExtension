@@ -1,5 +1,4 @@
 import { ApiEndpoint } from "../apiEndpoint";
-import getDomain from "../getDomain";
 import storage from "../storage/storage";
 import { searchArray } from "./domainsListSearch";
 import { updateCache } from "./updateCache";
@@ -21,9 +20,7 @@ const isWhitelisted = async (url: string): Promise<boolean> => {
 
         if (!whitelist?.length) return false
 
-        const domain = getDomain(url)
-
-        const { matched } = searchArray(whitelist, domain)
+        const { matched } = searchArray(whitelist, url);
 
         return matched;
 

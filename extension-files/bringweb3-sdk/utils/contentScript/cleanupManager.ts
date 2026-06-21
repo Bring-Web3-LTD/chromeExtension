@@ -1,3 +1,7 @@
+import { getLogger } from "../logger/logger";
+
+const log = getLogger('content');
+
 interface CleanupManager {
     add: (cleanup?: (() => void) | undefined) => void;
     cleanup: () => void;
@@ -39,7 +43,7 @@ export const createCleanupManager = (): CleanupManager => {
                 try {
                     fn();
                 } catch (error) {
-                    console.error('Cleanup function failed:', error);
+                    log.error('cleanup function failed', { error });
                 }
             });
             cleanups.length = 0;

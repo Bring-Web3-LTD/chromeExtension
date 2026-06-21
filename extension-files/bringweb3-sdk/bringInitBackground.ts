@@ -5,6 +5,9 @@ import handleContentMessages from './utils/background/handleContentMessages';
 import handleTabEvents from './utils/background/handleTabEvents';
 import { ENV_ENDPOINT } from "./utils/config.js";
 import { updateCache } from "./utils/background/updateCache.js";
+import { getLogger } from "./utils/logger/logger.js";
+
+const log = getLogger('background')
 
 interface Configuration {
     identifier: string
@@ -58,7 +61,7 @@ const ENDPOINT = ENV_ENDPOINT as EndpointName
 
 const bringInitBackground = async ({ identifier, apiEndpoint, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback }: Configuration) => {
     if (!identifier || !apiEndpoint) throw new Error('Missing configuration')
-    if (ENDPOINT) console.log({ ENDPOINT });
+    if (ENDPOINT) log.debug('endpoint configured', { ENDPOINT });
 
     if (!['prod', 'sandbox'].includes(apiEndpoint)) throw new Error('unknown apiEndpoint')
     const apiEndpointInstance = ApiEndpoint.getInstance()

@@ -3,6 +3,9 @@ import getDomain from "../getDomain";
 import storage from "../storage/storage";
 import { searchArray } from "./domainsListSearch";
 import { updateCache } from "./updateCache";
+import { getLogger } from "../logger/logger";
+
+const log = getLogger('background')
 
 const isWhitelisted = async (url: string): Promise<boolean> => {
     try {
@@ -28,7 +31,7 @@ const isWhitelisted = async (url: string): Promise<boolean> => {
         return matched;
 
     } catch (error) {
-        console.error("Invalid URL:", url);
+        log.error('invalid URL', { url, error });
         return false;
     }
 }

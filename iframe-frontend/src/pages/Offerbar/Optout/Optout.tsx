@@ -30,8 +30,7 @@ const Optout = ({ closeFn, onOptOut }: Props) => {
 
     const handleOptOut = (duration: typeof durationOptions[0]) => {
         // Temp fix: "forever" sends time=999999999999999, whose range exceeds the 60-day
-        // cleanup cap and gets wiped immediately. Send exactly 60 days and mark type with 'a'
-        // so the backend can later reset these to true forever.
+        // cleanup cap and gets wiped immediately. Send exactly 60 days and mark type with 'a'.
         const isForever = duration.label === 'forever'
         const event: Message = {
             action: ACTIONS.OPT_OUT_SPECIFIC,

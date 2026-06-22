@@ -105,8 +105,7 @@ const OptOut = ({ onClose, onOpted }: Props) => {
 
         // Temp fix: forever-optout for a specific website sends time=999999999999999, whose
         // range exceeds the 60-day cleanup cap and gets wiped immediately. Send exactly 60 days
-        // and mark type with 'a' so the backend can later reset these to true forever. Only the
-        // specific-site path (OPT_OUT_SPECIFIC) is affected; all-websites forever stays forever.
+        // and mark type with 'a'.
         const isForeverSpecific = !websites.value && duration.label === 'forever'
 
         const event = {
@@ -114,6 +113,7 @@ const OptOut = ({ onClose, onOpted }: Props) => {
             time: isForeverSpecific ? 60 * 24 * 60 * 60 * 1000 : +duration.value,
             domain,
             key: dict[duration.label as keyof typeof dict],
+            //Temp fix: forever+specific only: this path normally sends no type (defaults to 'kds')
             ...(isForeverSpecific ? { type: ['kdsa'], isRegex: [false] } : {})
         }
 

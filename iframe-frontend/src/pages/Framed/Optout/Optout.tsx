@@ -29,12 +29,15 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
     const [selectedOption, setSelectedOption] = useState(durationOptions[0]) // 24 hours by default
 
     const handleOptOut = (duration: typeof durationOptions[0]) => {
+        // Temp fix: "forever" sends time=999999999999999, whose range exceeds the 60-day
+        // cleanup cap and gets wiped immediately. Send exactly 60 days and mark type with 'a'.
+        const isForever = duration.label === 'forever'
         const event: Message = {
             action: ACTIONS.OPT_OUT_SPECIFIC,
             domain: ['google.com'],
-            type: ["kdsi"],
+            type: isForever ? ["kdsia"] : ["kdsi"],
             isRegex: [false],
-            time: +duration.value,
+            time: isForever ? 60 * 24 * 60 * 60 * 1000 : +duration.value,
             key: dict[duration.label as keyof typeof dict]
         }
 

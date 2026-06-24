@@ -8,3 +8,11 @@ body {
 body:has(.framed-transparent) {
     background: transparent !important;
 }
+
+/* Notification route gets its own background (falls back to popup bg), since the
+   notification background differs from the popup. The notification close-icon
+   color is set in the Notification CSS module. */
+body:has(#notification-container-simple),
+body:has(#notification-container-pairing) {
+    background: var(--notification-bg, var(--popup-bg));
+}

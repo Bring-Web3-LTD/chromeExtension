@@ -123,6 +123,10 @@
     margin-top: 16px;
 }
 
+.apply_btn:hover {
+    background: var(--primary-btn-hover-bg, var(--primary-btn-bg));
+}
+
 .descriptiveBackBtn{
     background: transparent;
     color: var(--descriptive-back-btn-f-c, var(--close-f-c, white));

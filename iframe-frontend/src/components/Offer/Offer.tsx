@@ -210,7 +210,7 @@ const Offer = ({ closeFn }: Props) => {
                                             width="20"
                                             strokeWidth="4"
                                             strokeWidthSecondary="4"
-                                            color="var(--primary-btn-f-c)"
+                                            color="var(--primary-btn-processing-f-c, var(--primary-btn-f-c))"
                                             secondaryColor=""
                                             ariaLabel="oval-loading"
                                         />

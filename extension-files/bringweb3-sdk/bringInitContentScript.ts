@@ -4,6 +4,9 @@ import startListenersForWalletAddress from "./utils/contentScript/startLIsteners
 import getDomain from "./utils/getDomain.js";
 import removeTrailingSlash from "./utils/background/removeTrailingSlash.js";
 import { contentScriptCleanup } from "./utils/contentScript/cleanupManager.js";
+import { getLogger } from "./utils/logger/logger.js";
+
+const log = getLogger('content')
 
 let iframeEl: IFrame = null
 let iframePath: `/${string}` | undefined = undefined
@@ -198,7 +201,7 @@ const bringInitContentScript = async ({
                     return true
                 }
             default:
-                console.error(`Unknown action: ${action}`);
+                log.error(`Unknown action: ${action}`);
                 break;
         }
     });

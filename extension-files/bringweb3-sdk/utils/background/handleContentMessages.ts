@@ -5,6 +5,9 @@ import checkNotifications from "./checkNotifications"
 import getCashbackUrl from "./getCashbackUrl"
 import { openExtensionCashbackPage } from "./openExtensionCashbackPage"
 import { getOptOut, setOptOut } from "./optOut"
+import { getLogger } from "../logger/logger"
+
+const log = getLogger('background')
 
 const handleContentMessages = (cashbackPagePath: string | undefined, showNotifications: boolean) => {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -57,7 +60,7 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                         sendResponse({ isPopupEnabled })
                     })
                     .catch(error => {
-                        console.error('Error setting popup enabled:', error);
+                        log.error('failed to set popup enabled', { error });
                         sendResponse({ error: 'Failed to set popup enabled state' });
                     });
                 return true;
@@ -97,7 +100,7 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                     .then(() => sendResponse({ message: 'stopped reminders successfully' }))
                 return true
             default: {
-                console.warn(`Bring unknown action: ${action}`);
+                log.warn(`unknown action: ${action}`);
                 return true;
             }
         }

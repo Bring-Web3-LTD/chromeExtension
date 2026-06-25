@@ -1,3 +1,7 @@
+import { getLogger } from "./utils/logger/logger.js";
+
+const log = getLogger('popup')
+
 interface TurnOff {
     isTurnedOff: boolean
 }
@@ -15,7 +19,7 @@ export const getTurnOff = (): Promise<TurnOff> => {
             action: 'GET_OPT_OUT'
         }, response => {
             if (chrome.runtime.lastError) {
-                console.error(chrome.runtime.lastError);
+                log.error('failed to get opt-out state', { error: chrome.runtime.lastError });
                 reject(chrome.runtime.lastError);
                 return;
             }
@@ -40,7 +44,7 @@ export const setTurnOff = (state: boolean): Promise<TurnOff> => {
             time
         }, (response) => {
             if (chrome.runtime.lastError) {
-                console.error(chrome.runtime.lastError);
+                log.error('failed to set opt-out state', { error: chrome.runtime.lastError });
                 reject(chrome.runtime.lastError);
                 return;
             }

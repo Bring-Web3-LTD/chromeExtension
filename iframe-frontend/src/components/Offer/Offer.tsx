@@ -50,17 +50,14 @@ const Offer = ({ closeFn }: Props) => {
         cashbackSymbol,
         cashbackCurrency,
         offerText,
-        isOfferBar,
-        variant
+        isOfferBar
     } = useRouteLoaderData('root') as LoaderData
 
     const defaultOfferText = useMemo(() => {
         const formattedCashback = formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)
         const cryptoSymbol = cryptoSymbols[0]
-        if (variant === 'testC') return `Up to <#${formattedCashback}#> ${cryptoSymbol} cashback`
-        if (variant === 'testB') return `Earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
-        return `Buy with any card and earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
-    }, [variant, cryptoSymbols, maxCashback, cashbackCurrency, cashbackSymbol])
+        return `Earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
+    }, [cryptoSymbols, maxCashback, cashbackCurrency, cashbackSymbol])
 
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [showTerms, setShowTerms] = useState(false)

@@ -153,7 +153,7 @@ const Notification = () => {
                     size='sm'
                     width={28}
                 />
-                <div id="notification-details-simple" className={styles.notification_details}>New cashback reward</div>
+                <div id="notification-details-simple" className={`${styles.notification_details} ${styles.simple_details}`}>New cashback reward</div>
                 <button
                     id="notification-details-btn"
                     className={styles.link}

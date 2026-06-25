@@ -38,7 +38,7 @@
 }
 
 /* Simple (single-line) notification can carry its own weight; pairing keeps base. */
-.notification_details:not(.no_wallet_notification_details) {
+.simple_details {
     font-weight: var(--notification-simple-f-w, var(--notification-f-w));
 }
 

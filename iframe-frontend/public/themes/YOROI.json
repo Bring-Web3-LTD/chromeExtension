@@ -31,7 +31,7 @@
         "logoTxtFW": "500",
         "logoTxtFC": "#0B1020",
         "plusFC": "#252525",
-        "primaryBtnBg": "linear-gradient(90deg, #55C3F6 0%, #3F7CEE 100%)",
+        "primaryBtnBg": "linear-gradient(90deg, #38BDF8 0%, #3F7CEE 100%)",
         "primaryBtnFC": "#0B1020",
         "primaryBtnFS": "16px",
         "primaryBtnFW": "700",
@@ -114,8 +114,8 @@
         "notificationBtnFS": "15px",
         "notificationBtnFW": "700",
         "notificationBtnFC": "#FFFFFF",
-        "notificationBtnBorderW": "0",
-        "notificationBtnBorderC": "transparent",
+        "notificationBtnBorderW": "1px",
+        "notificationBtnBorderC": "rgba(255, 255, 255, 0.12)",
         "notificationBtnRadius": "10px"
     },
     "dark": {
@@ -150,7 +150,7 @@
         "logoTxtFW": "500",
         "logoTxtFC": "#FFFFFF",
         "plusFC": "#FFFFFF",
-        "primaryBtnBg": "linear-gradient(-45deg, #2563EB 31.7%, #38BDF8 102.6%)",
+        "primaryBtnBg": "linear-gradient(275deg, #2563EB -31.73%, #38BDF8 102.55%)",
         "primaryBtnFC": "#FFFFFF",
         "primaryBtnFS": "16px",
         "primaryBtnFW": "700",
@@ -188,7 +188,7 @@
         "labelFW": "400",
         "labelFC": "#94A3B8",
         "radioButtonBorderC": "#94A3B8",
-        "radioButtonCheckedC": "#38BDF8",
+        "radioButtonCheckedC": "#2563EB",
         "descriptiveBackBtnFS": "13px",
         "descriptiveBackBtnFW": "400",
         "descriptiveBackBtnFC": "#94A3B8",
@@ -233,8 +233,8 @@
         "notificationBtnFS": "15px",
         "notificationBtnFW": "700",
         "notificationBtnFC": "#FFFFFF",
-        "notificationBtnBorderW": "0",
-        "notificationBtnBorderC": "transparent",
+        "notificationBtnBorderW": "1px",
+        "notificationBtnBorderC": "rgba(255, 255, 255, 0.12)",
         "notificationBtnRadius": "10px"
     }
 }

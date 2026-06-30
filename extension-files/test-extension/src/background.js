@@ -6,6 +6,11 @@ if (process.env.BUILD_ENV) {
     chrome.storage.local.set({ bring_envName: process.env.BUILD_ENV });
 }
 
+// Default debug logging to 'debug' in the mock extension, only if not already set.
+chrome.storage.local.get('bring_debugMode', ({ bring_debugMode }) => {
+    if (!bring_debugMode) chrome.storage.local.set({ bring_debugMode: 'debug' });
+});
+
 bringInitBackground({
     identifier: process.env.PLATFORM_IDENTIFIER,
     apiEndpoint: 'sandbox', // 'sandbox' || 'prod'

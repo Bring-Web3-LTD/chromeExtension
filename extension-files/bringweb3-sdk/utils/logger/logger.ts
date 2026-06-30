@@ -1,12 +1,11 @@
-import { ENV_ENDPOINT } from "../config";
 import storage from "../storage/storage";
 
 /**
- * Storage-gated debug logger.
+ * Storage-gated debug logger. Disabled by default.
  *
  * The `debugMode` flag sets the minimum level to emit (debug < info < warn < error);
- * below it is suppressed. Unset defaults to `debug` in dev/staging (ENV_ENDPOINT set)
- * and silent in production. Unrecognized values always emit nothing.
+ * below it is suppressed. Unset or unrecognized value = nothing logs. Enable it by
+ * setting the flag, e.g. in the background `bringCache.set('debugMode', 'debug')`.
  *
  * `getLogger(module)` outputs `[<ISO>] [<LEVEL>] [<module>] <message>` with optional
  * context as a separate arg (keeps it inspectable in DevTools; Error stacks intact).
@@ -27,31 +26,18 @@ const LEVEL_RANK: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error
 // Storage key for the debug flag (the storage module adds its own prefix).
 const DEBUG_KEY = 'debugMode';
 
-// Dev/staging builds default to verbose; production (no ENDPOINT injected) is silent.
-const IS_DEV = !!ENV_ENDPOINT;
-
 const hasStorage = typeof chrome !== 'undefined' && !!chrome.storage?.local;
 
-// Current minimum level to emit; null means silent. Read synchronously on every log.
-// Start silent when storage is available so we don't emit the env default before the
-// stored debugMode value is known (which could briefly leak below-threshold logs in dev).
-// Without storage (tests/non-extension) fall back to the env default.
-let threshold: number | null = hasStorage ? null : resolveThreshold(undefined);
+// Current minimum level to emit; null = silent (disabled by default until the flag is read).
+let threshold: number | null = null;
 let initialized = false;
 
 const isLogLevel = (value: unknown): value is LogLevel =>
     typeof value === 'string' && value in LEVEL_RANK;
 
-/**
- * Map a stored flag value to a threshold rank.
- * - unset        -> env default (dev: debug, prod: silent)
- * - valid level  -> that level's rank
- * - unrecognized -> silent
- */
+// Map a stored flag value to a threshold rank; unset or unrecognized -> silent.
 function resolveThreshold(raw: unknown): number | null {
-    if (raw === undefined || raw === null) return IS_DEV ? LEVEL_RANK.debug : null;
-    if (isLogLevel(raw)) return LEVEL_RANK[raw];
-    return null;
+    return isLogLevel(raw) ? LEVEL_RANK[raw] : null;
 }
 
 // Refresh the cached threshold from storage. Bypasses the storage cache so changes

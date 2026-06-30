@@ -7,15 +7,13 @@ interface ValidateDomainProps {
         country?: string
         phase?: 'new' | 'activated'
         quietDomains?: any[],
-        matches: { match: string | string[], type: string }[]
+        matches?: { match: string | string[], type: string }[],
+        followups?: any[],
     }
 }
 
 const validateDomain = async ({ body }: ValidateDomainProps) => {
-
-    const res = await apiRequest({ path: '/check/popup', method: 'POST', params: body })
-
-    return res
+    return apiRequest({ path: '/check/popup', method: 'POST', params: body })
 }
 
 export default validateDomain;

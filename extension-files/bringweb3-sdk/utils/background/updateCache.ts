@@ -49,14 +49,13 @@ export const updateCache = async () => {
     return pending = (async () => {
         try {
             const res = await fetchDomains(trigger, 30000);
-            const { nextUpdateTimestamp, relevantDomains, postPurchaseUrls, flags, types, quietDomainsMaxLength } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
+            const { nextUpdateTimestamp, relevantDomains, flags, types, quietDomainsMaxLength } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
 
             whitelist = await fetchWhitelist(30000)
 
             const storageUpdates = [
                 storage.set('relevantDomains', { regexes: relevantDomains, flags }),
                 storage.set('relevantDomainsCheck', [now, now + nextUpdateTimestamp]),
-                storage.set('postPurchaseUrls', postPurchaseUrls),
                 storage.set('domainsTypes', types)
             ]
 

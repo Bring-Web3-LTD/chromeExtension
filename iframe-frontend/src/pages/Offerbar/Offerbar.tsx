@@ -39,6 +39,7 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     isRegex,
+    followups,
     iframeStyle: themeIframeStyle,
     zIndex
   } = useRouteLoaderData('root') as LoaderData
@@ -101,7 +102,8 @@ const Offerbar = () => {
       flowId,
       platformName,
       quietDomainType: 'kds',
-      isRegex
+      isRegex,
+      followups
     })
 
     sendGaEvent('retailer_shop', {

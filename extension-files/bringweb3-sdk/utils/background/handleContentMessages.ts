@@ -5,6 +5,7 @@ import checkNotifications from "./checkNotifications"
 import getCashbackUrl from "./getCashbackUrl"
 import { openExtensionCashbackPage } from "./openExtensionCashbackPage"
 import { getOptOut, setOptOut } from "./optOut"
+import { armFollowups } from "./followups"
 
 const handleContentMessages = (cashbackPagePath: string | undefined, showNotifications: boolean) => {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -14,6 +15,13 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
         const { action } = request
 
         const source = request.source || 'popup'
+
+        // Generic followup trigger — followups can ride along with any interaction
+        // point (activate | popup close | optout), so arm them at the listener level
+        // rather than tying the trigger to a single action handler.
+        if (Array.isArray(request.followups) && request.followups.length) {
+            armFollowups(request.followups, sender.tab?.id).catch(() => { })
+        }
 
         switch (action) {
             case 'ACTIVATE': {

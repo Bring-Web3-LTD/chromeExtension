@@ -42,6 +42,7 @@ const Framed = () => {
         iconUrl,
         offerTextTb,
         backgroundColor,
+        followups,
         iframeStyle: themeIframeStyle,
         zIndex
     } = useRouteLoaderData('root') as LoaderData
@@ -108,7 +109,8 @@ const Framed = () => {
             flowId,
             platformName,
             quietDomainType: 'kds',
-            isRegex
+            isRegex,
+            followups
         })
 
         sendGaEvent('retailer_shop', {

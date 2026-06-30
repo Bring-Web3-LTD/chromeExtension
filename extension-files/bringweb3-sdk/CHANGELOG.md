@@ -1,5 +1,11 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.8.0
+
+### Minor Changes
+
+- 80bf9a5: Add server-driven navigation hooks enabling flexible event-based automation flows.
+
 ## 1.7.0
 
 ### Minor Changes

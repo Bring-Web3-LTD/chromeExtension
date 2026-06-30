@@ -31,7 +31,7 @@
         "logoTxtFW": "500",
         "logoTxtFC": "#0B1020",
         "plusFC": "#252525",
-        "primaryBtnBg": "linear-gradient(90deg, #55C3F6 0%, #3F7CEE 100%);",
+        "primaryBtnBg": "linear-gradient(90deg, #55C3F6 0%, #3F7CEE 100%)",
         "primaryBtnFC": "#0B1020",
         "primaryBtnFS": "16px",
         "primaryBtnFW": "700",

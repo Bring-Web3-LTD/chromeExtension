@@ -38,7 +38,7 @@
         "primaryBtnBorderC": "transparent",
         "primaryBtnBorderW": "0",
         "primaryBtnRadius": "14px",
-        "primaryBtnHoverBg": "linear-gradient(-45deg, #2563EB 31.7%, #38BDF8 79.3%)",
+        "primaryBtnHoverBg": "linear-gradient(275deg, #3F7CEE -31.73%, #38BDF8 79.31%)",
         "primaryBtnProcessingBg": "linear-gradient(-45deg, #2563EB 31.7%, #38BDF8 102.55%)",
         "primaryBtnProcessingFC": "#0B1020",
         "secondaryBtnBg": "#FFFFFF",

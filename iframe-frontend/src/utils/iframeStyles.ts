@@ -21,6 +21,16 @@ const iframeStyle: Styles = {
             top: '10px'
         }
     },
+    yoroi: {
+        iframe: {
+            animation: 'slideIn .3s ease-in-out',
+            width: '480px',
+            height: `436px`,
+            borderRadius: '16px',
+            display: 'block',
+            top: '10px'
+        }
+    },
     argent: {
         iframe: {
             animation: 'slideIn .3s ease-in-out',
@@ -68,6 +78,17 @@ const notificationIframeStyle: Styles = {
             width: '480px',
             height: `56px`,
             borderRadius: '10px',
+            display: 'block',
+            top: '40px'
+        }
+
+    },
+    yoroi: {
+        iframe: {
+            animation: 'slideIn .3s ease-in-out',
+            width: '480px',
+            height: `56px`,
+            borderRadius: '12px',
             display: 'block',
             top: '40px'
         }

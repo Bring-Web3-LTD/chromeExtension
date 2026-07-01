@@ -63,7 +63,7 @@
 .backed_by {
     font-size: var(--activate-wallet-name-f-s, 12px);
     font-weight: var(--activate-wallet-name-f-w, 400);
-    background: -webkit-linear-gradient(var(--activate-wallet-name-f-c, var(--activate-title-f-c)));
+    background: var(--activate-wallet-name-f-c, var(--activate-title-f-c));
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

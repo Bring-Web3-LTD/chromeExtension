@@ -22,7 +22,7 @@ bringInitContentScript({
     getWalletAddress,
     walletAddressListeners: ['BRING:WALLET_UPDATED'],
     promptLogin,
-    theme: 'dark',
+    theme: 'light',
     text: 'lower',
     switchWallet: true,
     styleUrl: '',

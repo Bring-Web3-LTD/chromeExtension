@@ -11,6 +11,19 @@
     align-items: center;
 }
 
+/* Notification close-icon color (dedicated var, falls back to shared x-btn); set on container so CloseBtn inherits it. Both notification types. */
+.container,
+.no_wallet_container {
+    --x-btn-f-c: var(--notification-x-btn-f-c, var(--x-btn-f-c));
+}
+
+/* Notification platform logo size (themeable, falls back to 28px). */
+.container :global(#platform-logo),
+.no_wallet_container :global(#platform-logo) {
+    width: var(--notification-logo-size, 28px);
+    height: var(--notification-logo-size, 28px);
+}
+
 .no_wallet_container {
     height: 50px;
     padding: 10px 12px 10px 16px;
@@ -22,6 +35,11 @@
     color: var(--notification-f-c);
     width: 240px;
     user-select: none;
+}
+
+/* Simple (single-line) notification can carry its own weight; pairing keeps base. */
+.simple_details {
+    font-weight: var(--notification-simple-f-w, var(--notification-f-w));
 }
 
 .no_wallet_notification_details {

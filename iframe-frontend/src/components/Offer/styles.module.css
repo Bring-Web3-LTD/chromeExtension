@@ -59,6 +59,10 @@
     justify-content: center;
 }
 
+.btn:hover {
+    background: var(--primary-btn-hover-bg, var(--primary-btn-bg));
+}
+
 .xMark:hover {
     transform: scale(1.1);
 }
@@ -108,6 +112,7 @@
 
 .connect_btn {
     background: var(--wallet-bg);
+    color: var(--connect-wallet-f-c, var(--wallet-f-c));
     cursor: pointer;
 }
 
@@ -129,6 +134,10 @@
     width: 100%;
     height: 40px;
     cursor: pointer;
+}
+
+.action_btn:hover {
+    background: var(--secondary-btn-hover-bg, var(--secondary-btn-bg));
 }
 
 .demo_container {
@@ -174,6 +183,7 @@
 
 .terms {
     color: var(--agree-link-f-c);
+    font-weight: var(--agree-link-f-w, inherit);
     text-decoration: underline;
     text-underline-offset: 2px;
     cursor: pointer;

@@ -5,6 +5,7 @@ import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import { useRouteLoaderData } from 'react-router-dom';
 import toCapital from '../../utils/toCapital';
 import toCaseString from '../../utils/toCaseString';
+import isLegacyCapSdk from '../../utils/isLegacyCapSdk';
 
 interface Option {
     label: string
@@ -79,7 +80,7 @@ interface Props {
 }
 
 const OptOut = ({ onClose, onOpted }: Props) => {
-    const { cryptoSymbols, platformName, displayPlatformName, textMode, domain, name } = useRouteLoaderData('root') as LoaderData
+    const { cryptoSymbols, platformName, displayPlatformName, textMode, domain, name, version } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)  
     
@@ -103,17 +104,14 @@ const OptOut = ({ onClose, onOpted }: Props) => {
         
         const { websites, duration } = selection
 
-        // Temp fix: forever-optout for a specific website sends time=999999999999999, whose
-        // range exceeds the 60-day cleanup cap and gets wiped immediately. Send exactly 60 days
-        // and mark type with 'a'.
-        const isForeverSpecific = !websites.value && duration.label === 'forever'
+        // SDK < 1.8.0: clamp forever to 60d + tag 'a' - see isLegacyCapSdk
+        const isForeverSpecific = !websites.value && duration.label === 'forever' && isLegacyCapSdk(version)
 
         const event = {
             action: websites.value ? ACTIONS.OPT_OUT : ACTIONS.OPT_OUT_SPECIFIC,
             time: isForeverSpecific ? 60 * 24 * 60 * 60 * 1000 : +duration.value,
             domain,
             key: dict[duration.label as keyof typeof dict],
-            //Temp fix: forever+specific only: this path normally sends no type (defaults to 'kds')
             ...(isForeverSpecific ? { type: ['kdsa'], isRegex: [false] } : {})
         }
 

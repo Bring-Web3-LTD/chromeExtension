@@ -1,4 +1,3 @@
-import { DAY_MS } from "../constants"
 import { isMsRangeActive } from "./timestampRange"
 
 interface QuietDomainEntry {
@@ -16,10 +15,9 @@ interface QuietDomainEntry {
 
 export const cleanupQuietDomains = (quietDomains: any, maxLength: number = 50) => {
     const now = Date.now()
-    const maxRange = { maxRange: 60 * DAY_MS }
-    
+
     const validEntries = quietDomains.filter((entry: QuietDomainEntry) => {
-        return isMsRangeActive(entry.time, now, maxRange)
+        return isMsRangeActive(entry.time, now)
     })
     
     if (validEntries.length > maxLength) {

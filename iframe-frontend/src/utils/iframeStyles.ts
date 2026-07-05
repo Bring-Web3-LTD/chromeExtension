@@ -74,15 +74,15 @@ const offerbarFramedStyle: Styles = {
 // Collapsed widget badge. The iframe is small (only the badge + its close overhang
 // are visible) and transparent, anchored to the viewport top-right,
 // position fixed, top 129px, right 15px, doesn't scroll.
-// The idle "pulse" animation lives inside the iframe (framer-motion), so no CSS
-// animation here.
+// The idle "pulse" animation lives inside the iframe (CSS @keyframes on the badge), so
+// no animation on the iframe element itself here.
 const widgetStyle: Styles = {
     default: {
         iframe: {
             width: '80px',
             height: '80px',
             // The 80x80 iframe has an 8px inset around the 64px badge (room for the
-            // close overhang + the 1.07 idle pulse). Offset by 8px from the Figma
+            // close overhang + the 1.07 idle pulse). Offset by 8px
             // badge position (top 129, right 15) so the badge itself lands there.
             top: '121px',
             right: '7px',

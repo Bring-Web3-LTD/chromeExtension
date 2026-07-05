@@ -59,14 +59,15 @@ const Widget = ({ closeFn }: Props) => {
     // Size the host iframe for the current surface.
     useEffect(() => {
         const page = popupSized ? 'widgetExpanded' : 'widget'
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const style: any = getIframeStyle(page, platformName, version, themeIframeStyle, zIndex)
+        const style = getIframeStyle(page, platformName, version, themeIframeStyle, zIndex)
         // The popup drop-shadow (theme `popupShadow` → iframe `boxShadow`) is shown ONLY
         // when fully expanded. During the grow/shrink the iframe is already full AB size,
         // so its shadow would hang AB-sized around the scaling card and only vanish when
         // the iframe finally resizes. Stripping it during the animation removes that.
-        const target = style?.iframe ?? style
-        if (target && mode !== 'expanded') target.boxShadow = 'none'
+        // getIframeStyle returns { iframe: {...} } (v1.6+) or a flat {...} (legacy); boxShadow
+        // lives on whichever object carries the iframe-element props.
+        const target = (style as { iframe?: Record<string, string> }).iframe ?? (style as Record<string, string>)
+        if (mode !== 'expanded') target.boxShadow = 'none'
         sendMessage({ action: ACTIONS.OPEN, style })
     }, [mode, popupSized, platformName, version, themeIframeStyle, zIndex])
 
@@ -134,7 +135,7 @@ const Widget = ({ closeFn }: Props) => {
                     <Offer closeFn={closeFn} onCollapse={collapse} />
                 </motion.div>
             )}
-            {/* initial={false}: no fade on first page load (Figma: badge appears, no entrance).
+            {/* initial={false}: no fade on first page load.
                 Later mounts (reappearing at collapse start) DO fade in; unmount at expand end
                 fades out. */}
             <AnimatePresence initial={false}>

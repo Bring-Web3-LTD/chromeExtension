@@ -61,18 +61,18 @@
 
 .close {
     position: absolute;
-    /* Tucked onto the badge's top-right edge (Figma: close center = +28px x, -19px y from the
-       64px badge centre). In the 80px wrap the badge centre is (40,40) → close centre (68,21). */
+    /* Tucked onto the badge's top-right edge. In the 80px wrap the badge centre is (40,40) → close centre (68,21). */
     top: 13px;
     right: 4px;
     width: 16px;
     height: 16px;
     border-radius: 50%;
     border: none;
-    /* Full-16px dark circle with a 2px white ring sitting OUTSIDE it (over the badge), so at
-       50% opacity the ring reads as white — not grey — matching Figma. An inset/centred ring
-       would put white@50% over the dark circle and go grey. box-shadow keeps the circle 16px. */
-    box-shadow: 0 0 0 2px #FFFFFF;
+    /* Full-16px dark circle with a 2px ring in the themed close foreground
+       (--widget-badge-close-f-c, white) sitting OUTSIDE it (over the badge), so at 50% opacity
+       on hover the ring reads white. An inset/centred ring would
+       put the color over the dark circle and go grey. box-shadow keeps the circle 16px. */
+    box-shadow: 0 0 0 2px var(--widget-badge-close-f-c, #FFFFFF);
     padding: 0;
     margin: 0;
     display: flex;
@@ -85,8 +85,8 @@
 .closeIcon {
     width: 8px;
     height: 8px;
-    /* Same white as the ring so the hover state dims both to identical white @ 50%. */
-    background-color: #FFFFFF;
+    /* Same themed color as the ring so the hover state dims both to identical @ 50%. */
+    background-color: var(--widget-badge-close-f-c, #FFFFFF);
     mask-repeat: no-repeat;
     mask-position: center;
     mask-size: contain;
@@ -95,13 +95,13 @@
     -webkit-mask-size: contain;
 }
 
-/* HOVER / PRESSED (Figma STATES "HOVER/PRESSED" column): the badge body and the close
+/* HOVER / PRESSED: the badge body and the close
    circle (#02050A) are unchanged — only the close's white ring and X drop to 50% opacity,
    so they read as grey. Hover and pressed share one visual (merged column), triggered by
    interacting anywhere on the widget (badge or X). Universal across platforms. */
 .wrap:hover .close,
 .wrap:active .close {
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--widget-badge-close-f-c, #FFFFFF) 50%, transparent);
 }
 
 .wrap:hover .closeIcon,

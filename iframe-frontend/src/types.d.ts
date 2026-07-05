@@ -62,6 +62,8 @@ declare global {
         timeout?: number
         followups?: any[]
         zIndex?: number
+        isWidgetEnabled?: boolean
+        widgetDefaultExpanded?: boolean
     }
 
     interface LoaderData extends Info {

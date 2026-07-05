@@ -28,9 +28,15 @@ interface BringEventData {
 
 interface Props {
     closeFn: () => void;
+    /**
+     * Collapsed-widget mode only: when provided, the X and CloseBtn collapse the AB
+     * back to the badge instead of closing + suppressing the domain. All other
+     * actions (Activate / Pause Cashback) keep standard AB behavior.
+     */
+    onCollapse?: () => void;
 }
 
-const Offer = ({ closeFn }: Props) => {
+const Offer = ({ closeFn, onCollapse }: Props) => {
     const { sendAnalyticsEvent } = useAnalytics()
     const { walletAddress, setWalletAddress } = useWalletAddress()
     const activationPayload = useActivationPayload()
@@ -134,7 +140,7 @@ const Offer = ({ closeFn }: Props) => {
 
     return (
         <>
-            <CloseBtn withTime={!isOpted && !showTerms} />
+            <CloseBtn withTime={!isOpted && !showTerms} overrideClose={onCollapse} />
             <AnimatePresence>
                 {
                     showTerms ?
@@ -238,6 +244,12 @@ const Offer = ({ closeFn }: Props) => {
                                                 action: 'click',
                                                 details: 'extension'
                                             })
+                                            // Widget mode: analytics still fire above; collapse back to the
+                                            // badge instead of closing + writing to quietDomains.
+                                            if (onCollapse) {
+                                                onCollapse()
+                                                return
+                                            }
                                             closeFn()
                                         }}
                                     >

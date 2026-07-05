@@ -9,6 +9,13 @@ body:has(.framed-transparent) {
     background: transparent !important;
 }
 
+/* Collapsed widget: only the badge should be visible over the host page, so
+   the iframe body must be transparent. The class is toggled by the Widget component
+   while collapsed and removed on expand (restoring the popup background). */
+body.bring-widget-collapsed {
+    background: transparent !important;
+}
+
 /* Notification route gets its own background (falls back to popup bg), since the
    notification background differs from the popup. The notification close-icon
    color is set in the Notification CSS module. */

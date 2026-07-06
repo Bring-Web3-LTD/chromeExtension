@@ -7,8 +7,8 @@ import storage from "../storage/storage";
  * below it is suppressed. Unset or unrecognized value = nothing logs. Enable it by
  * setting the flag, e.g. in the background `bringCache.set('debugMode', 'debug')`.
  *
- * `getLogger(module)` outputs `[<ISO>] [<LEVEL>] [<module>] <message>` with optional
- * context as a separate arg (keeps it inspectable in DevTools; Error stacks intact).
+ * Outputs `[<ISO>] [<LEVEL>] <message>` with optional context as a separate arg
+ * (keeps it inspectable in DevTools; Error stacks intact).
  */
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
@@ -30,33 +30,24 @@ const hasStorage = typeof chrome !== 'undefined' && !!chrome.storage?.local;
 
 // Current minimum level to emit; null = silent (disabled by default until the flag is read).
 let threshold: number | null = null;
-let initialized = false;
-
-const isLogLevel = (value: unknown): value is LogLevel =>
-    typeof value === 'string' && value in LEVEL_RANK;
-
-// Map a stored flag value to a threshold rank; unset or unrecognized -> silent.
-function resolveThreshold(raw: unknown): number | null {
-    return isLogLevel(raw) ? LEVEL_RANK[raw] : null;
-}
 
 // Refresh the cached threshold from storage. Bypasses the storage cache so changes
 // made in another context (e.g. background) are picked up here (e.g. content script).
+// Unset or unrecognized value -> null (silent).
 function refreshThreshold(): void {
     storage.get(DEBUG_KEY, false)
-        .then((value) => { threshold = resolveThreshold(value); })
+        .then((value) => {
+            threshold = typeof value === 'string' && value in LEVEL_RANK
+                ? LEVEL_RANK[value as LogLevel]
+                : null;
+        })
         .catch(() => { /* storage unavailable - keep current threshold */ });
 }
 
-/**
- * Lazy, one-time init. Deferred to a microtask so it doesn't touch the storage
- * module during the logger <-> storage circular import, and registers a listener
- * so the flag can be toggled live without a reload.
- */
-function ensureInitialized(): void {
-    if (initialized || !hasStorage) return;
-    initialized = true;
-
+// Load the flag once at startup and keep it live. Deferred to a microtask so it doesn't
+// touch the storage module during the logger <-> storage circular import. The listener
+// lets the flag be toggled without a reload (and picks up changes from other contexts).
+if (hasStorage) {
     Promise.resolve().then(refreshThreshold);
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -69,25 +60,21 @@ function ensureInitialized(): void {
 const shouldLog = (level: LogLevel): boolean =>
     threshold !== null && LEVEL_RANK[level] >= threshold;
 
-export function getLogger(module: string): Logger {
-    ensureInitialized();
+const emit = (level: LogLevel, message: string, context?: unknown): void => {
+    if (!shouldLog(level)) return;
+    const line = `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`;
+    if (context !== undefined) {
+        console[level](line, context);
+    } else {
+        console[level](line);
+    }
+};
 
-    const emit = (level: LogLevel, message: string, context?: unknown): void => {
-        if (!shouldLog(level)) return;
-        const line = `[${new Date().toISOString()}] [${level.toUpperCase()}] [${module}] ${message}`;
-        if (context !== undefined) {
-            console[level](line, context);
-        } else {
-            console[level](line);
-        }
-    };
+export const log: Logger = {
+    debug: (message, context) => emit('debug', message, context),
+    info: (message, context) => emit('info', message, context),
+    warn: (message, context) => emit('warn', message, context),
+    error: (message, context) => emit('error', message, context),
+};
 
-    return {
-        debug: (message, context) => emit('debug', message, context),
-        info: (message, context) => emit('info', message, context),
-        warn: (message, context) => emit('warn', message, context),
-        error: (message, context) => emit('error', message, context),
-    };
-}
-
-export default getLogger;
+export default log;

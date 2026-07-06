@@ -15,9 +15,7 @@ import isWhitelisted from "./isWhitelisted";
 import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
-import { getLogger } from "../logger/logger";
-
-const log = getLogger('background')
+import { log } from "../logger/logger";
 
 type UrlSearchStatus = 'pending' | 'succeeded' | 'failed' | null;
 

@@ -1,6 +1,4 @@
-import { getLogger } from "../logger/logger";
-
-const log = getLogger('content');
+import { log } from "../logger/logger";
 
 const addKeyframes = (keyFrames: KeyFrame[] | undefined): void => {
 

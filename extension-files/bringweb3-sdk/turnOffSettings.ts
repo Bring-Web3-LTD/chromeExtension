@@ -1,6 +1,4 @@
-import { getLogger } from "./utils/logger/logger.js";
-
-const log = getLogger('popup')
+import { log } from "./utils/logger/logger.js";
 
 interface TurnOff {
     isTurnedOff: boolean

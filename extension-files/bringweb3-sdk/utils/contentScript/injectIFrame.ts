@@ -5,9 +5,7 @@ import { OFFERBAR_CONTAINER_ID, IFRAME_ID_PREFIX } from "../constants";
 import insertStyleElement from "./insertStyleElement";
 import injectFramedIframe from "./injectFramedIframe";
 import { contentScriptCleanup } from "./cleanupManager";
-import { getLogger } from "../logger/logger";
-
-const log = getLogger('content');
+import { log } from "../logger/logger";
 
 interface Query {
     [key: string]: string

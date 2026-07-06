@@ -2,9 +2,7 @@
 import StorageCache from "./cache";
 import helpers from "./helpers";
 import { isValidTimestampRange } from "../background/timestampRange";
-import { getLogger } from "../logger/logger";
-
-const log = getLogger('bringCache');
+import { log } from "../logger/logger";
 
 const STORAGE_PREFIX = 'bring_';
 

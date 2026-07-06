@@ -3,9 +3,7 @@ import getDomain from "../getDomain";
 import storage from "../storage/storage";
 import { searchArray } from "./domainsListSearch";
 import { updateCache } from "./updateCache";
-import { getLogger } from "../logger/logger";
-
-const log = getLogger('background')
+import { log } from "../logger/logger";
 
 const isWhitelisted = async (url: string): Promise<boolean> => {
     try {

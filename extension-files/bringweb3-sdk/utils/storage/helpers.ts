@@ -1,6 +1,4 @@
-import { getLogger } from "../logger/logger";
-
-const log = getLogger('bringCache');
+import { log } from "../logger/logger";
 
 interface Helpers {
     [key: string]: {

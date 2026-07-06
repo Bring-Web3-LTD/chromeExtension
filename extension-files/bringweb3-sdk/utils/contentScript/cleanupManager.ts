@@ -1,6 +1,4 @@
-import { getLogger } from "../logger/logger";
-
-const log = getLogger('content');
+import { log } from "../logger/logger";
 
 interface CleanupManager {
     add: (cleanup?: (() => void) | undefined) => void;

@@ -5,9 +5,7 @@ import handleContentMessages from './utils/background/handleContentMessages';
 import handleTabEvents from './utils/background/handleTabEvents';
 import { ENV_ENDPOINT } from "./utils/config.js";
 import { updateCache } from "./utils/background/updateCache.js";
-import { getLogger } from "./utils/logger/logger.js";
-
-const log = getLogger('background')
+import { log } from "./utils/logger/logger.js";
 
 interface Configuration {
     identifier: string

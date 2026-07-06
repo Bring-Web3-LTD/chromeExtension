@@ -4,9 +4,7 @@ import startListenersForWalletAddress from "./utils/contentScript/startLIsteners
 import getDomain from "./utils/getDomain.js";
 import removeTrailingSlash from "./utils/background/removeTrailingSlash.js";
 import { contentScriptCleanup } from "./utils/contentScript/cleanupManager.js";
-import { getLogger } from "./utils/logger/logger.js";
-
-const log = getLogger('content')
+import { log } from "./utils/logger/logger.js";
 
 let iframeEl: IFrame = null
 let iframePath: `/${string}` | undefined = undefined

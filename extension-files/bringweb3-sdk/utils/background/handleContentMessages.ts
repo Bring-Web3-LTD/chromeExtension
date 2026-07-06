@@ -6,9 +6,7 @@ import getCashbackUrl from "./getCashbackUrl"
 import { openExtensionCashbackPage } from "./openExtensionCashbackPage"
 import { getOptOut, setOptOut } from "./optOut"
 import { armFollowups } from "./followups"
-import { getLogger } from "../logger/logger"
-
-const log = getLogger('background')
+import { log } from "../logger/logger"
 
 const handleContentMessages = (cashbackPagePath: string | undefined, showNotifications: boolean) => {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

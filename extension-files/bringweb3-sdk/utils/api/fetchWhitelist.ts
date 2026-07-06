@@ -1,7 +1,5 @@
 import { ApiEndpoint } from "../apiEndpoint"
-import { getLogger } from "../logger/logger"
-
-const log = getLogger('api')
+import { log } from "../logger/logger"
 
 export const fetchWhitelist = async (timeout?: number) => {
     try {

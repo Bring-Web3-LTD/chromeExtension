@@ -30,8 +30,11 @@ const Widget = ({ closeFn }: Props) => {
         zIndex,
     } = useRouteLoaderData('root') as LoaderData
 
-    // Per-tab, per-(platform, domain) so independent wallets don't share state.
-    const storageKey = useMemo(() => `bring:widget:${platformName}:${domain}`, [platformName, domain])
+    // One widget state per wallet. Several wallet extensions may embed this app on the same
+    // page, all from the same origin - so they share sessionStorage, and the platform name
+    // is what keeps each wallet's expand/collapse state separate. No need to also key by
+    // retailer: the browser already stores this iframe's data per top-level site (and per tab).
+    const storageKey = useMemo(() => `bring:widget:${platformName}`, [platformName])
 
     const [mode, setMode] = useState<Mode>(() => {
         try {
@@ -47,7 +50,7 @@ const Widget = ({ closeFn }: Props) => {
     const [markFailed, setMarkFailed] = useState(false)
 
     // The AB card is rendered while expanding, expanded, and collapsing back down.
-    const showPopup = mode === 'expanding' || mode === 'expanded' || mode === 'collapsingOut'
+    const showPopup = ['expanding', 'expanded', 'collapsingOut'].includes(mode)
     // Badge and AB run in sequence: the badge zooms out first (the AB starts growing just
     // before it finishes), and bounces back in only after the AB has zoomed out.
     const showBadge = mode === 'collapsed' || mode === 'expanding' || mode === 'returning'

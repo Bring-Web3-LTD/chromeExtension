@@ -69,9 +69,8 @@
     border-radius: 50%;
     border: none;
     /* Full-16px dark circle with a 2px ring in the themed close foreground
-       (--widget-badge-close-f-c, white) sitting OUTSIDE it (over the badge), so at 50% opacity
-       on hover the ring reads white. An inset/centred ring would
-       put the color over the dark circle and go grey. box-shadow keeps the circle 16px. */
+       (--widget-badge-close-f-c, white) sitting OUTSIDE it (over the badge).
+       box-shadow keeps the circle itself 16px. */
     box-shadow: 0 0 0 2px var(--widget-badge-close-f-c, #FFFFFF);
     padding: 0;
     margin: 0;
@@ -85,7 +84,7 @@
 .closeIcon {
     width: 8px;
     height: 8px;
-    /* Same themed color as the ring so the hover state dims both to identical @ 50%. */
+    /* Same themed color as the ring. */
     background-color: var(--widget-badge-close-f-c, #FFFFFF);
     mask-repeat: no-repeat;
     mask-position: center;
@@ -95,18 +94,12 @@
     -webkit-mask-size: contain;
 }
 
-/* HOVER / PRESSED: the badge body and the close
-   circle (#02050A) are unchanged — only the close's white ring and X drop to 50% opacity,
-   so they read as grey. Hover and pressed share one visual (merged column), triggered by
-   interacting anywhere on the widget (badge or X). Universal across platforms. */
-.wrap:hover .close,
-.wrap:active .close {
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--widget-badge-close-f-c, #FFFFFF) 50%, transparent);
-}
-
-.wrap:hover .closeIcon,
-.wrap:active .closeIcon {
-    opacity: 0.5;
+/* HOVER / PRESSED: triggered only on the close circle itself (not the badge).
+   Ring and X stay at full opacity; the circle's dark fill lightens instead.
+   Universal across platforms. */
+.close:hover,
+.close:active {
+    background: #353E4D;
 }
 
 /* The expanded AB card. It carries the popup background itself (rather than relying on

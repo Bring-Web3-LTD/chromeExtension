@@ -1,4 +1,3 @@
-import { DAY_MS } from "../constants"
 import storage from "../storage/storage"
 import { isMsRangeActive } from "./timestampRange"
 import { searchSingle } from "./domainsListSearch"
@@ -28,17 +27,11 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
         if (type && !type.split('').some(t => entry.type?.includes(t))) continue
 
         if (searchSingle(entry.domain, url, entry.regex)) {
-
-            const { time } = entry
-            const isActive = isMsRangeActive(time, undefined, { maxRange: 60 * DAY_MS })
-            
-            if (!isActive) {
-                quietDomains.splice(i, 1)
-                await storage.set('quietDomains', quietDomains)
-            } else {
-                phase = entry.phase || 'quiet'
-                payload = entry.payload || {}
-            }
+            // Expired entries are only pruned in addQuietDomain; skip them here so a
+            // stale record doesn't shadow a valid one behind it.
+            if (!isMsRangeActive(entry.time)) continue
+            phase = entry.phase || 'quiet'
+            payload = entry.payload || {}
             break
         }
     }

@@ -2,6 +2,7 @@ import { useRouteLoaderData } from 'react-router-dom'
 import { useState } from 'react'
 import { sendMessage, ACTIONS } from '../../../utils/sendMessage'
 import { useGoogleAnalytics } from '../../../hooks/useGoogleAnalytics'
+import isLegacyCapSdk from '../../../utils/isLegacyCapSdk'
 import styles from './styles.module.css'
 
 interface Props {
@@ -23,15 +24,14 @@ const dict = {
 }
 
 const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
-    const { domain, name } = useRouteLoaderData('root') as LoaderData
+    const { domain, name, version } = useRouteLoaderData('root') as LoaderData
     const { sendGaEvent } = useGoogleAnalytics()
     const [isOpted, setIsOpted] = useState(false)
     const [selectedOption, setSelectedOption] = useState(durationOptions[0]) // 24 hours by default
 
     const handleOptOut = (duration: typeof durationOptions[0]) => {
-        // Temp fix: "forever" sends time=999999999999999, whose range exceeds the 60-day
-        // cleanup cap and gets wiped immediately. Send exactly 60 days and mark type with 'a'.
-        const isForever = duration.label === 'forever'
+        // SDK < 1.8.0: clamp forever to 60d + tag 'a' - see isLegacyCapSdk
+        const isForever = duration.label === 'forever' && isLegacyCapSdk(version)
         const event: Message = {
             action: ACTIONS.OPT_OUT_SPECIFIC,
             domain: ['google.com'],

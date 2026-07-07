@@ -1,5 +1,15 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.8.0
+
+### Minor Changes
+
+- 80bf9a5: Add server-driven navigation hooks enabling flexible event-based automation flows.
+
+### Patch Changes
+
+- 6c965c9: Remove the legacy 60-day cap on per-site opt-out duration so "forever" opt-outs persist. Expired quiet-domain records are now pruned only when adding records, never on read.
+
 ## 1.7.0
 
 ### Minor Changes

@@ -1,7 +1,7 @@
 import styles from './styles.module.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouteLoaderData } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Offer from '../Offer/Offer'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle } from '../../utils/iframeStyles'
@@ -12,12 +12,11 @@ interface Props {
 }
 
 // collapsed     → idle badge (pulse)
-// expanding     → AB card scaling up; badge still visible on top (fades out at the end)
+// expanding     → badge zooms out first; the AB card then scales up in its place
 // expanded      → full AB, badge hidden
-// collapsingOut → AB card scaling down into the badge corner; badge visible again (faded in)
-// The badge is shown whenever mode !== 'expanded', so it persists through both animations
-// and only disappears at the end of expand / reappears at the start of collapse.
-type Mode = 'collapsed' | 'expanding' | 'expanded' | 'collapsingOut'
+// collapsingOut → AB card zooms back down toward the badge corner; badge still hidden
+// returning     → badge bounces back in, then the idle pulse resumes
+type Mode = 'collapsed' | 'expanding' | 'expanded' | 'collapsingOut' | 'returning'
 
 const Widget = ({ closeFn }: Props) => {
     const { sendGaEvent } = useGoogleAnalytics()
@@ -49,12 +48,14 @@ const Widget = ({ closeFn }: Props) => {
 
     // The AB card is rendered while expanding, expanded, and collapsing back down.
     const showPopup = mode === 'expanding' || mode === 'expanded' || mode === 'collapsingOut'
-    // The badge is visible whenever the AB is NOT fully expanded, so it persists through the
-    // whole expand animation (disappears only at the end) and reappears at the start of the
-    // collapse (staying while the AB shrinks). It sits on top, at the badge corner.
-    const showBadge = mode !== 'expanded'
-    // Iframe is popup-sized whenever the card is shown; the tiny badge iframe otherwise.
-    const popupSized = showPopup
+    // Badge and AB run in sequence: the badge zooms out first (the AB starts growing just
+    // before it finishes), and bounces back in only after the AB has zoomed out.
+    const showBadge = mode === 'collapsed' || mode === 'expanding' || mode === 'returning'
+    // Iframe stays popup-sized (big, un-clipped) through ALL transitions - including the
+    // badge bounce-in (returning), whose 1.15 overshoot would otherwise get cut top-right
+    // by the small iframe's clipPath. It shrinks to the tiny badge iframe only once fully
+    // collapsed.
+    const popupSized = mode !== 'collapsed'
 
     // Size the host iframe for the current surface.
     useEffect(() => {
@@ -68,6 +69,11 @@ const Widget = ({ closeFn }: Props) => {
         // lives on whichever object carries the iframe-element props.
         const target = (style as { iframe?: Record<string, string> }).iframe ?? (style as Record<string, string>)
         if (mode !== 'expanded') target.boxShadow = 'none'
+        // During the bounce-in the iframe is still full-size but nothing inside it is
+        // actionable (badge/X clicks are guarded to 'collapsed'), so let the host page
+        // receive clicks instead of the invisible iframe blocking them. Must be reset
+        // explicitly in every other mode because applyStyles never clears keys.
+        target.pointerEvents = mode === 'returning' ? 'none' : 'auto'
         sendMessage({ action: ACTIONS.OPEN, style })
     }, [mode, popupSized, platformName, version, themeIframeStyle, zIndex])
 
@@ -119,74 +125,89 @@ const Widget = ({ closeFn }: Props) => {
                     id="bring-widget-expanded"
                     key="popup"
                     className={styles.expanded}
-                    // Expand: grow from 0.6 at the badge corner (persisted-expanded loads at 1,
-                    // no pop). Collapse: scale the whole card (bg + content) to nothing at the
-                    // corner, staying opaque so content is visible the entire shrink.
-                    initial={{ scale: mode === 'expanding' ? 0.6 : 1 }}
-                    animate={{ scale: out ? 0 : 1 }}
+                    // Expand: wait for the badge to zoom out (0.2s overlap), then grow from
+                    // 0.6 at the badge corner (persisted-expanded loads at 1, no pop).
+                    // Collapse: zoom the whole card back down to 0.6 while fading, then hand
+                    // control back to the badge (returning).
+                    initial={mode === 'expanding' ? { scale: 0.6, opacity: 0 } : { scale: 1, opacity: 1 }}
+                    animate={out ? { scale: 0.6, opacity: 0 } : { scale: 1, opacity: 1 }}
                     transition={out
-                        ? { duration: 0.35, ease: 'easeIn' }
-                        : { duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+                        ? { duration: 0.3, ease: 'easeIn' }
+                        : {
+                            // No overshoot here (unlike the badge bounce): the card is exactly
+                            // the iframe's width and anchored top-right, so any scale > 1 pushes
+                            // content past the clipped left edge and reads as a glitch.
+                            scale: { delay: 0.2, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                            opacity: { delay: 0.2, duration: 0.3 },
+                        }}
                     onAnimationComplete={() => {
                         if (mode === 'expanding') setMode('expanded')
-                        else if (mode === 'collapsingOut') setMode('collapsed')
+                        else if (mode === 'collapsingOut') setMode('returning')
                     }}
                 >
                     <Offer closeFn={closeFn} onCollapse={collapse} />
                 </motion.div>
             )}
-            {/* initial={false}: no fade on first page load.
-                Later mounts (reappearing at collapse start) DO fade in; unmount at expand end
-                fades out. */}
-            <AnimatePresence initial={false}>
-                {showBadge && (
-                    <motion.div
-                        key="badge"
-                        id="bring-widget-collapsed"
-                        className={styles.wrap}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
+            {showBadge && (
+                // The whole wrap (badge + its X) zooms out on expand and bounces back in on
+                // return, so the X moves as one piece with the widget.
+                <motion.div
+                    id="bring-widget-collapsed"
+                    className={styles.wrap}
+                    // Mounting mid-collapse (returning) starts the bounce from 0; the first
+                    // mount while collapsed renders in place with no animation.
+                    initial={mode === 'returning' ? { scale: 0, opacity: 0 } : false}
+                    animate={mode === 'expanding'
+                        ? { scale: 0, opacity: 0 }
+                        : mode === 'returning'
+                            ? { scale: [0, 1.15, 0.95, 1], opacity: [0, 1, 1, 1] }
+                            : { scale: 1, opacity: 1 }}
+                    transition={mode === 'expanding'
+                        ? { duration: 0.35, ease: 'easeIn' }
+                        : mode === 'returning'
+                            ? { duration: 0.6, times: [0, 0.6, 0.8, 1], ease: 'easeOut' }
+                            : { duration: 0 }}
+                    onAnimationComplete={() => {
+                        if (mode === 'returning') setMode('collapsed')
+                    }}
+                >
+                    <button
+                        id="bring-widget-badge"
+                        type="button"
+                        // Idle pulse only while collapsed (CSS @keyframes) - it lives on the
+                        // button so it can't fight framer's transform on the wrap.
+                        className={`${styles.badge}${mode === 'collapsed' ? ` ${styles.pulse}` : ''}`}
+                        aria-label="Open cashback offer"
+                        onClick={expand}
                     >
-                        <button
-                            id="bring-widget-badge"
-                            type="button"
-                            // Idle pulse only while collapsed (CSS @keyframes); static during
-                            // the expand/collapse transitions when the AB card scales instead.
-                            className={`${styles.badge}${mode === 'collapsed' ? ` ${styles.pulse}` : ''}`}
-                            aria-label="Open cashback offer"
-                            onClick={expand}
-                        >
-                            <span className={styles.logo}>
-                                <img
-                                    src={`${import.meta.env.BASE_URL}icons/platforms/widget/${markFailed ? 'DEFAULT' : platformName.toUpperCase()}.svg`}
-                                    alt=""
-                                    // Guarded so a missing DEFAULT.svg can't loop the error.
-                                    onError={() => { if (!markFailed) setMarkFailed(true) }}
-                                />
-                            </span>
-                        </button>
-                        {mode === 'collapsed' && (
-                            <button
-                                id="bring-widget-close"
-                                type="button"
-                                className={styles.close}
-                                aria-label="Dismiss"
-                                onClick={closeFn}
-                            >
-                                <span
-                                    className={styles.closeIcon}
-                                    style={{
-                                        maskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`,
-                                        WebkitMaskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`,
-                                    }}
-                                />
-                            </button>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        <span className={styles.logo}>
+                            <img
+                                src={`${import.meta.env.BASE_URL}icons/platforms/widget/${markFailed ? 'DEFAULT' : platformName.toUpperCase()}.svg`}
+                                alt=""
+                                // Guarded so a missing DEFAULT.svg can't loop the error.
+                                onError={() => { if (!markFailed) setMarkFailed(true) }}
+                            />
+                        </span>
+                    </button>
+                    <button
+                        id="bring-widget-close"
+                        type="button"
+                        className={styles.close}
+                        aria-label="Dismiss"
+                        // Stays mounted through the transitions so it scales with the badge,
+                        // but is only actionable once fully collapsed.
+                        onClick={() => { if (mode === 'collapsed') closeFn() }}
+                    >
+                        <span
+                            className={styles.closeIcon}
+                            style={{
+                                maskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`,
+                                WebkitMaskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`,
+                            }}
+                        />
+                    </button>
+                </motion.div>
+            )}
         </>
     )
 }

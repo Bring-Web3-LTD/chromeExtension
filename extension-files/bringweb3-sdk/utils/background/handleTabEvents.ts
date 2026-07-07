@@ -15,7 +15,7 @@ import isWhitelisted from "./isWhitelisted";
 import sendMessage from "./sendMessage";
 import showNotification from "./showNotification";
 import { isMsRangeActive } from "./timestampRange";
-import { log } from "../logger/logger";
+import { logger } from "../logger";
 
 type UrlSearchStatus = 'pending' | 'succeeded' | 'failed' | null;
 
@@ -78,7 +78,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                     handleActivate(popupData.verifiedMatch.match, chrome.runtime.id, 'popup', cashbackPagePath, popupData.quietDomainType, popupData.verifiedMatch.isRegex, popupData.time, tabId)
                     break;
                 default:
-                    log.error(`Unknown action: ${res.action}`);
+                    logger.error(`Unknown action: ${res.action}`);
                     break;
             }
         }

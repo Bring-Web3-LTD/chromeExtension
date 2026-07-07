@@ -1,4 +1,4 @@
-import { log } from "../logger/logger";
+import { logger } from "../logger";
 
 const addKeyframes = (keyFrames: KeyFrame[] | undefined): void => {
 
@@ -15,7 +15,7 @@ const addKeyframes = (keyFrames: KeyFrame[] | undefined): void => {
             sheet.insertRule(`@keyframes ${name} { ${rules} }`, sheet.cssRules.length);
         })
     } else {
-        log.error('failed to create stylesheet');
+        logger.error('failed to create stylesheet');
     }
 }
 

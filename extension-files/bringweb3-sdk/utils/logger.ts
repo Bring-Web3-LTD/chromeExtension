@@ -1,4 +1,4 @@
-import storage from "../storage/storage";
+import storage from "./storage/storage";
 
 /**
  * Storage-gated debug logger. Disabled by default.
@@ -70,11 +70,9 @@ const emit = (level: LogLevel, message: string, context?: unknown): void => {
     }
 };
 
-export const log: Logger = {
+export const logger: Logger = {
     debug: (message, context) => emit('debug', message, context),
     info: (message, context) => emit('info', message, context),
     warn: (message, context) => emit('warn', message, context),
     error: (message, context) => emit('error', message, context),
 };
-
-export default log;

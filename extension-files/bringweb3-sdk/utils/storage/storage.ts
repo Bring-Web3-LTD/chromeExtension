@@ -2,6 +2,7 @@
 import StorageCache from "./cache";
 import helpers from "./helpers";
 import { isValidTimestampRange } from "../background/timestampRange";
+import { logger } from "../logger";
 
 const STORAGE_PREFIX = 'bring_';
 
@@ -104,7 +105,7 @@ const initializeDebugCache = () => {
             delete: async (key: string) => await remove(key)
         };
     } catch (error) {
-        console.warn('Failed to initialize debug cache:', error);
+        logger.warn('failed to initialize debug cache', { error });
     }
 }
 

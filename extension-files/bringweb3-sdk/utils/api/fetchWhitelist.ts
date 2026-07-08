@@ -1,4 +1,5 @@
 import { ApiEndpoint } from "../apiEndpoint"
+import { logger } from "../logger"
 
 export const fetchWhitelist = async (timeout?: number) => {
     try {
@@ -31,7 +32,7 @@ export const fetchWhitelist = async (timeout?: number) => {
 
         return whitelist
     } catch (error) {
-        console.error('Error fetching whitelist:', error)
+        logger.error('failed to fetch whitelist', { error })
         return []
     }
 }

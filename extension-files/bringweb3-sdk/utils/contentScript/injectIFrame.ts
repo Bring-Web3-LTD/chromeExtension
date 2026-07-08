@@ -5,6 +5,8 @@ import { OFFERBAR_CONTAINER_ID, IFRAME_ID_PREFIX } from "../constants";
 import insertStyleElement from "./insertStyleElement";
 import injectFramedIframe from "./injectFramedIframe";
 import { contentScriptCleanup } from "./cleanupManager";
+import { logger } from "../logger";
+
 interface Query {
     [key: string]: string
 }
@@ -62,7 +64,7 @@ const injectIFrame = ({ query, styleUrl, themeMode, text, iframeUrl, page, switc
  * @param page - The page type
  */
 function injectIframeWithPlacement(iframe: HTMLIFrameElement, placement?: PlacementConfig, page?: string) {
-    console.log({page});
+    logger.debug('injecting iframe', { page });
     if (['offerbar','framed'].includes(page || '')) {
         const existingIframe = document.querySelector(`iframe[id^="${IFRAME_ID_PREFIX}-"]`);
         if (existingIframe) return;

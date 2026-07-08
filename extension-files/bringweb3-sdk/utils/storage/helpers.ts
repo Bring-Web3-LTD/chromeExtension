@@ -1,3 +1,5 @@
+import { logger } from "../logger";
+
 interface Helpers {
     [key: string]: {
         get: (...args: any[]) => any;
@@ -31,7 +33,7 @@ const buildRegExpArray = (obj: { regexes: string[], flags: string[] }) => {
     try {
         return obj.regexes.map((pattern, i) => new RegExp(pattern, obj.flags[i] || ''))
     } catch (error) {
-        console.error('Error building RegExp array:', error)
+        logger.error('failed to build RegExp array', { error })
         return null
     }
 }
@@ -45,7 +47,7 @@ const buildFollowupRegexes = (records: any) => {
         try {
             return { ...r, triggerRegex: new RegExp(r.trigger), ctlRegex: new RegExp(r.ctl.regex) }
         } catch (error) {
-            console.error('Error building followup RegExp:', error)
+            logger.error('failed to build followup RegExp', { error })
             return r
         }
     })

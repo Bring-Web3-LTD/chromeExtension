@@ -1,3 +1,5 @@
+import { logger } from "./utils/logger.js";
+
 interface PopupEnabled {
     isPopupEnabled: boolean
 }
@@ -15,7 +17,7 @@ export const getPopupEnabled = (): Promise<PopupEnabled> => {
             action: 'GET_POPUP_ENABLED'
         }, response => {
             if (chrome.runtime.lastError) {
-                console.error(chrome.runtime.lastError);
+                logger.error('failed to get popup enabled state', { error: chrome.runtime.lastError });
                 reject(chrome.runtime.lastError);
                 return;
             }
@@ -39,7 +41,7 @@ export const setPopupEnabled = (state: boolean): Promise<PopupEnabled> => {
             isPopupEnabled: state,
         }, (response) => {
             if (chrome.runtime.lastError) {
-                console.error(chrome.runtime.lastError);
+                logger.error('failed to set popup enabled state', { error: chrome.runtime.lastError });
                 reject(chrome.runtime.lastError);
                 return;
             }

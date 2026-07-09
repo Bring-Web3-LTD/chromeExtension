@@ -5,11 +5,14 @@ import getCashbackUrl from "./getCashbackUrl";
 import isWhitelisted from "./isWhitelisted";
 import { DAY_MS } from "../constants";
 import closeAllPopups from "./closeAllPopups";
+import { logger } from "../logger";
 
 const handleActivate = async (domain: string, extensionId: string, source: string, cashbackPagePath: string | undefined, showNotifications: boolean, type: string, isRegex:boolean, time?: number, tabId?: number, iframeUrl?: string, token?: string, flowId?: string, redirectUrl?: string) => {
     const now = Date.now();
 
     const isSameExtension = extensionId === chrome.runtime.id
+
+    logger.info(`[activate] Activating cashback`, { domain, source, tabId, sameExtension: isSameExtension, flowId });
 
     if (isSameExtension) {
         const storageOps = [storage.set('lastActivation', now)];

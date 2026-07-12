@@ -105,9 +105,8 @@ declare global {
         followups?: any[]
     }
 
-    interface GoogleAnalyticsContextType {
-        sendGaEvent: (name: EventName, event: GAEvent, disableGA?: boolean) => Promise<void>;
-        sendPageViewEvent: (path: string) => void;
+    interface AnalyticsContextType {
+        sendAnalyticsEvent: (name: EventName, event: AnalyticsEvent) => Promise<void>;
     }
 
     interface WalletAddressContextType {

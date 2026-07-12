@@ -1,5 +1,5 @@
 import { useEffect, FC, useRef } from 'react';
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
+import { useAnalytics } from '../../hooks/useAnalytics';
 import { useRouteLoaderData } from 'react-router-dom';
 
 interface BeamerProps {
@@ -7,7 +7,7 @@ interface BeamerProps {
 }
 
 const Beamer: FC<BeamerProps> = ({ enabled = false }) => {
-    const { sendGaEvent } = useGoogleAnalytics();
+    const { sendAnalyticsEvent } = useAnalytics();
     const { url } = useRouteLoaderData('root') as LoaderData;
     const pingCountRef = useRef(0);
     const lastMouseMoveRef = useRef<number>(Date.now());
@@ -32,7 +32,7 @@ const Beamer: FC<BeamerProps> = ({ enabled = false }) => {
                 const parentLocation = url;
                 const timeSinceLastMouseMove = Date.now() - lastMouseMoveRef.current;
 
-                sendGaEvent('beamer', {
+                sendAnalyticsEvent('beamer', {
                     pingNumber: pingCountRef.current,
                     category: 'system',
                     parentLocation,

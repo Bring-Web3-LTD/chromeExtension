@@ -2,7 +2,7 @@ import { useRouteLoaderData } from 'react-router-dom'
 import { useState } from 'react'
 import toCaseString from '../../../utils/toCaseString'
 import { sendMessage, ACTIONS } from '../../../utils/sendMessage'
-import { useGoogleAnalytics } from '../../../hooks/useGoogleAnalytics'
+import { useAnalytics } from '../../../hooks/useAnalytics'
 import isLegacyCapSdk from '../../../utils/isLegacyCapSdk'
 import styles from './styles.module.css'
 
@@ -25,7 +25,7 @@ const dict = {
 
 const Optout = ({ closeFn, onOptOut }: Props) => {
     const { textMode, domain, name, platformName, version } = useRouteLoaderData('root') as LoaderData
-    const { sendGaEvent } = useGoogleAnalytics()
+    const { sendAnalyticsEvent } = useAnalytics()
     const [isOpted, setIsOpted] = useState(false)
 
 
@@ -45,7 +45,7 @@ const Optout = ({ closeFn, onOptOut }: Props) => {
         setIsOpted(true)
         onOptOut()
 
-        sendGaEvent('opt_out', {
+        sendAnalyticsEvent('opt_out', {
             category: 'user_action',
             action: 'click',
             details: duration.label,

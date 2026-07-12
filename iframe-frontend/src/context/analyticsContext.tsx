@@ -1,5 +1,4 @@
 import { FC, createContext, useEffect, ReactNode, useCallback, useRef } from 'react';
-import ReactGA from 'react-ga4';
 import { TEST_ID } from '../config';
 import { VariantKey } from '../utils/ABTest/platform-variants';
 import analytics from '../api/analytics';
@@ -7,7 +6,7 @@ import { useWalletAddress } from '../hooks/useWalletAddress';
 
 type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer' | 'wallet_connected' | 'wallet_switched' | 'wallet_disconnected'
 
-interface GAEvent {
+interface AnalyticsEvent {
     category: "user_action" | "system";
     action?: "click" | "input" | "select" | "request"| "timeout";
     details?: string | object;    
@@ -22,7 +21,7 @@ interface BackendEvent {
 }
 
 
-export const GoogleAnalyticsContext = createContext<GoogleAnalyticsContextType | undefined>(undefined);
+export const AnalyticsContext = createContext<AnalyticsContextType | undefined>(undefined);
 
 // Move these outside the component to persist across remounts
 const sentEvents = new Set<EventName>()
@@ -30,7 +29,6 @@ const pendingPromises = new Map<EventName, Promise<{ success: boolean; error?: E
 let pageViewSent = false
 
 interface Props {
-    measurementId: string
     children: ReactNode
     platform: string
     userId: string | undefined
@@ -47,7 +45,7 @@ interface Props {
     isOfferBar: boolean | undefined
 }
 
-export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar }) => {
+export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar }) => {
     const isInitialMount = useRef(true)
     const { walletAddress } = useWalletAddress()
     const previousWalletAddressRef = useRef<string | undefined>(walletAddress)
@@ -119,28 +117,6 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flowId, platform, retailerName, testVariant, userId, walletAddress])
 
-    useEffect(() => {
-        if (ReactGA.isInitialized && measurementId) return;
-
-        ReactGA.initialize(measurementId, {
-            gaOptions: {
-                storage: 'none',
-                storeGac: false,
-                cookieFlags: 'SameSite=None;Secure'
-            },
-            gtagOptions: {
-                anonymize_ip: true,
-                cookie_update: false,
-                platform,
-                testId: TEST_ID,
-                testVariant,
-                source: 'extension',
-                walletAddress
-            }
-        });
-
-    }, [measurementId, platform, testVariant, walletAddress]);
-
     // Track wallet address changes
     useEffect(() => {
         if (window.origin.includes('localhost')) {
@@ -166,21 +142,21 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
 
             if (!prev && current) {
                 // No wallet → wallet: user connected a wallet
-                sendGaEvent('wallet_connected', {
+                sendAnalyticsEvent('wallet_connected', {
                     category: 'user_action',
                     action: 'click',
                     details
                 })
             } else if (prev && current) {
                 // Wallet A → wallet B: user switched wallets
-                sendGaEvent('wallet_switched', {
+                sendAnalyticsEvent('wallet_switched', {
                     category: 'user_action',
                     action: 'click',
                     details
                 })
             } else if (prev && !current) {
                 // Wallet → no wallet: user disconnected
-                sendGaEvent('wallet_disconnected', {
+                sendAnalyticsEvent('wallet_disconnected', {
                     category: 'user_action',
                     action: 'click',
                     details
@@ -215,55 +191,15 @@ export const GoogleAnalyticsProvider: FC<Props> = ({ measurementId, children, pl
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const sendPageViewEvent = (): void => {
-
-        if (window.origin.includes('localhost')) {
-            return
-        }
-        if (!ReactGA.isInitialized) {
-            console.warn('BRING: Google Analytics is not initialized');
-            return
-        }
-        ReactGA.send({
-            hitType: 'pageview',
-            page_location: window.location.href,
-            page_path: window.location.pathname,
-            page_title: document.title,
-            retailer: retailerName
-        });
-    };
-
-    const sendGaEvent = async (name: EventName, event: GAEvent, disableGA: boolean = false): Promise<void> => {
+    const sendAnalyticsEvent = async (name: EventName, event: AnalyticsEvent): Promise<void> => {
         if (window.origin.includes('localhost')) return
 
-        const backendResult = await sendBackendEvent(name, event)
-
-        // If the event was skipped (already sent) or failed, don't send to GA
-        if (backendResult.skipped || !backendResult.success) return
-
-        if (!ReactGA.isInitialized) {
-            console.warn('BRING: Google Analytics is not initialized');
-            return
-        }
-
-        if (disableGA) return
-
-        const params: { [key: string]: unknown } = {
-            ...event,
-            platform,
-            testId: TEST_ID,
-            testVariant,
-            source: 'extension'
-        }
-
-        if (walletAddress) params.walletAddress = walletAddress
-        ReactGA.event(name, params)
-        return
+        await sendBackendEvent(name, event)
     };
 
     return (
-        <GoogleAnalyticsContext.Provider value={{ sendGaEvent, sendPageViewEvent }}>
+        <AnalyticsContext.Provider value={{ sendAnalyticsEvent }}>
             {children}
-        </GoogleAnalyticsContext.Provider>
+        </AnalyticsContext.Provider>
     );
 };

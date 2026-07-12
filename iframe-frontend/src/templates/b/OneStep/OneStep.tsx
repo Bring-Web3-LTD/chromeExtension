@@ -3,7 +3,7 @@ import styles from './style.module.css'
 // Hooks
 import { useEffect, useState } from "react"
 import { useRouteLoaderData } from "react-router-dom"
-import { useGoogleAnalytics } from "../../../hooks/useGoogleAnalytics"
+import { useAnalytics } from "../../../hooks/useAnalytics"
 import { motion, AnimatePresence } from "framer-motion"
 // Components
 import CloseBtn from "../CloseBtn/CloseBtn"
@@ -52,7 +52,7 @@ const OneStep = () => {
     const [optoutPeriod, setOptoutPeriod] = useState<number | null>(null)
     const [isOptedOut, setIsOptedOut] = useState(false)
     const [isDemo, setIsDemo] = useState(false)
-    const { sendGaEvent } = useGoogleAnalytics()
+    const { sendAnalyticsEvent } = useAnalytics()
 
     useEffect(() => {
         const controller = new AbortController()
@@ -89,7 +89,7 @@ const OneStep = () => {
 
         setStatus('activating')
 
-        sendGaEvent('retailer_activation', {
+        sendAnalyticsEvent('retailer_activation', {
             category: 'user_action',
             action: 'click',
             process: 'activate',
@@ -121,7 +121,7 @@ const OneStep = () => {
         }
 
         sendMessage({ action: ACTIONS.ACTIVATE, url, domain, time: parseTime(ACTIVATE_QUIET_TIME, version), redirectUrl, quietDomainType: 'kds' })
-        sendGaEvent('retailer_shop', {
+        sendAnalyticsEvent('retailer_shop', {
             category: 'user_action',
             action: 'click',
             details: name

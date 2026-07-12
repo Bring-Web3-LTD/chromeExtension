@@ -92,7 +92,6 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
 
           # VITE_* env vars are automatically picked up by Vite during build
-          export VITE_GA_MEASUREMENT_ID="${{ secrets.VITE_GA_MEASUREMENT_ID }}"
           export VITE_TEST_ID="${{ secrets.VITE_TEST_ID }}"
 
           DEPLOY_ENV="${{ steps.env.outputs.deploy_env }}"

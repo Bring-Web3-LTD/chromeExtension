@@ -231,10 +231,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             popupData = state.inlineSearch.popupData;
         }
 
-        if (!await isWhitelisted(popupData.networkUrl)) {
-            logger.info(`[popup-check] No popup — network URL not whitelisted`, { tabId, url, networkUrl: popupData.networkUrl });
-            return;
-        }
+        if (!await isWhitelisted(popupData.networkUrl)) return;
 
         if (!isInlineSearch) {
             tabStates.get(tabId)!.urlSearchStatus = 'succeeded';
@@ -305,7 +302,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             } else {
                 logger.debug(`[followup] No popup from followup — no iframe or network not whitelisted`, { tabId, url, iframeUrl: followupResult.iframeUrl, networkUrl: followupResult.networkUrl });
             }
-        }).catch(() => { });
+        }).catch(error => logger.error(`[followup] Followup handling failed`, error));
 
         await validateAndInject(url, tabId, tab, false, undefined, isSpaNavigation);
     };
@@ -317,7 +314,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             logger.debug(`[nav] URL changed (full page navigation)`, { tabId, url });
             const entry = navUrls.get(tabId);
             entry ? (entry.committed = url) : navUrls.set(tabId, { committed: url });
-            onMainNavigation(tabId, url).catch(() => {});
+            onMainNavigation(tabId, url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
         }, { url: [{ schemes: ['http', 'https'] }] });
 
         // SPA navigations — only processes if onCommitted hasn't handled this URL.
@@ -330,12 +327,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             logger.debug(`[nav] URL changed (SPA / history state update)`, { tabId, url });
             const entry = navUrls.get(tabId);
             entry ? (entry.history = url) : navUrls.set(tabId, { history: url });
-            onMainNavigation(tabId, url, true).catch(() => {});
+            onMainNavigation(tabId, url, true).catch(error => logger.error(`[flow] Navigation handling failed`, error));
         }, { url: [{ schemes: ['http', 'https'] }] });
 
         chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
             if (frameId !== 0) return;
-            onPageComplete(tabId, url).catch(() => {});
+            onPageComplete(tabId, url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
         }, { url: [{ schemes: ['http', 'https'] }] });
     } else {
         // Fallback when webNavigation permission is unavailable.
@@ -344,11 +341,11 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
             if (changeInfo.url) {
                 logger.debug(`[nav] URL changed (tab-update fallback)`, { tabId, url: tab.url });
-                onMainNavigation(tabId, tab.url).catch(() => {});
+                onMainNavigation(tabId, tab.url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
             }
 
             if (changeInfo.status === 'complete') {
-                onPageComplete(tabId, tab.url).catch(() => {});
+                onPageComplete(tabId, tab.url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
             }
         });
     }

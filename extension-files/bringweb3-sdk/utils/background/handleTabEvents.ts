@@ -1,6 +1,7 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
-import { DAY_MS } from "../constants";
+import { DAY_MS, HOUR_MS } from "../constants";
+import { normalizeUrl } from "../normalizeUrl";
 import { registerRedirectChain, getChain, clearChain } from "./redirectChain";
 import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
@@ -111,7 +112,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         return res;
     };
 
-    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineSearchResult?: { match: string | string[], type?: string }, isSpaNavigation: boolean = false, standDown: StandDown = null) => {
+    const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineSearchResult?: { match: string | string[], type?: string }, isSpaNavigation: boolean = false) => {
 
         // Inline search scans every link on the page (often 50-100), mostly non-matching. Logging each one
         // buries the signal, so inline links only log once they actually match; the main URL logs every step.
@@ -206,11 +207,6 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             tabStates.get(tabId)!.urlSearchStatus = 'pending';
         }
 
-        // Stand-down: another affiliate already attributed the navigation that
-        // led to this page. Computed once per page from its redirect chain (see
-        // findStandDown); inline links inherit the page's verdict.
-        if (standDown) matches.push(standDown);
-
         let popupData = await validateDomain({
             body: {
                 phase,
@@ -267,8 +263,9 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         await injectPopup(tabId, tab, popupData, phase, address, urlToCheck, isSpaNavigation);
     };
 
-    // Inline-search: scrape page links after load.
-    const onPageComplete = async (tabId: number, url: string, chain: string[] = []) => {
+    // Inline-search: scrape page links after load. No stand-down check — it already
+    // quieted this page's base domain, so the 'i' gate below bails out.
+    const onPageComplete = async (tabId: number, url: string) => {
         const isPopupEnabled = await storage.get('popupEnabled');
         if (!isPopupEnabled) return;
 
@@ -288,16 +285,19 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         logger.info(`[popup-check] Inline search — checking page links`, { tabId, url, links: uniqueLinks.length });
 
-        // Checked once against the 'i' page's own chain — never per scraped link.
-        const standDown = await findStandDown(chain);
 
         await Promise.allSettled(
-            uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, { match: inlineSearchResult.match, type: inlineSearchResult.type }, false, standDown))
+            uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, { match: inlineSearchResult.match, type: inlineSearchResult.type }))
         );
     };
 
-    const onMainNavigation = async (tabId: number, url: string, isSpaNavigation: boolean = false, chain: string[] = []) => {
+    const onMainNavigation = async (tabId: number, url: string, isSpaNavigation: boolean = false) => {
         logger.info(`[flow] Handling navigation`, { tabId, url, isSpaNavigation });
+
+        // Read before the first await, so a concurrent navigation's clearChain
+        // can't wipe this navigation's chain mid-flight.
+        const chain = getChain(tabId);
+
         const isPopupEnabled = await storage.get('popupEnabled');
         if (!isPopupEnabled) {
             logger.debug(`[flow] Skipped — popup disabled by user`, { tabId, url });
@@ -323,32 +323,43 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             }
         }).catch(error => logger.error(`[followup] Followup handling failed`, error));
 
-        await validateAndInject(url, tabId, tab, false, undefined, isSpaNavigation, await findStandDown(chain));
+        // Another affiliate attributed the nav that led here: quiet the base domain,
+        // suppressing every later path on it. Skip if it already has any entry.
+        const baseDomain = normalizeUrl(url, { reverseHost: false, hostOnly: true });
+        if (baseDomain) {
+            const { phase } = await getQuietDomain(baseDomain);
+            if (phase === 'new') {
+                const standDown = await findStandDown(chain);
+                if (standDown) {
+                    const offset = await storage.get('standDownOffset') || HOUR_MS;
+                    // 'kdi' covers main nav + the inline page gate. No 's': that gate
+                    // stops the scrape before any link is queried.
+                    await addQuietDomain(baseDomain, offset, 'kdi', false);
+                }
+            }
+        }
+
+        await validateAndInject(url, tabId, tab, false, undefined, isSpaNavigation);
     };
 
-    // Reset the chain at navigation start (before any 3xx hop), so each
-    // top-frame nav — including one that preempts an uncommitted nav —
-    // starts fresh and can't inherit a leftover chain.
+    // Reset the chain at nav start (before any 3xx hop), so a nav — even one that
+    // preempts an uncommitted nav — can't inherit a leftover chain.
     chrome.webNavigation.onBeforeNavigate.addListener(({ tabId, frameId }) => {
         if (frameId !== 0) return;
         clearChain(tabId);
     }, { url: [{ schemes: ['http', 'https'] }] });
 
-    // Full navigations — always processes. Snapshot the chain synchronously
-    // (complete by commit) so a later navigation clearing it can't wipe the
-    // async read. Not cleared here — onPageComplete still needs it.
+    // Full navigations — always processes.
     chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
         if (frameId !== 0) return;
         logger.debug(`[nav] URL changed (full page navigation)`, { tabId, url });
-        const chain = getChain(tabId);
         const entry = navUrls.get(tabId);
         entry ? (entry.committed = url) : navUrls.set(tabId, { committed: url });
-        onMainNavigation(tabId, url, false, chain).catch(error => logger.error(`[flow] Navigation handling failed`, error));
+        onMainNavigation(tabId, url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
     }, { url: [{ schemes: ['http', 'https'] }] });
 
-    // SPA navigations — only processes if onCommitted hasn't handled this URL.
-    // Route changes fire no request, so the chain still holds this page visit's
-    // arrival hops — pass it so SPA routes inherit the same stand-down verdict.
+    // SPA navigations — only processes if onCommitted hasn't handled this URL. Route
+    // changes fire no request, so the chain still holds this visit's arrival hops.
     chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId, url }) => {
         if (frameId !== 0) return;
         if (navUrls.get(tabId)?.committed === url) {
@@ -358,12 +369,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         logger.debug(`[nav] URL changed (SPA / history state update)`, { tabId, url });
         const entry = navUrls.get(tabId);
         entry ? (entry.history = url) : navUrls.set(tabId, { history: url });
-        onMainNavigation(tabId, url, true, getChain(tabId)).catch(error => logger.error(`[flow] Navigation handling failed`, error));
+        onMainNavigation(tabId, url, true).catch(error => logger.error(`[flow] Navigation handling failed`, error));
     }, { url: [{ schemes: ['http', 'https'] }] });
 
     chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
         if (frameId !== 0) return;
-        onPageComplete(tabId, url, getChain(tabId)).catch(error => logger.error(`[popup-check] Inline search failed`, error));
+        onPageComplete(tabId, url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
     }, { url: [{ schemes: ['http', 'https'] }] });
 
     chrome.tabs.onRemoved.addListener((tabId) => {

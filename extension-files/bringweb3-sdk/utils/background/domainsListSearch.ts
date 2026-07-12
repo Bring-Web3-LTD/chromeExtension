@@ -1,4 +1,5 @@
 import storage from "../storage/storage";
+import { reverseStr } from "../reverseStr";
 
 type SearchArrayResult =
     | { matched: false, match: undefined }
@@ -21,7 +22,7 @@ export const searchRegexArray = async (regexArray: RegExp[], url: string, search
 
     const unescapedPath = decodeURIComponent(path.replace(/\+/g, ' '));
 
-    const revHost = host.split('').reverse().join('');
+    const revHost = reverseStr(host);
 
     const testStr = revHost + unescapedPath;
 

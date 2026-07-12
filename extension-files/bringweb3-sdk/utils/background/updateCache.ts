@@ -49,14 +49,16 @@ export const updateCache = async () => {
     return pending = (async () => {
         try {
             const res = await fetchDomains(trigger, 30000);
-            const { nextUpdateTimestamp, relevantDomains, flags, types, quietDomainsMaxLength } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
+            const { nextUpdateTimestamp, relevantDomains, flags, types, quietDomainsMaxLength, standDownOffset } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
 
             whitelist = await fetchWhitelist(30000)
 
             const storageUpdates = [
                 storage.set('relevantDomains', { regexes: relevantDomains, flags }),
                 storage.set('relevantDomainsCheck', [now, now + nextUpdateTimestamp]),
-                storage.set('domainsTypes', types)
+                storage.set('domainsTypes', types),
+                // How long to quiet a domain on stand-down; SDK falls back to 1h.
+                storage.set('standDownOffset', standDownOffset ?? null)
             ]
 
             if (quietDomainsMaxLength) {

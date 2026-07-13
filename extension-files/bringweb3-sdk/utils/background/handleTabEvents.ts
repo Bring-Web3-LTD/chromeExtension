@@ -57,6 +57,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
     const injectPopup = async (tabId: number, tab: chrome.tabs.Tab, popupData: any, phase: string, address: WalletAddress, sourceUrl?: string, isSpaNavigation: boolean = false) => {
         const userId = await getUserId()
 
+        logger.info(`[inject] Sending open-popup request to content script`, { tabId, phase, domain: parseUrl(tab.url!), iframeUrl: popupData.iframeUrl, flowId: popupData.flowId, isSpaNavigation });
+
         const res = await sendMessage(tabId, {
             action: 'INJECT',
             token: popupData.token,
@@ -71,6 +73,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             framed: popupData.framed,
             isSpaNavigation
         });
+
+        logger.info(`[inject] Content script replied to open-popup request`, { tabId, phase, status: res?.status, action: res?.action, message: res?.message });
 
         if (res?.action) {
             switch (res.action) {
@@ -98,20 +102,33 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
     const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineSearchResult?: { match: string | string[], type?: string }, isSpaNavigation: boolean = false) => {
 
-        if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') return;
+        // Inline search scans every link on the page (often 50-100), mostly non-matching. Logging each one
+        // buries the signal, so inline links only log once they actually match; the main URL logs every step.
+        if (!isInlineSearch) logger.debug(`[popup-check] Starting popup evaluation`, { tabId, urlToCheck, isSpaNavigation });
+
+        if (isInlineSearch && tabStates.get(tabId)?.urlSearchStatus == 'succeeded') {
+            logger.debug(`[popup-check] Skipped inline search — main URL search already succeeded`, { tabId });
+            return;
+        }
 
         const url = parseUrl(urlToCheck);
 
         const { matched, match, type } = await getRelevantDomain(urlToCheck, isInlineSearch ? 's' : 'kd');
 
         if (!matched) {
-            if (!isInlineSearch) await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
+            if (!isInlineSearch) {
+                logger.info(`[popup-check] No popup — domain not in relevant-domains list`, { tabId, url });
+                await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
+            }
             return;
         };
+
+        logger.debug(`[popup-check] Domain matched`, { tabId, url, match, type, isInlineSearch });
 
         if (isInlineSearch) {
             const state = tabStates.get(tabId);
             if (state?.inlineSearch?.status === "matched") {
+                logger.debug(`[popup-check] Skipped inline search — tab already matched`, { tabId });
                 return;
             }
             if (!state) {
@@ -122,6 +139,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         }
 
         const { phase, payload } = await getQuietDomain(url, type);
+        logger.info(`[popup-check] Domain phase resolved`, { tabId, url, phase });
 
         const matches = [];
         if (isInlineSearch && inlineSearchResult) {
@@ -135,13 +153,17 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             const optOut = await storage.get('optOut');
 
             if (isMsRangeActive(optOut, now)) {
+                logger.info(`[popup-check] No popup — user opted out (global cooldown active)`, { tabId, url });
                 return;
             } else {
                 await storage.remove('optOut')
             }
         } else if (phase === 'activated') {
+            logger.info(`[inject] Showing activated popup (post-activation re-show)`, { tabId, url });
             const userId = await getUserId()
             const { iframeUrl, token, placement } = payload || {};
+
+            logger.info(`[inject] Sending open-popup request to content script`, { tabId, phase, domain: url, iframeUrl, isSpaNavigation });
 
             const res = await sendMessage(tabId, {
                 action: 'INJECT',
@@ -153,9 +175,11 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 placement,  // Pass placement configuration from payload
                 isSpaNavigation
             });
+            logger.info(`[inject] Content script replied to open-popup request`, { tabId, phase, status: res?.status, action: res?.action, message: res?.message });
             return;
         } else if (phase === 'quiet') {
             // TODO: if(phase === 'quiet') => Purchase-detector
+            logger.info(`[popup-check] No popup — domain is quiet phase`, { tabId, url });
             await showNotification(tabId, cashbackPagePath, url, showNotifications, notificationCallback)
             return
         }
@@ -185,6 +209,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             await applyQuietDomainsUpdate(popupData.quietDomains);
         }
 
+        logger.info(`[popup-check] Server validation result`, { tabId, url, isValid: popupData?.isValid, networkUrl: popupData?.networkUrl });
+
         if (!popupData.time) popupData.time = DAY_MS;
 
         if (Array.isArray(popupData.followups)) {
@@ -192,6 +218,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         }
 
         if (popupData.isValid === false) {
+            logger.info(`[popup-check] No popup — server rejected, marking domain quiet`, { tabId, url, match: popupData.verifiedMatch?.match });
             addQuietDomain(popupData.verifiedMatch.match, popupData.time, popupData.quietDomainType, popupData.verifiedMatch.isRegex);
 
             if (isInlineSearch) return;
@@ -210,8 +237,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             tabStates.get(tabId)!.urlSearchStatus = 'succeeded';
         } else {
             const state = tabStates.get(tabId);
-            if (state?.urlSearchStatus === 'succeeded') return;
+            if (state?.urlSearchStatus === 'succeeded') {
+                logger.debug(`[popup-check] Skipped inline inject — main URL search already succeeded`, { tabId });
+                return;
+            }
             if (state?.urlSearchStatus === 'pending') {
+                logger.debug(`[popup-check] Deferred inline popup — main URL search still pending`, { tabId });
                 state.inlineSearch = { status: "matched", popupData };
                 return;
             }
@@ -239,14 +270,20 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         const uniqueLinks = [...new Set(response.links)] as string[];
 
+        logger.info(`[popup-check] Inline search — checking page links`, { tabId, url, links: uniqueLinks.length });
+
         await Promise.allSettled(
             uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, { match: inlineSearchResult.match, type: inlineSearchResult.type }))
         );
     };
 
     const onMainNavigation = async (tabId: number, url: string, isSpaNavigation: boolean = false) => {
+        logger.info(`[flow] Handling navigation`, { tabId, url, isSpaNavigation });
         const isPopupEnabled = await storage.get('popupEnabled');
-        if (!isPopupEnabled) return;
+        if (!isPopupEnabled) {
+            logger.debug(`[flow] Skipped — popup disabled by user`, { tabId, url });
+            return;
+        }
 
         const tab = await chrome.tabs.get(tabId);
         tabStates.delete(tabId);
@@ -259,10 +296,13 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 await armFollowups(followupResult.followups, tabId).catch(() => { });
             }
             if (followupResult.iframeUrl && await isWhitelisted(followupResult.networkUrl)) {
+                logger.info(`[followup] Eligible — showing followup popup`, { tabId, url, iframeUrl: followupResult.iframeUrl });
                 const address = await getWalletAddress(tabId);
                 await injectPopup(tabId, tab, followupResult, 'new', address, url, isSpaNavigation);
+            } else {
+                logger.debug(`[followup] No popup from followup — no iframe or network not whitelisted`, { tabId, url, iframeUrl: followupResult.iframeUrl, networkUrl: followupResult.networkUrl });
             }
-        }).catch(() => { });
+        }).catch(error => logger.error(`[followup] Followup handling failed`, error));
 
         await validateAndInject(url, tabId, tab, false, undefined, isSpaNavigation);
     };
@@ -271,23 +311,28 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         // Full navigations — always processes.
         chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
             if (frameId !== 0) return;
+            logger.debug(`[nav] URL changed (full page navigation)`, { tabId, url });
             const entry = navUrls.get(tabId);
             entry ? (entry.committed = url) : navUrls.set(tabId, { committed: url });
-            onMainNavigation(tabId, url).catch(() => {});
+            onMainNavigation(tabId, url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
         }, { url: [{ schemes: ['http', 'https'] }] });
 
         // SPA navigations — only processes if onCommitted hasn't handled this URL.
         chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId, url }) => {
             if (frameId !== 0) return;
-            if (navUrls.get(tabId)?.committed === url) return;
+            if (navUrls.get(tabId)?.committed === url) {
+                logger.debug(`[nav] SPA URL change ignored — already handled by full navigation`, { tabId, url });
+                return;
+            }
+            logger.debug(`[nav] URL changed (SPA / history state update)`, { tabId, url });
             const entry = navUrls.get(tabId);
             entry ? (entry.history = url) : navUrls.set(tabId, { history: url });
-            onMainNavigation(tabId, url, true).catch(() => {});
+            onMainNavigation(tabId, url, true).catch(error => logger.error(`[flow] Navigation handling failed`, error));
         }, { url: [{ schemes: ['http', 'https'] }] });
 
         chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
             if (frameId !== 0) return;
-            onPageComplete(tabId, url).catch(() => {});
+            onPageComplete(tabId, url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
         }, { url: [{ schemes: ['http', 'https'] }] });
     } else {
         // Fallback when webNavigation permission is unavailable.
@@ -295,11 +340,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             if (!tab?.url?.startsWith('http')) return;
 
             if (changeInfo.url) {
-                onMainNavigation(tabId, tab.url).catch(() => {});
+                logger.debug(`[nav] URL changed (tab-update fallback)`, { tabId, url: tab.url });
+                onMainNavigation(tabId, tab.url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
             }
 
             if (changeInfo.status === 'complete') {
-                onPageComplete(tabId, tab.url).catch(() => {});
+                onPageComplete(tabId, tab.url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
             }
         });
     }

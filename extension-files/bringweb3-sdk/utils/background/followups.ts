@@ -3,6 +3,7 @@ import validateDomain from "../api/validateDomain"
 import applyQuietDomainsUpdate from "./applyQuietDomainsUpdate"
 import parseUrl from "../parseUrl"
 import { searchRegexArray } from "./domainsListSearch"
+import { logger } from "../logger"
 
 // Server-defined navigation watchers persisted across SW restarts. See WORKFLOW.md.
 
@@ -96,6 +97,8 @@ export const armFollowups = async (incoming: any, originatingTabId?: number) => 
         const existing = await read()
         await write(existing.concat(newRecords))
     })
+
+    logger.debug(`[followup] Armed navigation watchers`, { tabId: originatingTabId, count: newRecords.length, ids: newRecords.map(r => r.id) })
 }
 
 export const processNavigation = async (tabId: number, url: string): Promise<any | null> => {
@@ -110,11 +113,16 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
         const records = await read()
         if (!records.length) return
 
+        logger.debug(`[followup] Evaluating navigation against watchers`, { tabId, url, records: records.length })
+
         const dropped = new Set<FollowupRecord>()
 
         for (const rec of records) {
             if (rec.tabId !== null && rec.tabId !== tabId) continue
-            if (!rec.triggerRegex || !rec.ctlRegex) { dropped.add(rec); continue }
+            if (!rec.triggerRegex || !rec.ctlRegex) {
+                logger.debug(`[followup] Dropping watcher — missing compiled regex`, { tabId, id: rec.id })
+                dropped.add(rec); continue
+            }
 
             // Scope gates everything: an out-of-scope navigation can't fire or spend
             // budget, so skip the trigger check entirely. An in-scope navigation costs
@@ -122,14 +130,17 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
             const scopeMatch = await matchTrigger(rec.ctlRegex, url, rec.ctl.type)
             if (!scopeMatch) continue
             rec.ctl.cnt -= 1
+            logger.debug(`[followup] Watcher in scope — spent 1 budget`, { tabId, id: rec.id, type: rec.ctl.type, cntLeft: rec.ctl.cnt })
 
             const triggerMatch = await matchTrigger(rec.triggerRegex, url, rec.ctl.type)
             if (triggerMatch) {
                 if (rec.ctl.type === 't') {
+                    logger.debug(`[followup] Trigger matched (TOF) — firing and dropping watcher`, { tabId, id: rec.id })
                     fired.push({ ...rec, matches: [triggerMatch] })
                     dropped.add(rec)
                     continue
                 } else {
+                    logger.debug(`[followup] Trigger matched (FOT) — accumulating match`, { tabId, id: rec.id, matches: rec.matches.length + 1 })
                     rec.matches.push(triggerMatch)
                 }
             }
@@ -138,9 +149,13 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
         for (const rec of records) {
             if (dropped.has(rec)) continue
             if (rec.ctl.cnt <= 0) {
-                if (rec.ctl.type === 'f') fired.push({ ...rec, matches: rec.matches.slice() })
+                if (rec.ctl.type === 'f') {
+                    logger.debug(`[followup] Budget exhausted (FOT) — firing on terminate`, { tabId, id: rec.id, matches: rec.matches.length })
+                    fired.push({ ...rec, matches: rec.matches.slice() })
+                }
                 dropped.add(rec)
             } else if (rec.expiresAt <= now) {
+                logger.debug(`[followup] Watcher expired (TTL) — dropping`, { tabId, id: rec.id })
                 dropped.add(rec)
             }
         }
@@ -149,6 +164,8 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
     })
 
     if (!fired.length) return null
+
+    logger.info(`[followup] Followup(s) fired — reposting to server`, { tabId, url, count: fired.length })
 
     // All fires repost to /check/popup — the backend dispatches by id
     // (emits analytics for TnxAnalytics, returns a popup payload for others, …).
@@ -167,10 +184,12 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
         if (response?.quietDomainsChanged === true) {
             await applyQuietDomainsUpdate(response.quietDomains)
         }
+        logger.info(`[followup] Server response for fired followups`, { tabId, isValid: response?.isValid, iframeUrl: response?.iframeUrl, hasFollowups: Array.isArray(response?.followups) })
         // Return the full response — the caller (handleTabEvents.handlePopupResponse) decides
         // what to do based on isValid / verifiedMatch / followups (mirrors validateAndInject).
         return response ?? null
-    } catch {
+    } catch (error) {
+        logger.error(`[followup] Server repost failed`, error)
         return null
     }
 }

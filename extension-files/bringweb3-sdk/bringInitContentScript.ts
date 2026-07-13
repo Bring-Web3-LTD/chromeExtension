@@ -130,32 +130,40 @@ const bringInitContentScript = async ({
                     const links = Array.from(document.querySelectorAll('a[href]'))
                         .map(a => (a as HTMLAnchorElement).href)
                         .filter(href => href.startsWith('http'));
+                    logger.debug(`[content] Scraped page links for inline search`, { count: links.length });
                     sendResponse({ status: 'success', links });
                 } catch (error) {
+                    logger.error(`[content] Page-links scrape failed`, error);
                     sendResponse({ status: 'failed', links: [] });
                 }
                 return true
             case 'CLOSE_POPUP':
                 if (iframeEl && iframePath === request.path && getDomain(location.href) === getDomain(request.domain)) {
+                    logger.info(`[content] Closing popup`, { domain: request.domain, path: request.path });
                     removeElements();
                     sendResponse({ status: 'success', message: 'Popup closed', location: window.document.location.href, flowId })
                 } else {
+                    logger.debug(`[content] Ignored close request — domain mismatch or popup not open`, { domain: request.domain, path: request.path });
                     sendResponse({ status: 'failed', message: 'Domain mismatch or iframe not open' })
                 }
                 return true
             case 'INJECT':
                 try {
+                    logger.info(`[content] Open-popup request received`, { domain: request.domain, page: request.page, isSpaNavigation: request.isSpaNavigation, flowId: request.flowId });
                     const { referrer } = document
                     const referrers = request.referrers || []
 
                     if (getDomain(location.href) !== getDomain(request.domain)) {
+                        logger.info(`[content] No popup — page domain already changed`, { current: getDomain(location.href), expected: getDomain(request.domain) });
                         sendResponse({ status: 'failed', message: 'Domain already changed' });
                         return true
                     } else if (isIframeOpen) {
                         // On SPA navigations, pagehide doesn't fire, so close the old popup before injecting.
                         if (request.isSpaNavigation) {
+                            logger.debug(`[content] SPA navigation — closing previous popup before re-injecting`);
                             removeElements();
                         } else {
+                            logger.info(`[content] No popup — popup already open`);
                             sendResponse({ status: 'failed', message: 'iframe already open' });
                             return true
                         }
@@ -164,6 +172,7 @@ const bringInitContentScript = async ({
                     const isReferrer = !!referrer && referrers.includes(getDomain(referrer))
 
                     if (isReferrer && request.page === '') {
+                        logger.info(`[content] No popup — already activated by referrer`, { referrer: getDomain(referrer) });
                         sendResponse({ status: 'failed', message: `already activated by ${getDomain(referrer)}`, action: 'activate' });
                         return true
                     }
@@ -188,9 +197,11 @@ const bringInitContentScript = async ({
                     isIframeOpen = true
                     iframePath = `/${request.page || ''}`
                     flowId = request.flowId
+                    logger.info(`[content] Popup shown (iframe injected)`, { domain: request.domain, page: request.page, flowId });
                     sendResponse({ status: 'success' });
                     return true
                 } catch (error) {
+                    logger.error(`[content] Open-popup request failed`, error);
                     if (error instanceof Error) {
                         sendResponse({ status: 'failed', message: error.message });
                     } else {

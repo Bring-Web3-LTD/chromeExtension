@@ -20,11 +20,16 @@ const isWhitelisted = async (url: string): Promise<boolean> => {
             whitelist = await storage.get('redirectsWhitelist')
         }
 
-        if (!whitelist?.length) return false
+        if (!whitelist?.length) {
+            logger.warn('[whitelist] Not whitelisted — whitelist is empty after cache refresh', { url })
+            return false
+        }
 
         const domain = getDomain(url)
 
         const { matched } = searchArray(whitelist, domain)
+
+        if (!matched) logger.info('[whitelist] Not whitelisted — domain not in redirects whitelist', { url, domain })
 
         return matched;
 

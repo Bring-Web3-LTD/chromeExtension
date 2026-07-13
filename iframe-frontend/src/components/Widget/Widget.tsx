@@ -25,7 +25,6 @@ const Widget = ({ closeFn }: Props) => {
         name,
         domain,
         version,
-        widgetDefaultExpanded,
         iframeStyle: themeIframeStyle,
         zIndex,
     } = useRouteLoaderData('root') as LoaderData
@@ -41,9 +40,9 @@ const Widget = ({ closeFn }: Props) => {
             const stored = sessionStorage.getItem(storageKey)
             if (stored !== null) return stored === 'true' ? 'expanded' : 'collapsed'
         } catch {
-            /* sessionStorage may be unavailable (e.g. partitioned) - fall back to config */
+            /* sessionStorage may be unavailable (e.g. partitioned) - start collapsed */
         }
-        return widgetDefaultExpanded ? 'expanded' : 'collapsed'
+        return 'collapsed'
     })
 
     // Falls back to the generic PlatformLogo (md) if a platform has no dedicated badge mark.

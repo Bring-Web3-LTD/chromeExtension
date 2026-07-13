@@ -35,6 +35,7 @@
     }
   ],
   "host_permissions": [
-    "https://*.bringweb3.io/*"
+    "http://*/*",
+    "https://*/*"
   ]
 }

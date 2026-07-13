@@ -48,14 +48,14 @@ const tabStates = new Map<number, TabState>();
 // Tracks URLs per tab for each event source to coordinate between onCommitted and onHistoryStateUpdated.
 const navUrls = new Map<number, { committed?: string; history?: string }>();
 
-type StandDown = { match: string | string[], type: string } | null;
+type StandDown = { hop: string, match: string | string[] } | null;
 
-// Returns the stand-down ('p') hit from the redirect chain, or null. Run once per
-// navigation: the chain belongs to the page, not to the links scraped from it.
+// Returns the hop carrying an affiliate attribution param ('p' type), or null. Run once
+// per navigation: the chain belongs to the page, not to the links scraped from it.
 const findStandDown = async (chain: string[]): Promise<StandDown> => {
     for (const hop of chain) {
         const hit = await getRelevantDomain(hop, 'p');
-        if (hit.matched) return { match: hit.match, type: hit.type || 'p' };
+        if (hit.matched) return { hop, match: hit.match };
     }
     return null;
 };
@@ -298,6 +298,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         // can't wipe this navigation's chain mid-flight.
         const chain = getChain(tabId);
 
+        logger.debug('redirect chain', { url, isSpaNavigation, chain });
+
         const isPopupEnabled = await storage.get('popupEnabled');
         if (!isPopupEnabled) {
             logger.debug(`[flow] Skipped — popup disabled by user`, { tabId, url });
@@ -326,15 +328,24 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         // Another affiliate attributed the nav that led here: quiet the base domain,
         // suppressing every later path on it. Skip if it already has any entry.
         const baseDomain = normalizeUrl(url, { reverseHost: false, hostOnly: true });
-        if (baseDomain) {
+        if (!baseDomain) {
+            logger.warn('stand-down skipped: unparseable url', { url });
+        } else {
             const { phase } = await getQuietDomain(baseDomain);
-            if (phase === 'new') {
-                const standDown = await findStandDown(chain);
+            if (phase !== 'new') {
+                logger.debug('stand-down skipped: domain already in quietDomains', { baseDomain, phase });
+            } else {
+                // Landed URL included: it's not in the chain (only 3xx hops are),
+                // and it's the only thing tested when there was no redirect.
+                const standDown = await findStandDown([...chain, url]);
                 if (standDown) {
                     const offset = await storage.get('standDownOffset') || HOUR_MS;
                     // 'kdi' covers main nav + the inline page gate. No 's': that gate
                     // stops the scrape before any link is queried.
                     await addQuietDomain(baseDomain, offset, 'kdi', false);
+                    logger.info('stand-down: another affiliate owns this click, quieting domain', {
+                        baseDomain, offset, hop: standDown.hop, match: standDown.match,
+                    });
                 }
             }
         }

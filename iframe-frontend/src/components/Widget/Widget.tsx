@@ -106,8 +106,10 @@ const Widget = ({ closeFn }: Props) => {
         setMode('expanding')
     }, [mode, sendGaEvent, name, domain, storageKey])
 
-    // Widget-mode X/Close: collapse the AB back to the badge WITHOUT writing to
-    // quietDomains. Suppression only happens via Pause / Activate, which keep standard behavior.
+    // Reversible close: collapse the AB back to the badge WITHOUT writing to quietDomains.
+    // PARKED for now - the expanded AB's X/Close send the standard AB close instead
+    // (CLOSE + quietDomains, same as the regular popup). Pass onCollapse={collapse} to
+    // <Offer> below to rewire X/Close to this.
     const collapse = useCallback(() => {
         if (mode !== 'expanded') return
         try {
@@ -117,6 +119,8 @@ const Widget = ({ closeFn }: Props) => {
         }
         setMode('collapsingOut')
     }, [mode, storageKey])
+    // Keeps the parked collapse path compiling under noUnusedLocals until it's rewired.
+    void collapse
 
     const out = mode === 'collapsingOut'
 
@@ -147,7 +151,10 @@ const Widget = ({ closeFn }: Props) => {
                         else if (mode === 'collapsingOut') setMode('returning')
                     }}
                 >
-                    <Offer closeFn={closeFn} onCollapse={collapse} />
+                    {/* To make X/Close collapse back to the badge instead of sending the
+                        standard CLOSE (quietDomains), pass onCollapse={collapse} here and
+                        remove the `void collapse` above. */}
+                    <Offer closeFn={closeFn} />
                 </motion.div>
             )}
             {showBadge && (

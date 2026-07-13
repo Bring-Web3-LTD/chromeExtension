@@ -60,8 +60,38 @@ const findStandDown = async (chain: string[]): Promise<StandDown> => {
     return null;
 };
 
+// Another affiliate attributed the nav that led here: quiet the base domain, suppressing
+// every later path on it. Skips domains that already hold any quietDomains entry.
+const applyStandDown = async (url: string, chain: string[]): Promise<void> => {
+    const baseDomain = normalizeUrl(url, { reverseHost: false, hostOnly: true });
+    if (!baseDomain) {
+        logger.warn('stand-down skipped: unparseable url', { url });
+        return;
+    }
+
+    const { phase } = await getQuietDomain(baseDomain);
+    if (phase !== 'new') {
+        logger.debug('domain already in quietDomains', { baseDomain, phase });
+        return;
+    }
+
+    // Landed URL included: it's not in the chain (only 3xx hops are), and it's the
+    // only thing tested when there was no redirect.
+    const standDown = await findStandDown([...chain, url]);
+    if (!standDown) return;
+
+    const offset = (await storage.get('standDownOffset')) ?? HOUR_MS;
+    // 'kdi' covers main nav + the inline page gate. No 's': that gate stops the
+    // scrape before any link is queried.
+    await addQuietDomain(baseDomain, offset, 'kdi', false);
+    logger.info('stand-down detected - quieting domain', {
+        baseDomain, offset, hop: standDown.hop, match: standDown.match,
+    });
+};
+
 const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
 
+    // webNavigation and webRequest are validated present at init (see validatePermissions).
     registerRedirectChain();
 
     // Sends an INJECT to the content script and reacts to its response (activate / no_popup analytics).
@@ -325,30 +355,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             }
         }).catch(error => logger.error(`[followup] Followup handling failed`, error));
 
-        // Another affiliate attributed the nav that led here: quiet the base domain,
-        // suppressing every later path on it. Skip if it already has any entry.
-        const baseDomain = normalizeUrl(url, { reverseHost: false, hostOnly: true });
-        if (!baseDomain) {
-            logger.warn('stand-down skipped: unparseable url', { url });
-        } else {
-            const { phase } = await getQuietDomain(baseDomain);
-            if (phase !== 'new') {
-                logger.debug('stand-down skipped: domain already in quietDomains', { baseDomain, phase });
-            } else {
-                // Landed URL included: it's not in the chain (only 3xx hops are),
-                // and it's the only thing tested when there was no redirect.
-                const standDown = await findStandDown([...chain, url]);
-                if (standDown) {
-                    const offset = await storage.get('standDownOffset') || HOUR_MS;
-                    // 'kdi' covers main nav + the inline page gate. No 's': that gate
-                    // stops the scrape before any link is queried.
-                    await addQuietDomain(baseDomain, offset, 'kdi', false);
-                    logger.info('stand-down: another affiliate owns this click, quieting domain', {
-                        baseDomain, offset, hop: standDown.hop, match: standDown.match,
-                    });
-                }
-            }
-        }
+        await applyStandDown(url, chain);
 
         await validateAndInject(url, tabId, tab, false, undefined, isSpaNavigation);
     };

@@ -56,13 +56,16 @@ export const updateCache = async () => {
             const storageUpdates = [
                 storage.set('relevantDomains', { regexes: relevantDomains, flags }),
                 storage.set('relevantDomainsCheck', [now, now + nextUpdateTimestamp]),
-                storage.set('domainsTypes', types),
-                // How long to quiet a domain on stand-down; SDK falls back to 1h.
-                storage.set('standDownOffset', standDownOffset ?? null)
+                storage.set('domainsTypes', types)
             ]
 
             if (quietDomainsMaxLength) {
                 storageUpdates.push(storage.set('quietDomainsMaxLength', quietDomainsMaxLength))
+            }
+
+            // How long to quiet a domain on stand-down; SDK falls back to 1h.
+            if (standDownOffset !== undefined) {
+                storageUpdates.push(storage.set('standDownOffset', standDownOffset))
             }
 
             if (whitelist) {

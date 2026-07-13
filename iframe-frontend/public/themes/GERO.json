@@ -14,7 +14,7 @@
     "overlayBg": "#192E34E6",
     "obOptOutBtnBorderC": "transparent",
     "popupBg": "#141414",
-    "widgetBadgeBg": "linear-gradient(180deg, #00EAEF 0%, #0CA3FB 100%)",
+    "widgetBadgeBg": "linear-gradient(0deg, #00EAEF 0%, #0CA3FB 100%)",
     "walletRadius": "4px",
     "detailsAmountFW": "700",
     "obOptOutSecondaryBtnBg": "transparent",

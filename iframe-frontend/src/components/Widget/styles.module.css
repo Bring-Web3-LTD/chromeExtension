@@ -62,16 +62,13 @@
 .close {
     position: absolute;
     /* Tucked onto the badge's top-right edge. In the 80px wrap the badge centre is (40,40) → close centre (68,21). */
-    top: 13px;
-    right: 4px;
-    width: 16px;
-    height: 16px;
+    top: 12px;
+    right: 3px;
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    border: none;
-    /* Full-16px dark circle with a 2px ring in the themed close foreground
-       (--widget-badge-close-f-c, white) sitting OUTSIDE it (over the badge).
-       box-shadow keeps the circle itself 16px. */
-    box-shadow: 0 0 0 2px var(--widget-badge-close-f-c, #FFFFFF);
+    border: 2px solid var(--widget-badge-close-f-c, #FFFFFF);
     padding: 0;
     margin: 0;
     display: flex;

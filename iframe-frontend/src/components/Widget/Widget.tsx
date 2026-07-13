@@ -210,8 +210,8 @@ const Widget = ({ closeFn }: Props) => {
                         <span
                             className={styles.closeIcon}
                             style={{
-                                maskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`,
-                                WebkitMaskImage: `url(${import.meta.env.BASE_URL}icons/x-mark.svg)`,
+                                maskImage: `url(${import.meta.env.BASE_URL}icons/widget-x.svg)`,
+                                WebkitMaskImage: `url(${import.meta.env.BASE_URL}icons/widget-x.svg)`,
                             }}
                         />
                     </button>

@@ -94,8 +94,9 @@ const widgetStyle: Styles = {
             // Only the badge circle + the close button (tucked on the badge's top-right
             // edge) are hit-testable; the rest of the 80x80 box passes clicks through to
             // the host page. The 80x80 layout: badge center (40,40) r32 (35 to clear the
-            // 1.07 pulse), close center (68,21) r8 (9 for headroom). Compound region.
-            clipPath: "path('M5,40 a35,35 0 1,0 70,0 a35,35 0 1,0 -70,0 M59,21 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0')",
+            // 1.07 pulse), close center (68,21) r9 incl. ring (10 for antialias headroom;
+            // the close doesn't pulse - only the badge button does). Compound region.
+            clipPath: "path('M5,40 a35,35 0 1,0 70,0 a35,35 0 1,0 -70,0 M58,21 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0')",
         }
     }
 }

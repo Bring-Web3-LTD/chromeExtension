@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import Offer from '../Offer/Offer'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle } from '../../utils/iframeStyles'
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
+import { useAnalytics } from '../../hooks/useAnalytics'
 
 interface Props {
     closeFn: () => void
@@ -19,7 +19,7 @@ interface Props {
 type Mode = 'collapsed' | 'expanding' | 'expanded' | 'collapsingOut' | 'returning'
 
 const Widget = ({ closeFn }: Props) => {
-    const { sendGaEvent } = useGoogleAnalytics()
+    const { sendAnalyticsEvent } = useAnalytics()
     const {
         platformName,
         name,
@@ -91,9 +91,7 @@ const Widget = ({ closeFn }: Props) => {
 
     const expand = useCallback(() => {
         if (mode !== 'collapsed') return
-        // Parity with existing AB events: retailer + domain are attached centrally by
-        // the backend event path; we also include them in details for the GA4 payload.
-        sendGaEvent('widget_click', {
+        sendAnalyticsEvent('widget_click', {
             category: 'user_action',
             action: 'click',
             details: { retailer: name, domain },
@@ -104,7 +102,7 @@ const Widget = ({ closeFn }: Props) => {
             /* ignore - expansion still works, it just won't persist across navigation */
         }
         setMode('expanding')
-    }, [mode, sendGaEvent, name, domain, storageKey])
+    }, [mode, sendAnalyticsEvent, name, domain, storageKey])
 
     // Reversible close: collapse the AB back to the badge WITHOUT writing to quietDomains.
     // PARKED for now - the expanded AB's X/Close send the standard AB close instead

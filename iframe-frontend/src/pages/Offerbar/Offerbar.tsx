@@ -9,7 +9,7 @@ import toCaseString from '../../utils/toCaseString'
 import formatCashback from '../../utils/formatCashback'
 import Optout from './Optout/Optout'
 import parseTime from '../../utils/parseTime'
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
+import { useAnalytics } from '../../hooks/useAnalytics'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 import activate from '../../api/activate'
 import { OB_ACTIVATE_QUIET_TIME } from '../../config'
@@ -46,12 +46,12 @@ const Offerbar = () => {
   const [showOptout, setShowOptout] = useState(false)
   const [isOptedOut, setIsOptedOut] = useState(false)
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
-  const { sendGaEvent } = useGoogleAnalytics()
+  const { sendAnalyticsEvent } = useAnalytics()
   const { walletAddress } = useWalletAddress()
   const activationPayload = useActivationPayload()
 
   const close = async () => {
-    await sendGaEvent('popup_close', {
+    await sendAnalyticsEvent('popup_close', {
       category: 'user_action',
       action: 'click',
       details: 'extension'
@@ -106,13 +106,13 @@ const Offerbar = () => {
       followups
     })
 
-    sendGaEvent('retailer_shop', {
+    sendAnalyticsEvent('retailer_shop', {
       category: 'user_action',
       action: 'click',
       details: name
     })
 
-  }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
+  }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
     sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, version, themeIframeStyle, zIndex) })

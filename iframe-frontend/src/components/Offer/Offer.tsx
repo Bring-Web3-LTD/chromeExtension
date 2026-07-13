@@ -1,6 +1,6 @@
 import styles from './styles.module.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
+import { useAnalytics } from '../../hooks/useAnalytics'
 import OptOut from '../OptOut/OptOut'
 import activate from '../../api/activate'
 import CloseBtn from '../CloseBtn/CloseBtn'
@@ -31,7 +31,7 @@ interface Props {
 }
 
 const Offer = ({ closeFn }: Props) => {
-    const { sendGaEvent } = useGoogleAnalytics()
+    const { sendAnalyticsEvent } = useAnalytics()
     const { walletAddress, setWalletAddress } = useWalletAddress()
     const activationPayload = useActivationPayload()
     const {
@@ -107,13 +107,13 @@ const Offer = ({ closeFn }: Props) => {
             followups
         })
 
-        sendGaEvent('retailer_shop', {
+        sendAnalyticsEvent('retailer_shop', {
             category: 'user_action',
             action: 'click',
             details: name
         })
 
-    }, [activationPayload, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress])
+    }, [activationPayload, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {
@@ -233,7 +233,7 @@ const Offer = ({ closeFn }: Props) => {
                                         className={styles.action_btn}
                                         disabled={status !== 'idle'}
                                         onClick={async () => {
-                                            await sendGaEvent('popup_close', {
+                                            await sendAnalyticsEvent('popup_close', {
                                                 category: 'user_action',
                                                 action: 'click',
                                                 details: 'extension'

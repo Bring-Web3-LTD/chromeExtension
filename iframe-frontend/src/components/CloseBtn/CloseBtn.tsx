@@ -1,6 +1,6 @@
 import styles from './styles.module.css'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics'
+import { useAnalytics } from '../../hooks/useAnalytics'
 import { useRouteLoaderData } from 'react-router-dom'
 import compareVersions from '../../utils/compareVersions'
 import parseTime from '../../utils/parseTime'
@@ -17,10 +17,10 @@ const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const CloseBtn = ({ callback, withTime = true, time, className = '', type }: Props) => {
     const { domain, version} = useRouteLoaderData('root') as LoaderData
-    const { sendGaEvent } = useGoogleAnalytics()
+    const { sendAnalyticsEvent } = useAnalytics()
 
     const close = async () => {
-        await sendGaEvent('popup_close', {
+        await sendAnalyticsEvent('popup_close', {
             category: 'user_action',
             action: 'click',
             details: 'extension'

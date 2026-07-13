@@ -1,19 +1,18 @@
 import { Outlet, useLoaderData } from "react-router-dom"
 import { useEffect } from "react"
-import { GoogleAnalyticsProvider } from "../context/googleAnalyticsContext"
-import { useGoogleAnalytics } from "../hooks/useGoogleAnalytics"
+import { AnalyticsProvider } from "../context/analyticsContext"
+import { useAnalytics } from "../hooks/useAnalytics"
 import WalletAddressProvider from "../context/walletAddressContext"
-import { GA_MEASUREMENT_ID } from "../config"
 import Beamer from "../components/Beamer/Beamer"
 import { sendMessage, ACTIONS } from "../utils/sendMessage"
 
 const AutoCloseTimer = ({ timeout }: { timeout?: number }) => {
-    const { sendGaEvent } = useGoogleAnalytics()
+    const { sendAnalyticsEvent } = useAnalytics()
 
     useEffect(() => {
         if (typeof timeout !== 'number' || timeout <= 0) return
         const timer = setTimeout(async () => {
-            await sendGaEvent('popup_close', {
+            await sendAnalyticsEvent('popup_close', {
                 category: 'system',
                 action: 'timeout',
                 details: 'extension'
@@ -33,10 +32,9 @@ const Layout = () => {
     return (
         <>
             <WalletAddressProvider address={data.walletAddress}>
-                <GoogleAnalyticsProvider
+                <AnalyticsProvider
                     retailerName={data.name}
                     userId={data.userId}
-                    measurementId={GA_MEASUREMENT_ID}
                     platform={data.platformName}
                     testVariant={data.variant}
                     location={data.url}
@@ -52,7 +50,7 @@ const Layout = () => {
                     <Beamer enabled={data.beamer} />
                     <AutoCloseTimer timeout={data.timeout} />
                     <Outlet />
-                </GoogleAnalyticsProvider>
+                </AnalyticsProvider>
             </WalletAddressProvider>
         </>
     )

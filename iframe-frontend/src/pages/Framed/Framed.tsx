@@ -6,7 +6,7 @@ import PlatformLogo from "../../components/PlatformLogo/PlatformLogo"
 import formatCashback from "../../utils/formatCashback"
 import parseTime from "../../utils/parseTime"
 import activate from "../../api/activate"
-import { useGoogleAnalytics } from "../../hooks/useGoogleAnalytics"
+import { useAnalytics } from "../../hooks/useAnalytics"
 import { useWalletAddress } from "../../hooks/useWalletAddress"
 import { useActivationPayload } from "../../hooks/useActivationPayload"
 import { OB_ACTIVATE_QUIET_TIME } from "../../config"
@@ -50,7 +50,7 @@ const Framed = () => {
     const [showOptout, setShowOptout] = useState(false)
     const [isOptedOut, setIsOptedOut] = useState(false)
     const [status, setStatus] = useState<'idle' | 'activating' | 'done'>('idle')
-    const { sendGaEvent } = useGoogleAnalytics()
+    const { sendAnalyticsEvent } = useAnalytics()
     const { walletAddress } = useWalletAddress()
     const activationPayload = useActivationPayload()
     const [fallbackLogo, setFallbackLogo] = useState<string | null>(
@@ -58,7 +58,7 @@ const Framed = () => {
     )
 
     const close = async () => {
-        await sendGaEvent('popup_close', {
+        await sendAnalyticsEvent('popup_close', {
             category: 'user_action',
             action: 'click',
             details: 'extension'
@@ -113,14 +113,14 @@ const Framed = () => {
             followups
         })
 
-        sendGaEvent('retailer_shop', {
+        sendAnalyticsEvent('retailer_shop', {
             category: 'user_action',
             action: 'click',
             details: name
         })
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendGaEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
+    }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
 
     useEffect(() => {
         sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, version, themeIframeStyle, zIndex) })

@@ -1,7 +1,7 @@
 import styles from './styles.module.css'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage';
 import { useState, useCallback } from 'react';
-import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
+import { useAnalytics } from '../../hooks/useAnalytics';
 import { useRouteLoaderData } from 'react-router-dom';
 import toCapital from '../../utils/toCapital';
 import toCaseString from '../../utils/toCaseString';
@@ -81,7 +81,7 @@ interface Props {
 
 const OptOut = ({ onClose, onOpted }: Props) => {
     const { cryptoSymbols, platformName, displayPlatformName, textMode, domain, name, version } = useRouteLoaderData('root') as LoaderData
-    const { sendGaEvent } = useGoogleAnalytics()
+    const { sendAnalyticsEvent } = useAnalytics()
     const [isOpted, setIsOpted] = useState(false)  
     
     const [selection, setSelection] = useState<Selection>({
@@ -116,7 +116,7 @@ const OptOut = ({ onClose, onOpted }: Props) => {
         }
 
         sendMessage(event)
-        sendGaEvent(websites.value ? 'opt_out' : 'opt_out_specific', {
+        sendAnalyticsEvent(websites.value ? 'opt_out' : 'opt_out_specific', {
             category: 'user_action',
             action: 'click',
             details: duration.label,

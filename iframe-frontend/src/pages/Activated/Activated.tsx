@@ -9,10 +9,11 @@ import Markdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle } from '../../utils/iframeStyles'
+import injectCashback from '../../utils/injectCashback'
 import { ENV, ACTIVATE_QUIET_TIME, OB_ACTIVATE_QUIET_TIME } from '../../config'
 
 const Activated = () => {
-    const { version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, displayPlatformName, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle, zIndex } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
+    const { version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, platformName, displayPlatformName, tokenSymbol, isOfferBar, iframeStyle: themeIframeStyle, zIndex, maxCashback, cashbackSymbol, cashbackCurrency } = useRouteLoaderData('root') as ActivatedData & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
     const [markdownContent, setMarkdownContent] = useState('')
     // const [loading, setLoading] = useState(true)
@@ -31,7 +32,7 @@ const Activated = () => {
                     fetch(generalTermsUrl, { signal: controller.signal }).then(res => res.text())
                 ])
 
-                setMarkdownContent(topGeneral + retailer + general)
+                setMarkdownContent(injectCashback(topGeneral + retailer + general, { maxCashback, cashbackSymbol, cashbackCurrency }))
             } catch (error: unknown) {
                 if (error instanceof Error && error.name !== 'AbortError') {
                     console.error("Error fetching markdown:", error)

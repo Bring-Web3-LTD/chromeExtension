@@ -11,11 +11,17 @@ interface Props {
     time?: number
     className?: string
     type?: string
+    /**
+     * When provided, the X takes over the click entirely: it runs this handler and
+     * does NOT send CLOSE / write to quietDomains (used by the collapsed widget, where
+     * the X collapses the AB back to the badge instead of suppressing the domain).
+     */
+    overrideClose?: () => void
 }
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
-const CloseBtn = ({ callback, withTime = true, time, className = '', type }: Props) => {
+const CloseBtn = ({ callback, withTime = true, time, className = '', type, overrideClose }: Props) => {
     const { domain, version} = useRouteLoaderData('root') as LoaderData
     const { sendAnalyticsEvent } = useAnalytics()
 
@@ -25,6 +31,14 @@ const CloseBtn = ({ callback, withTime = true, time, className = '', type }: Pro
             action: 'click',
             details: 'extension'
         })
+
+        // Widget mode: analytics still fire above; we just collapse back to the badge
+        // instead of removing the iframe + writing to quietDomains.
+        if (overrideClose) {
+            overrideClose()
+            return
+        }
+
         if (compareVersions(version, '1.2.6') !== 1) {
             sendMessage({ action: ACTIONS.ACTIVATE, url: `https://${domain}` })
         }

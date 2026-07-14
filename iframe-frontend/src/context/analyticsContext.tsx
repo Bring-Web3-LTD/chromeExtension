@@ -4,7 +4,7 @@ import { VariantKey } from '../utils/ABTest/platform-variants';
 import analytics from '../api/analytics';
 import { useWalletAddress } from '../hooks/useWalletAddress';
 
-type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer' | 'wallet_connected' | 'wallet_switched' | 'wallet_disconnected'
+type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific' | 'retailer_activation' | 'page_view' | 'beamer' | 'wallet_connected' | 'wallet_switched' | 'wallet_disconnected' | 'widget_click'
 
 interface AnalyticsEvent {
     category: "user_action" | "system";

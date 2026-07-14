@@ -8,7 +8,7 @@ interface KeyFrames {
     [key: string]: string
 }
 
-export type IframePage = 'popup' | 'offerbar' | 'offerbarFramed' | 'notification'
+export type IframePage = 'popup' | 'offerbar' | 'offerbarFramed' | 'notification' | 'widget' | 'widgetExpanded'
 
 const iframeStyle: Styles = {
     default: {
@@ -71,6 +71,63 @@ const offerbarFramedStyle: Styles = {
     }
 }
 
+// Collapsed widget badge. The iframe is small (only the badge + its close overhang
+// are visible) and transparent, anchored to the viewport top-right,
+// position fixed, top 129px, right 15px, doesn't scroll.
+// The idle "pulse" animation lives inside the iframe (CSS @keyframes on the badge), so
+// no animation on the iframe element itself here.
+const widgetStyle: Styles = {
+    default: {
+        iframe: {
+            width: '80px',
+            height: '80px',
+            // The 80x80 iframe has an 8px inset around the 64px badge (room for the
+            // close overhang + the 1.07 idle pulse). Offset by 8px
+            // badge position (top 129, right 15) so the badge itself lands there.
+            top: '121px',
+            right: '7px',
+            borderRadius: '0px',
+            border: 'none',
+            background: 'transparent',
+            display: 'block',
+            animation: 'none',
+            // Only the badge circle + the close button (tucked on the badge's top-right
+            // edge) are hit-testable; the rest of the 80x80 box passes clicks through to
+            // the host page. The 80x80 layout: badge center (40,40) r32 (35 to clear the
+            // 1.07 pulse), close center (68,21) r9 incl. ring (10 for antialias headroom;
+            // the close doesn't pulse - only the badge button does). Compound region.
+            clipPath: "path('M5,40 a35,35 0 1,0 70,0 a35,35 0 1,0 -70,0 M58,21 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0')",
+        }
+    }
+}
+
+// Widget expanded into the full AB. The expanded surface IS the standard popup
+// (same per-platform dimensions), so we derive it from `iframeStyle` rather than
+// duplicating sizes - only the deltas differ:
+//  - top/right: anchored at the badge position so the AB grows out of the badge.
+//  - animation: the scale/fade is done inside the iframe (framer-motion), so the
+//    CSS slideIn is disabled.
+//  - clipPath: cleared, since applyStyles only sets keys (never clears them) and the
+//    collapsed badge's clip would otherwise linger and crop the AB.
+const applyIframeOverrides = (styles: Styles, overrides: Record<string, string>): Styles => {
+    const result: Styles = {}
+    for (const [platform, value] of Object.entries(styles)) {
+        result[platform] = { iframe: { ...value.iframe, ...overrides } }
+    }
+    return result
+}
+
+// Anchored at the SAME top/right as the collapsed `widget` iframe so the badge (which
+// stays visible through the expand/collapse animations) never shifts when the iframe
+// resizes. The AB card's own top-right corner sits at the badge, so it grows from /
+// shrinks into it.
+const widgetExpandedStyle: Styles = applyIframeOverrides(iframeStyle, {
+    top: '121px',
+    right: '7px',
+    animation: 'none',
+    clipPath: 'none',
+})
+
 const notificationIframeStyle: Styles = {
     default: {
         iframe: {
@@ -125,6 +182,8 @@ const styleMap: Record<IframePage, Styles> = {
     offerbar: offerbarStyle,
     offerbarFramed: offerbarFramedStyle,
     notification: notificationIframeStyle,
+    widget: widgetStyle,
+    widgetExpanded: widgetExpandedStyle,
 }
 
 /**

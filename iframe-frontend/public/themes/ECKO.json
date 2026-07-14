@@ -2,6 +2,7 @@
     "fontUrl": "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap",
     "fontFamily": "\"Montserrat\", sans-serif",
     "popupBg": "#1A1E3E",
+    "widgetBadgeBg": "linear-gradient(135deg, #FFD300 -2.8%, #FF00B8 85.9%)",
     "popupShadow": "0px 6px 20px 0px rgba(0, 0, 0, 0.10), 0px 1px 8px 0px rgba(0, 0, 0, 0.06)",
     "xBtnFC": "#FFFFFF",
     "primaryBtnBg": "#404A8D",

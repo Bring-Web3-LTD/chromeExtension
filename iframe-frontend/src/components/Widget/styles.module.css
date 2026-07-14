@@ -1,0 +1,116 @@
+.wrap {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    /* The badge sits one below the popup, so the AB covers it while expanding and
+       reveals it while collapsing (see .expanded z-index). */
+    z-index: 1;
+}
+
+.badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Per-platform (public/themes/*.json). Accepts a solid color OR a gradient.
+       Fallback is the default brand blue (DEFAULT badge). */
+    background: var(--widget-badge-bg, #3D5AEB);
+    cursor: pointer;
+    /* The idle pulse (below) scales/fades from the centre. */
+    transform-origin: center center;
+}
+
+/* Idle "breathing" pulse — applied only while collapsed (class toggled in Widget.tsx).
+   A CSS animation runs independently of React, unlike a framer-motion keyframe loop whose
+   inline array is recreated on every render and can re-arm/freeze the loop (looked static). */
+.pulse {
+    animation: badgePulse 1.6s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.07); opacity: 0.88; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pulse { animation: none; }
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+}
+
+.logo img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.close {
+    position: absolute;
+    /* Tucked onto the badge's top-right edge. In the 80px wrap the badge centre is (40,40) → close centre (68,21). */
+    top: 12px;
+    right: 3px;
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--widget-badge-close-f-c, #FFFFFF);
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--widget-badge-close-bg, #02050A);
+    cursor: pointer;
+}
+
+.closeIcon {
+    width: 8px;
+    height: 8px;
+    /* Same themed color as the ring. */
+    background-color: var(--widget-badge-close-f-c, #FFFFFF);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+}
+
+/* HOVER / PRESSED: triggered only on the close circle itself (not the badge).
+   Ring and X stay at full opacity; the circle's dark fill lightens instead.
+   Universal across platforms. */
+.close:hover,
+.close:active {
+    background: #353E4D;
+}
+
+/* The expanded AB card. It carries the popup background itself (rather than relying on
+   the iframe body) and fills the iframe, so that on collapse the whole card - background
+   AND content - scales down together into the badge corner, instead of the content
+   fading while a full-size body box lingers. transform-origin top-right = the badge. */
+.expanded {
+    position: relative;
+    /* One above the badge (.wrap) so the AB always sits over it. */
+    z-index: 2;
+    width: 100vw;
+    min-height: 100vh;
+    background: var(--popup-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    transform-origin: top right;
+}

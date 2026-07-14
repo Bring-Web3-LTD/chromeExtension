@@ -7,6 +7,11 @@ export const iframeStyleNames: Record<string, string> = {
 
 export const themeNames = {
     popupBg: "--popup-bg",
+    // Collapsed widget badge (per-platform). widgetBadgeBg accepts a solid color OR a
+    // CSS gradient. Close colors are universal (set on DEFAULT, inherited by all).
+    widgetBadgeBg: "--widget-badge-bg",
+    widgetBadgeCloseBg: "--widget-badge-close-bg",
+    widgetBadgeCloseFC: "--widget-badge-close-f-c",
     primaryBtnBg: "--primary-btn-bg",
     primaryBtnFC: "--primary-btn-f-c",
     primaryBtnFW: "--primary-btn-f-w",

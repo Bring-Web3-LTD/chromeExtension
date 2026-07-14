@@ -2,6 +2,7 @@
     "fontUrl": "https://media.bringweb3.io/fonts/solflare/fk-grotesk.css",
     "fontFamily": "\"FK Grotesk\", sans-serif",
     "popupBg": "#090C11",
+    "widgetBadgeBg": "#FFEF46",
     "popupShadow": "0px 2px 10px 0px rgba(0, 0, 0, 0.04), 0px 15px 50px 0px rgba(0, 0, 0, 0.10)",
     "xBtnFC": "#8A8E94",
     "primaryBtnBg": "#FFEF46",

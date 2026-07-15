@@ -1,10 +1,10 @@
 import styles from './styles.module.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouteLoaderData } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Offer from '../Offer/Offer'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
-import { getIframeStyle } from '../../utils/iframeStyles'
+import { getIframeStyle, slideInAnimation } from '../../utils/iframeStyles'
 import { widgetStorageKey, wasWidgetExpanded } from '../../utils/widgetSession'
 import { useAnalytics } from '../../hooks/useAnalytics'
 
@@ -35,6 +35,13 @@ const Widget = ({ closeFn }: Props) => {
     const storageKey = useMemo(() => widgetStorageKey(platformName), [platformName])
 
     const [mode, setMode] = useState<Mode>(() => wasWidgetExpanded(platformName) ? 'expanded' : 'collapsed')
+
+    // True while this page load sits in the expanded state it MOUNTED in (persisted via
+    // sessionStorage from a previous navigation). In that flow there's no badge-to-AB
+    // framer transition, so the iframe keeps the standard AB slide-in instead of the
+    // widgetExpanded `animation: none`. Cleared once the mode changes, so a future
+    // collapse → re-expand animates with framer only, like a first-time expand.
+    const mountedExpanded = useRef(mode === 'expanded')
 
     // Falls back to the generic PlatformLogo (md) if a platform has no dedicated badge mark.
     const [markFailed, setMarkFailed] = useState(false)
@@ -67,6 +74,11 @@ const Widget = ({ closeFn }: Props) => {
         // receive clicks instead of the invisible iframe blocking them. Must be reset
         // explicitly in every other mode because applyStyles never clears keys.
         target.pointerEvents = mode === 'returning' ? 'none' : 'auto'
+        // Navigations that mount straight into the expanded AB get the regular popup
+        // slide-in (widgetExpanded disables it only because framer animates the
+        // interactive badge-to-AB expand, which doesn't run here).
+        if (mode === 'expanded' && mountedExpanded.current) target.animation = slideInAnimation
+        else if (mode !== 'expanded') mountedExpanded.current = false
         sendMessage({ action: ACTIONS.OPEN, style })
     }, [mode, popupSized, platformName, version, themeIframeStyle, zIndex])
 

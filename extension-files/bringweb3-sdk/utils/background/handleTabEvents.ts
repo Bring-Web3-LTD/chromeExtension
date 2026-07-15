@@ -69,20 +69,32 @@ const applyStandDown = async (url: string, chain: string[]): Promise<void> => {
         return;
     }
 
-    const { phase } = await getQuietDomain(baseDomain);
-    if (phase !== 'new') {
-        logger.debug('domain already in quietDomains', { baseDomain, phase });
+    const offset = (await storage.get('standDownOffset')) ?? HOUR_MS;
+    const newEnd = Date.now() + offset;
+
+    const { phase, time } = await getQuietDomain(baseDomain);
+
+    // Never override our own activation.
+    if (phase === 'activated') {
+        logger.debug('domain already activated', { baseDomain });
         return;
     }
 
-    // Landed URL included: it's not in the chain (only 3xx hops are), and it's the
-    // only thing tested when there was no redirect.
+    // Already quiet at least as long as a fresh window — don't shorten it.
+    if (time && time[1] >= newEnd) {
+        logger.debug('domain already quiet past the stand-down window', { baseDomain, until: time[1] });
+        return;
+    }
+
+    // New, or its window expires within the offset. Re-quiet only if still a stand-down.
+    // Landed URL included: it's not in the chain (only 3xx hops are), and it's the only
+    // thing tested when there was no redirect.
     const standDown = await findStandDown([...chain, url]);
     if (!standDown) return;
 
-    const offset = (await storage.get('standDownOffset')) ?? HOUR_MS;
     // 'kdi' covers main nav + the inline page gate. No 's': that gate stops the
-    // scrape before any link is queried.
+    // scrape before any link is queried. addQuietDomain replaces the (domain, type)
+    // record, so this extends an expiring window to now + offset.
     await addQuietDomain(baseDomain, offset, 'kdi', false);
     logger.info('stand-down detected - quieting domain', {
         baseDomain, offset, hop: standDown.hop, match: standDown.match,

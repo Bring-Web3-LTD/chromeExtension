@@ -10,7 +10,7 @@ interface KeyFrames {
 
 export type IframePage = 'popup' | 'offerbar' | 'offerbarFramed' | 'notification' | 'widget' | 'widgetExpanded'
 
-// The standard entrance animation shared by every surface (keyframes in `keyFrames` below).
+// The standard entrance animation used by popup-like surfaces (keyframes in `keyFrames` below).
 export const slideInAnimation = 'slideIn .3s ease-in-out'
 
 const iframeStyle: Styles = {
@@ -210,13 +210,12 @@ export const getIframeStyle = (
         ? { ...themeIframeStyle, zIndex: String(zIndex) }
         : themeIframeStyle
 
+    // Always spread into a fresh object: callers mutate the result (e.g. Widget strips
+    // boxShadow / restores the slide-in per mode), which must never leak back into the
+    // shared style-map singletons above.
     if (isLegacy) {
-        return iframeStyleOverrides
-            ? { ...baseIframeStyle.iframe, ...iframeStyleOverrides }
-            : baseIframeStyle.iframe
+        return { ...baseIframeStyle.iframe, ...iframeStyleOverrides }
     }
 
-    return iframeStyleOverrides
-        ? { iframe: { ...baseIframeStyle.iframe, ...iframeStyleOverrides } }
-        : baseIframeStyle
+    return { iframe: { ...baseIframeStyle.iframe, ...iframeStyleOverrides } }
 }

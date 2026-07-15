@@ -1,5 +1,6 @@
-import { Outlet, useLoaderData } from "react-router-dom"
-import { useEffect } from "react"
+import { Outlet, useLoaderData, useLocation } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { wasWidgetExpanded } from "../utils/widgetSession"
 import { AnalyticsProvider } from "../context/analyticsContext"
 import { useAnalytics } from "../hooks/useAnalytics"
 import WalletAddressProvider from "../context/walletAddressContext"
@@ -28,6 +29,14 @@ const AutoCloseTimer = ({ timeout }: { timeout?: number }) => {
 
 const Layout = () => {
     const data = useLoaderData() as LoaderData
+    const { pathname } = useLocation()
+    // True when this page load starts as the collapsed widget badge (popup route,
+    // widget enabled, not restored expanded from a previous page in this tab). Read
+    // once on mount: expanding later writes 'true' to sessionStorage, and a re-render
+    // must not flip this after the page_view already went out.
+    const [pageViewIsWidget] = useState(() =>
+        pathname === '/' && !!data.isWidgetEnabled && !wasWidgetExpanded(data.platformName)
+    )
 
     return (
         <>
@@ -46,6 +55,7 @@ const Layout = () => {
                     inlineSearchLink={data.inlineSearchLink}
                     matchedKeyword={data.matchedKeyword}
                     isOfferBar={data.isOfferBar}
+                    pageViewIsWidget={pageViewIsWidget}
                 >
                     <Beamer enabled={data.beamer} />
                     <AutoCloseTimer timeout={data.timeout} />

@@ -21,6 +21,7 @@ interface Body {
     resultUrl?: string
     matchedKeyword?: string
     isOfferBar?: boolean
+    isWidget?: boolean
 }
 
 const analytics = async (body: Body,timestamp?: number) => {

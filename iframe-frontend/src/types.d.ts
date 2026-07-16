@@ -1,5 +1,10 @@
 declare global {
 
+    interface TestVariant {
+        testName: string
+        variant: string
+    }
+
     declare enum ACTIONS {
         OPEN = 'OPEN',
         CLOSE = 'CLOSE',
@@ -68,7 +73,7 @@ declare global {
         iconsPath: string
         themeMode: 'light' | 'dark'
         textMode: 'upper' | 'lower'
-        testVariants: Record<string, string>
+        testVariants: TestVariant[]
         switchWallet: boolean
         userId: string
         version: string

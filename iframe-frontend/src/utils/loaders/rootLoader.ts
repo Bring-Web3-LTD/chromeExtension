@@ -25,7 +25,7 @@ const rootLoader = async ({ request }: Props) => {
     const { iframeStyle } = await loadTheme({ theme: res.theme, platformName: res.info.platformName, themeMode })
 
     // AB-test assignments are computed on the backend and returned by /verify.
-    const testVariants = res.testVariants ?? {}
+    const testVariants = res.testVariants ?? []
     // Argent Control: only load on base path
     if (variantOf(testVariants, 'argent-onestep-v1') === 'argentControl'
         && path !== removeTrailingSlash(BASE_PATH) && path !== '/') {

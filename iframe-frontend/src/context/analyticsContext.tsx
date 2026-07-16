@@ -32,7 +32,7 @@ interface Props {
     children: ReactNode
     platform: string
     userId: string | undefined
-    testVariants: Record<string, string>
+    testVariants: TestVariant[]
     retailerName: string | undefined
     location: string
     flowId: string
@@ -77,8 +77,9 @@ export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariants,
             ...event,
             type: name,
             platform,
-            testVariants,   // { testName: variant } — every test this user is in
             flowId,
+            // [{ testName, variant }] — every test this user is in. Omit when empty.
+            ...(testVariants.length && { testVariants }),
         }
 
         if (retailerName) backendEvent.retailer = retailerName

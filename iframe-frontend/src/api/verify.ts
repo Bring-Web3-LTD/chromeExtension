@@ -12,7 +12,7 @@ interface Req {
 interface VerifyResponse {
     status: number
     info: Info
-    testVariants?: Record<string, string>
+    testVariants?: TestVariant[]
     theme?: Record<string, string> | { dark?: Record<string, string>; light?: Record<string, string> }
 }
 

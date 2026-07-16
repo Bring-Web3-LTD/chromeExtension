@@ -1,7 +1,9 @@
 import { sendMessage, ACTIONS } from "../sendMessage"
 import { keyFrames } from "../iframeStyles"
 import verify from "../../api/verify"
-import { ENV } from "../../config"
+import { variantOf } from "../ABTest/testVariants"
+import { BASE_PATH, ENV } from "../../config"
+import removeTrailingSlash from "../removeTrailingSlash"
 import loadTheme from "../loadTheme"
 
 interface Props {
@@ -11,6 +13,7 @@ interface Props {
 const rootLoader = async ({ request }: Props) => {
     const url = new URL(decodeURI(request.url))
     const searchParams = url.searchParams
+    const path = url.pathname
     const userId = searchParams.get('userId') || ''
     const styleUrl = searchParams.get('styleUrl') || null
     const themeMode = searchParams.get('themeMode') || 'light'
@@ -23,6 +26,11 @@ const rootLoader = async ({ request }: Props) => {
 
     // AB-test assignments are computed on the backend and returned by /verify.
     const testVariants = res.testVariants ?? {}
+    // Argent Control: only load on base path
+    if (variantOf(testVariants, 'argent-onestep-v1') === 'argentControl'
+        && path !== removeTrailingSlash(BASE_PATH) && path !== '/') {
+        return;
+    }
     // Set open animation
     sendMessage({ action: ACTIONS.ADD_KEYFRAMES, keyFrames })
 

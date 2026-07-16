@@ -5,8 +5,7 @@ interface Body {
     platform: string
     userId?: string
     walletAddress?: string
-    testId: string
-    testVariant: string
+    testVariants?: Record<string, string>
     category?: string
     action?: string
     process?: string

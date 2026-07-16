@@ -1,10 +1,7 @@
 import { sendMessage, ACTIONS } from "../sendMessage"
 import { keyFrames } from "../iframeStyles"
 import verify from "../../api/verify"
-// import { selectVariant } from "../ABTest/ABTestVariant"
-import { selectVariant } from "../ABTest/platform-variants"
-import { BASE_PATH, ENV } from "../../config"
-import removeTrailingSlash from "../removeTrailingSlash"
+import { ENV } from "../../config"
 import loadTheme from "../loadTheme"
 
 interface Props {
@@ -14,7 +11,6 @@ interface Props {
 const rootLoader = async ({ request }: Props) => {
     const url = new URL(decodeURI(request.url))
     const searchParams = url.searchParams
-    const path = url.pathname
     const userId = searchParams.get('userId') || ''
     const styleUrl = searchParams.get('styleUrl') || null
     const themeMode = searchParams.get('themeMode') || 'light'
@@ -25,12 +21,8 @@ const rootLoader = async ({ request }: Props) => {
     // Apply theme: use server-fetched theme if available, otherwise fall back to local JSON
     const { iframeStyle } = await loadTheme({ theme: res.theme, platformName: res.info.platformName, themeMode })
 
-    const variant = selectVariant(userId || res.info.walletAddress || '', res.info.platformName)
-    // Argent Control: only load on base path
-
-    if (variant === 'argentControl' && path !== removeTrailingSlash(BASE_PATH) && path !== '/') {
-        return;
-    }
+    // AB-test assignments are computed on the backend and returned by /verify.
+    const testVariants = res.testVariants ?? {}
     // Set open animation
     sendMessage({ action: ACTIONS.ADD_KEYFRAMES, keyFrames })
 
@@ -52,7 +44,7 @@ const rootLoader = async ({ request }: Props) => {
         textMode,
         switchWallet,
         iconsPath: `${import.meta.env.BASE_URL}${themeMode}/icons/${res.info.platformName.toUpperCase() || 'DEFAULT'}`,
-        variant,
+        testVariants,
         iframeStyle
     }
 }

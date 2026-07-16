@@ -1,4 +1,3 @@
-import { VariantKey } from "./utils/ABTest/platform-variants"
 declare global {
 
     declare enum ACTIONS {
@@ -69,7 +68,7 @@ declare global {
         iconsPath: string
         themeMode: 'light' | 'dark'
         textMode: 'upper' | 'lower'
-        variant: VariantKey
+        testVariants: Record<string, string>
         switchWallet: boolean
         userId: string
         version: string

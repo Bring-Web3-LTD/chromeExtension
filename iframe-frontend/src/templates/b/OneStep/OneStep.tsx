@@ -15,6 +15,7 @@ import { Oval } from 'react-loader-spinner'
 // Functions
 import activate from "../../../api/activate"
 import formatCashback from "../../../utils/formatCashback"
+import injectCashback from "../../../utils/injectCashback"
 import splitStringWithDots from "../../../utils/splitStringWithDots"
 import { sendMessage, ACTIONS } from "../../../utils/sendMessage"
 import { ACTIVATE_QUIET_TIME, ENV } from "../../../config"
@@ -65,7 +66,7 @@ const OneStep = () => {
                     fetch(generalTermsUrl, { signal: controller.signal }).then(res => res.text())
                 ])
 
-                setMarkdownContent(topGeneral + retailer + general)
+                setMarkdownContent(injectCashback(topGeneral + retailer + general, { maxCashback, cashbackSymbol, cashbackCurrency }))
             } catch (error: unknown) {
                 if (error instanceof Error && error.name !== 'AbortError') {
                     console.error("Error fetching markdown:", error)

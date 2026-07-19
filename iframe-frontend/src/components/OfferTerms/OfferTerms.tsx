@@ -5,6 +5,7 @@ import Markdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
+import injectCashback from '../../utils/injectCashback'
 import { ENV } from '../../config'
 
 interface Props {
@@ -17,7 +18,10 @@ const OfferTerms = ({ onBack }: Props) => {
         platformName,
         topGeneralTermsUrl,
         retailerTermsUrl,
-        generalTermsUrl
+        generalTermsUrl,
+        maxCashback,
+        cashbackSymbol,
+        cashbackCurrency
     } = useRouteLoaderData('root') as LoaderData
 
     const [markdownContent, setMarkdownContent] = useState('')
@@ -33,7 +37,7 @@ const OfferTerms = ({ onBack }: Props) => {
                     fetch(generalTermsUrl, { signal: controller.signal }).then(res => res.text())
                 ])
 
-                setMarkdownContent(topGeneral + retailer + general)
+                setMarkdownContent(injectCashback(topGeneral + retailer + general, { maxCashback, cashbackSymbol, cashbackCurrency }))
             } catch (error: unknown) {
                 if (error instanceof Error && error.name !== 'AbortError') {
                     console.error("Error fetching markdown:", error)

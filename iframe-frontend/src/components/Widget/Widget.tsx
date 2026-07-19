@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Offer from '../Offer/Offer'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle } from '../../utils/iframeStyles'
+import { widgetStorageKey, wasWidgetExpanded } from '../../utils/widgetSession'
 import { useAnalytics } from '../../hooks/useAnalytics'
 
 interface Props {
@@ -29,21 +30,11 @@ const Widget = ({ closeFn }: Props) => {
         zIndex,
     } = useRouteLoaderData('root') as LoaderData
 
-    // One widget state per wallet. Several wallet extensions may embed this app on the same
-    // page, all from the same origin - so they share sessionStorage, and the platform name
-    // is what keeps each wallet's expand/collapse state separate. No need to also key by
-    // retailer: the browser already stores this iframe's data per top-level site (and per tab).
-    const storageKey = useMemo(() => `bring:widget:${platformName}`, [platformName])
+    // No need to also key by retailer: the browser already stores this iframe's data
+    // per top-level site (and per tab).
+    const storageKey = useMemo(() => widgetStorageKey(platformName), [platformName])
 
-    const [mode, setMode] = useState<Mode>(() => {
-        try {
-            const stored = sessionStorage.getItem(storageKey)
-            if (stored !== null) return stored === 'true' ? 'expanded' : 'collapsed'
-        } catch {
-            /* sessionStorage may be unavailable (e.g. partitioned) - start collapsed */
-        }
-        return 'collapsed'
-    })
+    const [mode, setMode] = useState<Mode>(() => wasWidgetExpanded(platformName) ? 'expanded' : 'collapsed')
 
     // Falls back to the generic PlatformLogo (md) if a platform has no dedicated badge mark.
     const [markFailed, setMarkFailed] = useState(false)
@@ -95,6 +86,7 @@ const Widget = ({ closeFn }: Props) => {
             category: 'user_action',
             action: 'click',
             details: { retailer: name, domain },
+            isWidget: true,
         })
         try {
             sessionStorage.setItem(storageKey, 'true')
@@ -203,7 +195,18 @@ const Widget = ({ closeFn }: Props) => {
                         aria-label="Dismiss"
                         // Stays mounted through the transitions so it scales with the badge,
                         // but is only actionable once fully collapsed.
-                        onClick={() => { if (mode === 'collapsed') closeFn() }}
+                        onClick={async () => {
+                            if (mode !== 'collapsed') return
+                            // Dismissing the badge is the widget's own close - unlike the
+                            // expanded AB's X, which sends the standard (unflagged) popup_close.
+                            await sendAnalyticsEvent('popup_close', {
+                                category: 'user_action',
+                                action: 'click',
+                                details: 'extension',
+                                isWidget: true,
+                            })
+                            closeFn()
+                        }}
                     >
                         <span
                             className={styles.closeIcon}

@@ -9,8 +9,9 @@ type EventName = 'retailer_shop' | 'popup_close' | 'opt_out' | 'opt_out_specific
 interface AnalyticsEvent {
     category: "user_action" | "system";
     action?: "click" | "input" | "select" | "request"| "timeout";
-    details?: string | object;    
+    details?: string | object;
     process?: "activate" | "initiate" | "submit";
+    isWidget?: boolean;
 }
 
 interface BackendEvent {
@@ -18,6 +19,7 @@ interface BackendEvent {
     action?: "click" | "input" | "select" | "request" | "timeout";
     details?: unknown;
     process?: "activate" | "initiate" | "submit";
+    isWidget?: boolean;
 }
 
 
@@ -43,9 +45,12 @@ interface Props {
     inlineSearchLink: string | undefined
     matchedKeyword: string | undefined
     isOfferBar: boolean | undefined
+    // Flags ONLY the page_view event as widget-originated (page load started as the
+    // collapsed badge). Other events opt in per call site via event.isWidget.
+    pageViewIsWidget: boolean
 }
 
-export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar }) => {
+export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar, pageViewIsWidget }) => {
     const isInitialMount = useRef(true)
     const { walletAddress } = useWalletAddress()
     const previousWalletAddressRef = useRef<string | undefined>(walletAddress)
@@ -184,10 +189,13 @@ export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariant, 
         }
         if (retailerName) details.retailer = retailerName
 
-        sendBackendEvent('page_view', {
+        const pageViewEvent: BackendEvent = {
             category: 'system',
             details
-        })
+        }
+        if (pageViewIsWidget) pageViewEvent.isWidget = true
+
+        sendBackendEvent('page_view', pageViewEvent)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

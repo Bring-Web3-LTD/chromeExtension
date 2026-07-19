@@ -10,10 +10,13 @@ interface KeyFrames {
 
 export type IframePage = 'popup' | 'offerbar' | 'offerbarFramed' | 'notification' | 'widget' | 'widgetExpanded'
 
+// The standard entrance animation used by popup-like surfaces (keyframes in `keyFrames` below).
+export const slideInAnimation = 'slideIn .3s ease-in-out'
+
 const iframeStyle: Styles = {
     default: {
         iframe: {
-            animation: 'slideIn .3s ease-in-out',
+            animation: slideInAnimation,
             width: '480px',
             height: `435px`,
             borderRadius: '8px',
@@ -23,7 +26,7 @@ const iframeStyle: Styles = {
     },
     yoroi: {
         iframe: {
-            animation: 'slideIn .3s ease-in-out',
+            animation: slideInAnimation,
             width: '480px',
             height: `436px`,
             borderRadius: '16px',
@@ -33,7 +36,7 @@ const iframeStyle: Styles = {
     },
     argent: {
         iframe: {
-            animation: 'slideIn .3s ease-in-out',
+            animation: slideInAnimation,
             width: '360px',
             height: `600px`,
             borderRadius: '0px',
@@ -46,7 +49,7 @@ const iframeStyle: Styles = {
 const offerbarStyle: Styles = {
     default: {
         iframe: {
-            animation: 'slideIn .3s ease-in-out',
+            animation: slideInAnimation,
             width: '93px',
             height: `482px`,
             borderRadius: '100px 0 0 100px',
@@ -62,7 +65,7 @@ const offerbarFramedStyle: Styles = {
         iframe: {
             position: 'fixed',
             inset: '0',
-            animation: 'slideIn .3s ease-in-out',
+            animation: slideInAnimation,
             height: '71px',
             width: `100vw`,
             borderRadius: '0px',
@@ -106,7 +109,8 @@ const widgetStyle: Styles = {
 // duplicating sizes - only the deltas differ:
 //  - top/right: anchored at the badge position so the AB grows out of the badge.
 //  - animation: the scale/fade is done inside the iframe (framer-motion), so the
-//    CSS slideIn is disabled.
+//    CSS slideIn is disabled. (Widget restores it when a navigation mounts straight
+//    into the expanded AB, where no framer transition runs.)
 //  - clipPath: cleared, since applyStyles only sets keys (never clears them) and the
 //    collapsed badge's clip would otherwise linger and crop the AB.
 const applyIframeOverrides = (styles: Styles, overrides: Record<string, string>): Styles => {
@@ -131,7 +135,7 @@ const widgetExpandedStyle: Styles = applyIframeOverrides(iframeStyle, {
 const notificationIframeStyle: Styles = {
     default: {
         iframe: {
-            animation: 'slideIn .3s ease-in-out',
+            animation: slideInAnimation,
             width: '480px',
             height: `56px`,
             borderRadius: '10px',
@@ -142,7 +146,7 @@ const notificationIframeStyle: Styles = {
     },
     yoroi: {
         iframe: {
-            animation: 'slideIn .3s ease-in-out',
+            animation: slideInAnimation,
             width: '480px',
             height: `56px`,
             borderRadius: '12px',
@@ -153,7 +157,7 @@ const notificationIframeStyle: Styles = {
     },
     argent: {
         iframe: {
-            animation: 'slideIn .3s ease-in-out',
+            animation: slideInAnimation,
             width: '400px',
             height: `50px`,
             borderRadius: '10px',
@@ -206,13 +210,12 @@ export const getIframeStyle = (
         ? { ...themeIframeStyle, zIndex: String(zIndex) }
         : themeIframeStyle
 
+    // Always spread into a fresh object: callers mutate the result (e.g. Widget strips
+    // boxShadow / restores the slide-in per mode), which must never leak back into the
+    // shared style-map singletons above.
     if (isLegacy) {
-        return iframeStyleOverrides
-            ? { ...baseIframeStyle.iframe, ...iframeStyleOverrides }
-            : baseIframeStyle.iframe
+        return { ...baseIframeStyle.iframe, ...iframeStyleOverrides }
     }
 
-    return iframeStyleOverrides
-        ? { iframe: { ...baseIframeStyle.iframe, ...iframeStyleOverrides } }
-        : baseIframeStyle
+    return { iframe: { ...baseIframeStyle.iframe, ...iframeStyleOverrides } }
 }

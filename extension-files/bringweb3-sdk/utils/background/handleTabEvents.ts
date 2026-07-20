@@ -1,7 +1,7 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
 import { DAY_MS, HOUR_MS } from "../constants";
-import { normalizeUrl } from "../normalizeUrl";
+import getStandDownRecord from "./getStandDownRecord";
 import { registerRedirectChain, getChain, clearChain } from "./redirectChain";
 import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
@@ -60,29 +60,30 @@ const findStandDown = async (chain: string[]): Promise<StandDown> => {
     return null;
 };
 
-// Another affiliate attributed the nav that led here: quiet the base domain, suppressing
-// every later path on it. Skips domains that already hold any quietDomains entry.
+// Another affiliate attributed the nav that led here: quiet the registrable domain
+// ('*.<domain>'), suppressing the apex and every subdomain/path. Gated by the TLD
+// regex — a host whose TLD we don't serve retailers on is skipped.
 const applyStandDown = async (url: string, chain: string[]): Promise<void> => {
-    const baseDomain = normalizeUrl(url, { reverseHost: false, hostOnly: true });
-    if (!baseDomain) {
-        logger.warn('stand-down skipped: unparseable url', { url });
+    const record = await getStandDownRecord(url);
+    if (!record) {
+        logger.debug('stand-down skipped: TLD not recognized', { url });
         return;
     }
 
     const offset = (await storage.get('standDownOffset')) ?? HOUR_MS;
     const newEnd = Date.now() + offset;
 
-    const { phase, time } = await getQuietDomain(baseDomain);
+    const { phase, time } = await getQuietDomain(record);
 
     // Never override our own activation.
     if (phase === 'activated') {
-        logger.debug('domain already activated', { baseDomain });
+        logger.debug('domain already activated', { record });
         return;
     }
 
     // Already quiet at least as long as a fresh window — don't shorten it.
     if (time && time[1] >= newEnd) {
-        logger.debug('domain already quiet past the stand-down window', { baseDomain, until: time[1] });
+        logger.debug('domain already quiet past the stand-down window', { record, until: time[1] });
         return;
     }
 
@@ -95,9 +96,9 @@ const applyStandDown = async (url: string, chain: string[]): Promise<void> => {
     // 'kdi' covers main nav + the inline page gate. No 's': that gate stops the
     // scrape before any link is queried. addQuietDomain replaces the (domain, type)
     // record, so this extends an expiring window to now + offset.
-    await addQuietDomain(baseDomain, offset, 'kdi', false);
+    await addQuietDomain(record, offset, 'kdi', false);
     logger.info('stand-down detected - quieting domain', {
-        baseDomain, offset, hop: standDown.hop, match: standDown.match,
+        record, offset, hop: standDown.hop, match: standDown.match,
     });
 };
 

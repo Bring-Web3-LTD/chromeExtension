@@ -80,7 +80,7 @@ interface Props {
 }
 
 const OptOut = ({ onClose, onOpted }: Props) => {
-    const { cryptoSymbols, platformName, displayPlatformName, textMode, domain, name, version } = useRouteLoaderData('root') as LoaderData
+    const { cryptoSymbols, platformName, displayPlatformName, textMode, domain, verifiedMatch, name, version } = useRouteLoaderData('root') as LoaderData
     const { sendAnalyticsEvent } = useAnalytics()
     const [isOpted, setIsOpted] = useState(false)  
     
@@ -106,11 +106,12 @@ const OptOut = ({ onClose, onOpted }: Props) => {
 
         // SDK < 1.8.0: clamp forever to 60d + tag 'a' - see isLegacyCapSdk
         const isForeverSpecific = !websites.value && duration.label === 'forever' && isLegacyCapSdk(version)
+        const quietDomain = (verifiedMatch && !verifiedMatch.isRegex) ? verifiedMatch.match : domain
 
         const event = {
             action: websites.value ? ACTIONS.OPT_OUT : ACTIONS.OPT_OUT_SPECIFIC,
             time: isForeverSpecific ? 60 * 24 * 60 * 60 * 1000 : +duration.value,
-            domain,
+            domain: quietDomain,
             key: dict[duration.label as keyof typeof dict],
             ...(isForeverSpecific ? { type: ['kdsa'], isRegex: [false] } : {})
         }

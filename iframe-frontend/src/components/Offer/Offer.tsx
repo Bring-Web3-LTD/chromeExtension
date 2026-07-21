@@ -87,6 +87,8 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
             flowId,
             isOfferBar,
             activationPayload,
+            // SDK version — lets the server decide whether to return an enriched iframeUrl
+            version,
         }
 
         if (isTester && isDemo) body.isDemo = true

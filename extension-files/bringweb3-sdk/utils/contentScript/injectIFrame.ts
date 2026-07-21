@@ -1,5 +1,4 @@
 import { ENV_IFRAME_URL } from "../config";
-import getQueryParams from "../getQueryParams";
 import getVersion from "../getVersion";
 import { OFFERBAR_CONTAINER_ID, IFRAME_ID_PREFIX } from "../constants";
 import insertStyleElement from "./insertStyleElement";
@@ -30,12 +29,18 @@ const injectIFrame = ({ query, styleUrl, themeMode, text, iframeUrl, page, switc
     const extensionId = chrome.runtime.id;
     const iframeId = `${IFRAME_ID_PREFIX}-${extensionId}`;
     const element = document.getElementById(iframeId)
-    const iframeHost = ENV_IFRAME_URL ? `${ENV_IFRAME_URL}${page ? '/' + page : ''}` : iframeUrl
     if (element) return element as HTMLIFrameElement;
-    const params = getQueryParams({ query: { ...query, extensionId, v: getVersion(), themeMode, textMode: text, switchWallet: String(switchWallet), ...(styleUrl ? { styleUrl } : {}) } })
     const iframe = document.createElement('iframe');
     iframe.id = iframeId;
-    iframe.src = encodeURI(`${iframeHost}?${params}`);
+
+    // Server builds iframeUrl with its params; client fills in the rest.
+    const url = new URL(iframeUrl)
+    Object.entries({ extensionId, v: getVersion(), themeMode, textMode: text, switchWallet: String(switchWallet), styleUrl, userId: query.userId })
+        .forEach(([key, value]) => value && !url.searchParams.has(key) && url.searchParams.set(key, value))
+    if (!url.hash && query.token) url.hash = `token=${encodeURIComponent(query.token)}`
+    // Dev override: keep the server-built path/query/fragment, swap the origin
+    if (ENV_IFRAME_URL) Object.assign(url, { protocol: new URL(ENV_IFRAME_URL).protocol, host: new URL(ENV_IFRAME_URL).host })
+    iframe.src = url.toString()
     const sandbox = "allow-scripts allow-same-origin"
     iframe.setAttribute('sandbox', sandbox)
     iframe.style.position = "fixed";

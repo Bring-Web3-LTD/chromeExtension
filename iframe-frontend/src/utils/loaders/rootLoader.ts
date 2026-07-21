@@ -19,7 +19,11 @@ const rootLoader = async ({ request }: Props) => {
     const styleUrl = searchParams.get('styleUrl') || null
     const themeMode = searchParams.get('themeMode') || 'light'
 
-    const res = await verify({ token: searchParams.get('token'), userId, styleUrl, themeMode })
+    // Token arrives in the URL fragment (never sent to the CDN); query param kept as fallback for older SDKs
+    const hashParams = new URLSearchParams(window.location.hash.slice(1))
+    const token = hashParams.get('token') || searchParams.get('token')
+
+    const res = await verify({ token, userId, styleUrl, themeMode })
     if (res.status !== 200) throw `got ${res.status} code`
 
     // Apply theme: use server-fetched theme if available, otherwise fall back to local JSON

@@ -1,7 +1,6 @@
 import styles from './styles.module.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAnalytics } from '../../hooks/useAnalytics'
-import { useVariant } from '../../hooks/useVariant'
 import OptOut from '../OptOut/OptOut'
 import activate from '../../api/activate'
 import CloseBtn from '../CloseBtn/CloseBtn'
@@ -39,10 +38,6 @@ interface Props {
 
 const Offer = ({ closeFn, onCollapse }: Props) => {
     const { sendAnalyticsEvent } = useAnalytics()
-    // AB tests: activate + opt-out button colours (variantA/variantB per registry).
-    // Users not in a test resolve to 'control' → no variant class.
-    const activateBtnVariant = useVariant('activate-btn-color')
-    const optOutBtnVariant = useVariant('optOut-btn-color')
     const { walletAddress, setWalletAddress } = useWalletAddress()
     const activationPayload = useActivationPayload()
     const {
@@ -208,7 +203,7 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                                 <button
                                     id="activate-btn"
                                     onClick={activateAction}
-                                    className={`${styles.btn} ${activateBtnVariant === 'variantA' ? styles.btn_variantA : activateBtnVariant === 'variantB' ? styles.btn_variantB : ''}`}
+                                    className={styles.btn}
                                     disabled={status !== 'idle'}
                                 >
                                     {status === 'idle' ?
@@ -233,7 +228,7 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                                 >
                                     <button
                                         id="opt-out-btn"
-                                        className={`${styles.action_btn} ${optOutBtnVariant === 'variantA' ? styles.optout_variantA : optOutBtnVariant === 'variantB' ? styles.optout_variantB : ''}`}
+                                        className={styles.action_btn}
                                         disabled={status !== 'idle'}
                                         onClick={() => setOptOutOpen(true)}
                                     >

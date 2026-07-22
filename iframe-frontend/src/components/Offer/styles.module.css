@@ -63,36 +63,6 @@
     background: var(--primary-btn-hover-bg, var(--primary-btn-bg));
 }
 
-/* AB test: activate-btn-color (variantA/variantB) */
-.btn_variantA {
-    background: #6d28d9;
-    color: #fff;
-    border-color: #6d28d9;
-}
-.btn_variantA:hover {
-    background: #5b21b6;
-}
-.btn_variantB {
-    background: #db2777;
-    color: #fff;
-    border-color: #db2777;
-}
-.btn_variantB:hover {
-    background: #be185d;
-}
-
-/* AB test: optOut-btn-color (variantA/variantB) */
-.optout_variantA {
-    background: #0891b2;
-    color: #fff;
-    border-color: #0891b2;
-}
-.optout_variantB {
-    background: #ea580c;
-    color: #fff;
-    border-color: #ea580c;
-}
-
 .xMark:hover {
     transform: scale(1.1);
 }

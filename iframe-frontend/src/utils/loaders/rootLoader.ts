@@ -1,8 +1,7 @@
 import { sendMessage, ACTIONS } from "../sendMessage"
 import { keyFrames } from "../iframeStyles"
 import verify from "../../api/verify"
-// import { selectVariant } from "../ABTest/ABTestVariant"
-import { selectVariant } from "../ABTest/platform-variants"
+import { variantOf } from "../ABTest/testVariants"
 import { BASE_PATH, ENV } from "../../config"
 import removeTrailingSlash from "../removeTrailingSlash"
 import loadTheme from "../loadTheme"
@@ -25,10 +24,11 @@ const rootLoader = async ({ request }: Props) => {
     // Apply theme: use server-fetched theme if available, otherwise fall back to local JSON
     const { iframeStyle } = await loadTheme({ theme: res.theme, platformName: res.info.platformName, themeMode })
 
-    const variant = selectVariant(userId || res.info.walletAddress || '', res.info.platformName)
+    // AB-test assignments are computed on the backend and returned by /verify.
+    const testVariants = res.testVariants ?? []
     // Argent Control: only load on base path
-
-    if (variant === 'argentControl' && path !== removeTrailingSlash(BASE_PATH) && path !== '/') {
+    if (variantOf(testVariants, 'argent-onestep-v1') === 'argentControl'
+        && path !== removeTrailingSlash(BASE_PATH) && path !== '/') {
         return;
     }
     // Set open animation
@@ -52,7 +52,7 @@ const rootLoader = async ({ request }: Props) => {
         textMode,
         switchWallet,
         iconsPath: `${import.meta.env.BASE_URL}${themeMode}/icons/${res.info.platformName.toUpperCase() || 'DEFAULT'}`,
-        variant,
+        testVariants,
         iframeStyle
     }
 }

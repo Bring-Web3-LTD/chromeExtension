@@ -181,6 +181,10 @@
     user-select: none;
 }
 
+.agree_compact {
+    font-size: 12px;
+}
+
 .terms {
     color: var(--agree-link-f-c);
     font-weight: var(--agree-link-f-w, inherit);

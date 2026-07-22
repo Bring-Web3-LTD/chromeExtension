@@ -52,6 +52,7 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
         isTester,
         version,
         domain,
+        verifiedMatch,
         maxCashback,
         cashbackSymbol,
         cashbackCurrency,
@@ -102,7 +103,7 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
         sendMessage({
             action: ACTIONS.ACTIVATE,
             url,
-            domain,
+            domain: (verifiedMatch && !verifiedMatch.isRegex) ? verifiedMatch.match : domain,
             time: parseTime(ACTIVATE_QUIET_TIME, version),
             redirectUrl,
             iframeUrl,
@@ -119,7 +120,7 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
             details: name
         })
 
-    }, [activationPayload, cryptoSymbols, domain, flowId, isDemo, isTester, name, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress])
+    }, [activationPayload, cryptoSymbols, domain, verifiedMatch, flowId, isDemo, isTester, name, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress])
 
 
     useEffect(() => {

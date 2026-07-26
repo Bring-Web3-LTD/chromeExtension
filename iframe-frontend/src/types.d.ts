@@ -1,5 +1,9 @@
-import { VariantKey } from "./utils/ABTest/platform-variants"
 declare global {
+
+    interface TestVariant {
+        testName: string
+        variant: string
+    }
 
     declare enum ACTIONS {
         OPEN = 'OPEN',
@@ -69,7 +73,7 @@ declare global {
         iconsPath: string
         themeMode: 'light' | 'dark'
         textMode: 'upper' | 'lower'
-        variant: VariantKey
+        testVariants: TestVariant[]
         switchWallet: boolean
         userId: string
         version: string

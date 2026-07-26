@@ -45,7 +45,7 @@ const Layout = () => {
                     retailerName={data.name}
                     userId={data.userId}
                     platform={data.platformName}
-                    testVariant={data.variant}
+                    testVariants={data.testVariants}
                     location={data.url}
                     flowId={data.flowId}
                     searchEngineDomain={data.searchEngineDomain}

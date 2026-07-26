@@ -1,6 +1,4 @@
 import { FC, createContext, useEffect, ReactNode, useCallback, useRef } from 'react';
-import { TEST_ID } from '../config';
-import { VariantKey } from '../utils/ABTest/platform-variants';
 import analytics from '../api/analytics';
 import { useWalletAddress } from '../hooks/useWalletAddress';
 
@@ -34,7 +32,7 @@ interface Props {
     children: ReactNode
     platform: string
     userId: string | undefined
-    testVariant: VariantKey
+    testVariants: TestVariant[]
     retailerName: string | undefined
     location: string
     flowId: string
@@ -50,7 +48,7 @@ interface Props {
     pageViewIsWidget: boolean
 }
 
-export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariant, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar, pageViewIsWidget }) => {
+export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariants, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar, pageViewIsWidget }) => {
     const isInitialMount = useRef(true)
     const { walletAddress } = useWalletAddress()
     const previousWalletAddressRef = useRef<string | undefined>(walletAddress)
@@ -79,9 +77,9 @@ export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariant, 
             ...event,
             type: name,
             platform,
-            testId: TEST_ID,
-            testVariant,
             flowId,
+            // [{ testName, variant }] — every test this user is in. Omit when empty.
+            ...(testVariants.length && { testVariants }),
         }
 
         if (retailerName) backendEvent.retailer = retailerName
@@ -120,7 +118,7 @@ export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariant, 
 
         return eventPromise
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [flowId, platform, retailerName, testVariant, userId, walletAddress])
+    }, [flowId, platform, retailerName, testVariants, userId, walletAddress])
 
     // Track wallet address changes
     useEffect(() => {

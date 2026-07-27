@@ -1,6 +1,8 @@
 import analytics from "../api/analytics";
 import validateDomain from "../api/validateDomain";
-import { DAY_MS } from "../constants";
+import { DAY_MS, HOUR_MS } from "../constants";
+import getStandDownRecord from "./getStandDownRecord";
+import { registerRedirectChain, getChain, clearChain } from "./redirectChain";
 import parseUrl from "../parseUrl";
 import storage from "../storage/storage";
 import handleActivate from "./activate";
@@ -43,14 +45,67 @@ interface TabState {
 
 const tabStates = new Map<number, TabState>();
 
-const hasWebNavigation = typeof chrome !== 'undefined'
-    && chrome.webNavigation
-    && typeof chrome.webNavigation.onCommitted?.addListener === 'function';
-
 // Tracks URLs per tab for each event source to coordinate between onCommitted and onHistoryStateUpdated.
 const navUrls = new Map<number, { committed?: string; history?: string }>();
 
+type StandDown = { hop: string, match: string | string[] } | null;
+
+// Returns the hop carrying an affiliate attribution param ('p' type), or null. Run once
+// per navigation: the chain belongs to the page, not to the links scraped from it.
+const findStandDown = async (chain: string[]): Promise<StandDown> => {
+    for (const hop of chain) {
+        const hit = await getRelevantDomain(hop, 'p');
+        if (hit.matched) return { hop, match: hit.match };
+    }
+    return null;
+};
+
+// Another affiliate attributed the nav that led here: quiet the registrable domain
+// ('*.<domain>'), suppressing the apex and every subdomain/path. Gated by the TLD
+// regex — a host whose TLD we don't serve retailers on is skipped.
+const applyStandDown = async (url: string, chain: string[]): Promise<void> => {
+    const record = await getStandDownRecord(url);
+    if (!record) {
+        logger.debug('stand-down skipped: TLD not recognized', { url });
+        return;
+    }
+
+    const offset = (await storage.get('standDownOffset')) ?? HOUR_MS;
+    const newEnd = Date.now() + offset;
+
+    const { phase, time } = await getQuietDomain(record);
+
+    // Never override our own activation.
+    if (phase === 'activated') {
+        logger.debug('domain already activated', { record });
+        return;
+    }
+
+    // Already quiet at least as long as a fresh window — don't shorten it.
+    if (time && time[1] >= newEnd) {
+        logger.debug('domain already quiet past the stand-down window', { record, until: time[1] });
+        return;
+    }
+
+    // New, or its window expires within the offset. Re-quiet only if still a stand-down.
+    // Landed URL included: it's not in the chain (only 3xx hops are), and it's the only
+    // thing tested when there was no redirect.
+    const standDown = await findStandDown([...chain, url]);
+    if (!standDown) return;
+
+    // 'kdi' covers main nav + the inline page gate. No 's': that gate stops the
+    // scrape before any link is queried. addQuietDomain replaces the (domain, type)
+    // record, so this extends an expiring window to now + offset.
+    await addQuietDomain(record, offset, 'kdi', false);
+    logger.info('stand-down detected - quieting domain', {
+        record, offset, hop: standDown.hop, match: standDown.match,
+    });
+};
+
 const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
+
+    // webNavigation and webRequest are validated present at init (see validatePermissions).
+    registerRedirectChain();
 
     // Sends an INJECT to the content script and reacts to its response (activate / no_popup analytics).
     // Used both by validateAndInject (normal popup-check) and by the followups engine on a fire-response.
@@ -251,7 +306,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         await injectPopup(tabId, tab, popupData, phase, address, urlToCheck, isSpaNavigation);
     };
 
-    // Inline-search: scrape page links after load.
+    // Inline-search: scrape page links after load. No stand-down check — it already
+    // quieted this page's base domain, so the 'i' gate below bails out.
     const onPageComplete = async (tabId: number, url: string) => {
         const isPopupEnabled = await storage.get('popupEnabled');
         if (!isPopupEnabled) return;
@@ -272,6 +328,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         logger.info(`[popup-check] Inline search — checking page links`, { tabId, url, links: uniqueLinks.length });
 
+
         await Promise.allSettled(
             uniqueLinks.map(link => validateAndInject(link, tabId, tab, true, { match: inlineSearchResult.match, type: inlineSearchResult.type }))
         );
@@ -279,6 +336,13 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
     const onMainNavigation = async (tabId: number, url: string, isSpaNavigation: boolean = false) => {
         logger.info(`[flow] Handling navigation`, { tabId, url, isSpaNavigation });
+
+        // Read before the first await, so a concurrent navigation's clearChain
+        // can't wipe this navigation's chain mid-flight.
+        const chain = getChain(tabId);
+
+        logger.debug('redirect chain', { url, isSpaNavigation, chain });
+
         const isPopupEnabled = await storage.get('popupEnabled');
         if (!isPopupEnabled) {
             logger.debug(`[flow] Skipped — popup disabled by user`, { tabId, url });
@@ -304,55 +368,50 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             }
         }).catch(error => logger.error(`[followup] Followup handling failed`, error));
 
+        await applyStandDown(url, chain);
+
         await validateAndInject(url, tabId, tab, false, undefined, isSpaNavigation);
     };
 
-    if (hasWebNavigation) {
-        // Full navigations — always processes.
-        chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
-            if (frameId !== 0) return;
-            logger.debug(`[nav] URL changed (full page navigation)`, { tabId, url });
-            const entry = navUrls.get(tabId);
-            entry ? (entry.committed = url) : navUrls.set(tabId, { committed: url });
-            onMainNavigation(tabId, url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
-        }, { url: [{ schemes: ['http', 'https'] }] });
+    // Reset the chain at nav start (before any 3xx hop), so a nav — even one that
+    // preempts an uncommitted nav — can't inherit a leftover chain.
+    chrome.webNavigation.onBeforeNavigate.addListener(({ tabId, frameId }) => {
+        if (frameId !== 0) return;
+        clearChain(tabId);
+    }, { url: [{ schemes: ['http', 'https'] }] });
 
-        // SPA navigations — only processes if onCommitted hasn't handled this URL.
-        chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId, url }) => {
-            if (frameId !== 0) return;
-            if (navUrls.get(tabId)?.committed === url) {
-                logger.debug(`[nav] SPA URL change ignored — already handled by full navigation`, { tabId, url });
-                return;
-            }
-            logger.debug(`[nav] URL changed (SPA / history state update)`, { tabId, url });
-            const entry = navUrls.get(tabId);
-            entry ? (entry.history = url) : navUrls.set(tabId, { history: url });
-            onMainNavigation(tabId, url, true).catch(error => logger.error(`[flow] Navigation handling failed`, error));
-        }, { url: [{ schemes: ['http', 'https'] }] });
+    // Full navigations — always processes.
+    chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
+        if (frameId !== 0) return;
+        logger.debug(`[nav] URL changed (full page navigation)`, { tabId, url });
+        const entry = navUrls.get(tabId);
+        entry ? (entry.committed = url) : navUrls.set(tabId, { committed: url });
+        onMainNavigation(tabId, url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
+    }, { url: [{ schemes: ['http', 'https'] }] });
 
-        chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
-            if (frameId !== 0) return;
-            onPageComplete(tabId, url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
-        }, { url: [{ schemes: ['http', 'https'] }] });
-    } else {
-        // Fallback when webNavigation permission is unavailable.
-        chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-            if (!tab?.url?.startsWith('http')) return;
+    // SPA navigations — only processes if onCommitted hasn't handled this URL. Route
+    // changes fire no request, so the chain still holds this visit's arrival hops.
+    chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId, url }) => {
+        if (frameId !== 0) return;
+        if (navUrls.get(tabId)?.committed === url) {
+            logger.debug(`[nav] SPA URL change ignored — already handled by full navigation`, { tabId, url });
+            return;
+        }
+        logger.debug(`[nav] URL changed (SPA / history state update)`, { tabId, url });
+        const entry = navUrls.get(tabId);
+        entry ? (entry.history = url) : navUrls.set(tabId, { history: url });
+        onMainNavigation(tabId, url, true).catch(error => logger.error(`[flow] Navigation handling failed`, error));
+    }, { url: [{ schemes: ['http', 'https'] }] });
 
-            if (changeInfo.url) {
-                logger.debug(`[nav] URL changed (tab-update fallback)`, { tabId, url: tab.url });
-                onMainNavigation(tabId, tab.url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
-            }
-
-            if (changeInfo.status === 'complete') {
-                onPageComplete(tabId, tab.url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
-            }
-        });
-    }
+    chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
+        if (frameId !== 0) return;
+        onPageComplete(tabId, url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
+    }, { url: [{ schemes: ['http', 'https'] }] });
 
     chrome.tabs.onRemoved.addListener((tabId) => {
         tabStates.delete(tabId);
         navUrls.delete(tabId);
+        clearChain(tabId);
         cleanupTabFollowups(tabId).catch(() => { });
     });
 }

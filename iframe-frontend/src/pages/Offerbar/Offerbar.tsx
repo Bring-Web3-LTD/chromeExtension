@@ -39,6 +39,7 @@ const Offerbar = () => {
     isOfferBar,
     searchTermPattern,
     isRegex,
+    verifiedMatch,
     followups,
     iframeStyle: themeIframeStyle,
     zIndex
@@ -93,7 +94,7 @@ const Offerbar = () => {
     sendMessage({
       action: ACTIONS.ACTIVATE,
       url,
-      domain,
+      domain: (verifiedMatch && !verifiedMatch.isRegex) ? verifiedMatch.match : domain,
       searchTermPattern,
       time: parseTime(OB_ACTIVATE_QUIET_TIME, version),
       redirectUrl,
@@ -112,7 +113,7 @@ const Offerbar = () => {
       details: name
     })
 
-  }, [activationPayload, cryptoSymbols, domain, searchEngineDomain, flowId, name, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
+  }, [activationPayload, cryptoSymbols, domain, verifiedMatch, isRegex, searchEngineDomain, flowId, name, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, offerBarPageUrl, searchTermPattern])
 
   useEffect(() => {
     sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbar', platformName, version, themeIframeStyle, zIndex) })

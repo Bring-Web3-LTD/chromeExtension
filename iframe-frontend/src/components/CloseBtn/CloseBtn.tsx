@@ -22,7 +22,7 @@ interface Props {
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const CloseBtn = ({ callback, withTime = true, time, className = '', type, overrideClose }: Props) => {
-    const { domain, version} = useRouteLoaderData('root') as LoaderData
+    const { domain, version, verifiedMatch } = useRouteLoaderData('root') as LoaderData
     const { sendAnalyticsEvent } = useAnalytics()
 
     const close = async () => {
@@ -43,7 +43,8 @@ const CloseBtn = ({ callback, withTime = true, time, className = '', type, overr
             sendMessage({ action: ACTIONS.ACTIVATE, url: `https://${domain}` })
         }
 
-        const message: Parameters<typeof sendMessage>[0] = { action: ACTIONS.CLOSE, domain}
+        const quietDomain = (verifiedMatch && !verifiedMatch.isRegex) ? verifiedMatch.match : domain
+        const message: Parameters<typeof sendMessage>[0] = { action: ACTIONS.CLOSE, domain: quietDomain }
         if (withTime) message.time = parseTime(time ?? THIRTY_MIN_MS, version)
         if (type) message.type = type
 

@@ -13,6 +13,7 @@ interface Payload {
 interface Response {
     phase: Phases
     payload: Payload
+    time?: [number, number]  // active [start, end] range of the matched entry
 }
 
 const getQuietDomain = async (url: string, type?: string): Promise<Response> => {
@@ -20,6 +21,7 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
 
     let phase: Phases = 'new'
     let payload: Payload = {}
+    let time: [number, number] | undefined
 
     for (let i = 0; i < quietDomains.length; i++) {
         const entry = quietDomains[i]
@@ -32,13 +34,15 @@ const getQuietDomain = async (url: string, type?: string): Promise<Response> => 
             if (!isMsRangeActive(entry.time)) continue
             phase = entry.phase || 'quiet'
             payload = entry.payload || {}
+            time = entry.time
             break
         }
     }
-    
+
     return {
         phase,
-        payload
+        payload,
+        time
     }
 
 }

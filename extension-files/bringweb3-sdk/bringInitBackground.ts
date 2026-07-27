@@ -1,5 +1,6 @@
 import { ApiEndpoint, EndpointName } from "./utils/apiEndpoint.js"
 import storage from "./utils/storage/storage.js"
+import { validatePermissions } from './utils/background/validatePermissions';
 import { checkAndRunMigration } from './utils/background/dataMigration';
 import handleContentMessages from './utils/background/handleContentMessages';
 import handleTabEvents from './utils/background/handleTabEvents';
@@ -59,6 +60,7 @@ const ENDPOINT = ENV_ENDPOINT as EndpointName
 
 const bringInitBackground = async ({ identifier, apiEndpoint, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback }: Configuration) => {
     if (!identifier || !apiEndpoint) throw new Error('Missing configuration')
+    validatePermissions()
     if (ENDPOINT) logger.debug('endpoint configured', { ENDPOINT });
 
     if (!['prod', 'sandbox'].includes(apiEndpoint)) throw new Error('unknown apiEndpoint')

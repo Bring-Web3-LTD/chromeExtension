@@ -81,7 +81,8 @@ const Offerbar = () => {
       searchEngineDomain,
       offerBarPageUrl: url,
       offerBarSearch,
-      activationPayload
+      activationPayload,
+      version
     }
 
     const { status, url: redirectUrl, iframeUrl, token } = await activate(body)

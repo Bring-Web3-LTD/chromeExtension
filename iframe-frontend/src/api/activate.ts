@@ -19,6 +19,7 @@ interface ActivateProps {
     offerBarSearch?: string
     activationPayload?: ActivateResponse | null
     activationMode?: string
+    version?: string
 }
 
 interface ActivateResponse {

@@ -58,7 +58,9 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
         cashbackCurrency,
         followups,
         offerText,
-        isOfferBar
+        isOfferBar,
+        bringTou,
+        privacy
     } = useRouteLoaderData('root') as LoaderData
 
     const defaultOfferText = useMemo(() => {
@@ -261,8 +263,22 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                                 </div>
 
                             </div>
-                            <div id="offer-agree-text" className={styles.agree}>
-                                By activating, you agree to the <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Terms</span>
+                            <div id="offer-agree-text" className={`${styles.agree} ${bringTou || privacy ? styles.agree_compact : ''}`}>
+                                {bringTou || privacy ?
+                                    <>
+                                        By activating you agree to&nbsp;&nbsp;<span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Deal Terms</span>
+                                        {privacy ?
+                                            <><span className={styles.terms_comma}>, </span><span id="offer-privacy-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: privacy })}>Privacy</span></>
+                                            : null
+                                        }
+                                        {bringTou ?
+                                            <><span className={styles.terms_comma}>, </span><span id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</span></>
+                                            : null
+                                        }
+                                    </>
+                                    :
+                                    <>By activating, you agree to the <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Terms</span></>
+                                }
                             </div>
                         </motion.div>
                         :

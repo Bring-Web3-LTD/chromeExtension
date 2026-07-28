@@ -49,6 +49,8 @@
     "backLS": "0.5px",
     "backTextTransform": "capitalize",
     "agreeLinkFC": "#DDE5FC",
+    "agreeLinkFS": "11px",
+    "agreeCommaFS": "11px",
     "agreeFC": "#636772",
     "detailsSubtitleFS": "15px",
     "detailsSubtitleFW": "400",

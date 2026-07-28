@@ -181,10 +181,22 @@
     user-select: none;
 }
 
+.agree_compact {
+    font-size: 12px;
+    font-feature-settings: 'liga' off, 'clig' off;
+    letter-spacing: -0.15px;
+    font-weight: 500;
+}
+
 .terms {
     color: var(--agree-link-f-c);
+    font-size: var(--agree-link-f-s, inherit);
     font-weight: var(--agree-link-f-w, inherit);
     text-decoration: underline;
     text-underline-offset: 2px;
     cursor: pointer;
+}
+
+.terms_comma {
+    font-size: var(--agree-comma-f-s, inherit);
 }

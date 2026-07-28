@@ -67,6 +67,8 @@ declare global {
         followups?: any[]
         zIndex?: number
         isWidgetEnabled?: boolean
+        bringTou?: string
+        privacy?: string
     }
 
     interface LoaderData extends Info {

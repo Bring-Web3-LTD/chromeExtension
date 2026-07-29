@@ -2,12 +2,16 @@ import analytics from "../api/analytics";
 import getUserId from "./getUserId";
 import getWalletAddress from "./getWalletAddress";
 import sendMessage from "./sendMessage";
+import { logger } from "../logger";
 
 const closeAllPopups = async (domain: string, currentTabId: number, closer: string, iframePath?: `/${string}`) => {
     const tabs = await chrome.tabs.query({});
 
     // All the tab IDs except the current one
     const ids = tabs.map(tab => tab.id).filter(id => id && id !== currentTabId) as number[];
+
+    logger.info(`[bg-msg] CLOSE_POPUP event sent`);
+    logger.debug(`[bg-msg] CLOSE_POPUP payload`, { domain, path: iframePath || '/', tabs: ids.length, currentTabId, closer });
 
     const events: any[] = []
 
@@ -30,6 +34,8 @@ const closeAllPopups = async (domain: string, currentTabId: number, closer: stri
     );
 
     await Promise.all(promises);
+
+    logger.debug(`[bg-msg] CLOSE_POPUP — popups closed`, { closed: events.length, tabs: ids.length, domain });
 
     if (events.length) await analytics(events)
 }

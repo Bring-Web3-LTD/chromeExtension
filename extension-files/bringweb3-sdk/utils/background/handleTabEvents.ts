@@ -91,7 +91,10 @@ const applyStandDown = async (url: string, chain: string[]): Promise<void> => {
     // Landed URL included: it's not in the chain (only 3xx hops are), and it's the only
     // thing tested when there was no redirect.
     const standDown = await findStandDown([...chain, url]);
-    if (!standDown) return;
+    if (!standDown) {
+        logger.debug('stand-down skipped: no affiliate attribution in the redirect chain', { record, chain });
+        return;
+    }
 
     // 'kdi' covers main nav + the inline page gate. No 's': that gate stops the
     // scrape before any link is queried. addQuietDomain replaces the (domain, type)
@@ -112,7 +115,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
     const injectPopup = async (tabId: number, tab: chrome.tabs.Tab, popupData: any, phase: string, address: WalletAddress, sourceUrl?: string, isSpaNavigation: boolean = false) => {
         const userId = await getUserId()
 
-        logger.info(`[inject] Sending open-popup request to content script`, { tabId, phase, domain: parseUrl(tab.url!), iframeUrl: popupData.iframeUrl, flowId: popupData.flowId, isSpaNavigation });
+        logger.info(`[bg-msg] INJECT event sent`);
+        logger.debug(`[bg-msg] INJECT payload`, { tabId, phase, domain: parseUrl(tab.url!), iframeUrl: popupData.iframeUrl, flowId: popupData.flowId, isSpaNavigation });
 
         const res = await sendMessage(tabId, {
             action: 'INJECT',
@@ -129,7 +133,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             isSpaNavigation
         });
 
-        logger.info(`[inject] Content script replied to open-popup request`, { tabId, phase, status: res?.status, action: res?.action, message: res?.message });
+        logger.debug(`[bg-msg] INJECT reply from content script`, { tabId, phase, status: res?.status, action: res?.action, message: res?.message });
 
         if (res?.action) {
             switch (res.action) {
@@ -137,12 +141,13 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                     handleActivate(popupData.verifiedMatch.match, chrome.runtime.id, 'popup', cashbackPagePath, popupData.quietDomainType, popupData.verifiedMatch.isRegex, popupData.time, tabId)
                     break;
                 default:
-                    logger.error(`Unknown action: ${res.action}`);
+                    logger.warn(`[inject] Unknown action: ${res.action}`);
                     break;
             }
         }
 
         if (res?.status !== 'success') {
+            logger.info(`[inject] No popup — content script did not show it: ${res?.message || 'no response'}`, { tabId, phase });
             analytics({
                 type: 'no_popup',
                 userId,
@@ -194,7 +199,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         }
 
         const { phase, payload } = await getQuietDomain(url, type);
-        logger.info(`[popup-check] Domain phase resolved`, { tabId, url, phase });
+        logger.debug(`[popup-check] Domain phase resolved`, { tabId, url, phase });
 
         const matches = [];
         if (isInlineSearch && inlineSearchResult) {
@@ -214,11 +219,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 await storage.remove('optOut')
             }
         } else if (phase === 'activated') {
-            logger.info(`[inject] Showing activated popup (post-activation re-show)`, { tabId, url });
+            logger.info(`[popup-check] Showing activated popup (post-activation re-show)`, { tabId, url });
             const userId = await getUserId()
             const { iframeUrl, token, placement } = payload || {};
 
-            logger.info(`[inject] Sending open-popup request to content script`, { tabId, phase, domain: url, iframeUrl, isSpaNavigation });
+            logger.info(`[bg-msg] INJECT event sent`);
+            logger.debug(`[bg-msg] INJECT payload`, { tabId, phase, domain: url, iframeUrl, isSpaNavigation });
 
             const res = await sendMessage(tabId, {
                 action: 'INJECT',
@@ -230,7 +236,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 placement,  // Pass placement configuration from payload
                 isSpaNavigation
             });
-            logger.info(`[inject] Content script replied to open-popup request`, { tabId, phase, status: res?.status, action: res?.action, message: res?.message });
+            logger.debug(`[bg-msg] INJECT reply from content script`, { tabId, phase, status: res?.status, action: res?.action, message: res?.message });
             return;
         } else if (phase === 'quiet') {
             // TODO: if(phase === 'quiet') => Purchase-detector
@@ -264,7 +270,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             await applyQuietDomainsUpdate(popupData.quietDomains);
         }
 
-        logger.info(`[popup-check] Server validation result`, { tabId, url, isValid: popupData?.isValid, networkUrl: popupData?.networkUrl });
+        logger.debug(`[popup-check] Server validation result`, { tabId, url, isValid: popupData?.isValid, networkUrl: popupData?.networkUrl });
 
         if (!popupData.time) popupData.time = DAY_MS;
 
@@ -286,7 +292,10 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             popupData = state.inlineSearch.popupData;
         }
 
-        if (!await isWhitelisted(popupData.networkUrl)) return;
+        if (!await isWhitelisted(popupData.networkUrl)) {
+            logger.info(`[popup-check] No popup — network URL not whitelisted`, { tabId, url, networkUrl: popupData.networkUrl });
+            return;
+        }
 
         if (!isInlineSearch) {
             tabStates.get(tabId)!.urlSearchStatus = 'succeeded';
@@ -309,14 +318,22 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
     // Inline-search: scrape page links after load. No stand-down check — it already
     // quieted this page's base domain, so the 'i' gate below bails out.
     const onPageComplete = async (tabId: number, url: string) => {
+        // Inline search is the secondary path — it runs on every page load and scans 50-100
+        // links, so its skips stay at debug. The main URL's decisions log at info.
         const isPopupEnabled = await storage.get('popupEnabled');
-        if (!isPopupEnabled) return;
+        if (!isPopupEnabled) {
+            logger.debug(`[popup-check] No inline search — popups disabled in extension settings`, { tabId, url });
+            return;
+        }
 
         const inlineSearchResult = await getRelevantDomain(url, "i");
         if (!inlineSearchResult.matched) return;
 
         const quietInlineSearch = await getQuietDomain(parseUrl(url), "i");
-        if (quietInlineSearch.phase === 'quiet') return;
+        if (quietInlineSearch.phase === 'quiet') {
+            logger.debug(`[popup-check] No inline search — page is quiet`, { tabId, url });
+            return;
+        }
 
         const tab = await chrome.tabs.get(tabId);
 
@@ -326,7 +343,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         const uniqueLinks = [...new Set(response.links)] as string[];
 
-        logger.info(`[popup-check] Inline search — checking page links`, { tabId, url, links: uniqueLinks.length });
+        logger.debug(`[popup-check] Inline search — checking page links`, { tabId, url, links: uniqueLinks.length });
 
 
         await Promise.allSettled(
@@ -345,7 +362,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         const isPopupEnabled = await storage.get('popupEnabled');
         if (!isPopupEnabled) {
-            logger.debug(`[flow] Skipped — popup disabled by user`, { tabId, url });
+            logger.info(`[popup-check] No popup — popups disabled in extension settings`, { tabId, url });
             return;
         }
 
@@ -364,7 +381,8 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 const address = await getWalletAddress(tabId);
                 await injectPopup(tabId, tab, followupResult, 'new', address, url, isSpaNavigation);
             } else {
-                logger.debug(`[followup] No popup from followup — no iframe or network not whitelisted`, { tabId, url, iframeUrl: followupResult.iframeUrl, networkUrl: followupResult.networkUrl });
+                logger.info(`[followup] No popup — followup has no iframe or its network is not whitelisted`, { tabId, url });
+                logger.debug(`[followup] Rejected followup result`, { tabId, url, iframeUrl: followupResult.iframeUrl, networkUrl: followupResult.networkUrl });
             }
         }).catch(error => logger.error(`[followup] Followup handling failed`, error));
 

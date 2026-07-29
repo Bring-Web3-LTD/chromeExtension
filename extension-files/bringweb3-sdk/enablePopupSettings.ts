@@ -12,6 +12,7 @@ interface PopupEnabled {
  */
 export const getPopupEnabled = (): Promise<PopupEnabled> => {
     return new Promise((resolve, reject) => {
+        logger.info('[api] GET_POPUP_ENABLED event sent');
         chrome.runtime.sendMessage({
             from: 'bringweb3',
             action: 'GET_POPUP_ENABLED'
@@ -21,6 +22,7 @@ export const getPopupEnabled = (): Promise<PopupEnabled> => {
                 reject(chrome.runtime.lastError);
                 return;
             }
+            logger.debug('[api] GET_POPUP_ENABLED response', { isPopupEnabled: response?.isPopupEnabled });
             resolve(response);
         });
     });
@@ -35,6 +37,8 @@ export const getPopupEnabled = (): Promise<PopupEnabled> => {
  */
 export const setPopupEnabled = (state: boolean): Promise<PopupEnabled> => {
     return new Promise((resolve, reject) => {
+        logger.info('[api] SET_POPUP_ENABLED event sent');
+        logger.debug('[api] SET_POPUP_ENABLED payload', { state });
         chrome.runtime.sendMessage({
             from: 'bringweb3',
             action: "SET_POPUP_ENABLED",
@@ -47,6 +51,7 @@ export const setPopupEnabled = (state: boolean): Promise<PopupEnabled> => {
             }
 
             if (response) {
+                logger.debug('[api] SET_POPUP_ENABLED response', { isPopupEnabled: response.isPopupEnabled });
                 resolve({ isPopupEnabled: response.isPopupEnabled });
             } else {
                 reject('No response received');

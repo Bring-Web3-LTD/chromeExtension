@@ -18,7 +18,7 @@ const applyQuietDomainsUpdate = async (quietDomains: any[]) => {
         return { ...rest, time: [now, now + offset] }
     })
     await storage.set('quietDomains', normalized)
-    logger.info(`[quiet-sync] Quiet-domains list replaced from server`, { count: normalized.length })
+    logger.debug(`[quiet-sync] Quiet-domains list replaced from server`, { count: normalized.length })
 }
 
 export default applyQuietDomainsUpdate;

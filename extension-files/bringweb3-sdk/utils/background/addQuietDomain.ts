@@ -1,5 +1,6 @@
 import storage from "../storage/storage"
 import { cleanupQuietDomains } from "./cleanupDomains"
+import { logger } from "../logger"
 
 const storageKey = 'quietDomains'
 
@@ -11,7 +12,10 @@ interface Payload {
 }
 
 const addQuietDomain = async (domain: string | string[], time: number, type: string | string[], isRegex: boolean | boolean[], payload?: Payload, phase?: 'activated' | 'quiet') => {
-    if (!domain) return
+    if (!domain) {
+        logger.warn(`[quiet] Nothing quieted — called without a domain`, { time, phase })
+        return
+    }
     const domains = Array.isArray(domain) ? domain : [domain]
     const types = type ? (Array.isArray(type) ? type : [type]) : ['kds']
     const regexes = isRegex ? (Array.isArray(isRegex) ? isRegex : [isRegex]) : [false]
@@ -61,6 +65,8 @@ const addQuietDomain = async (domain: string | string[], time: number, type: str
     }
 
     await storage.set(storageKey, quietDomains)
+
+    logger.debug(`[quiet] Domains marked quiet`, { domains, types, phase: phase || 'quiet', time, until: end, listSize: quietDomains.length })
 }
 
 export default addQuietDomain;

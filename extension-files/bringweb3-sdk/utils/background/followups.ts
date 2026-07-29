@@ -165,7 +165,8 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
 
     if (!fired.length) return null
 
-    logger.info(`[followup] Followup(s) fired — reposting to server`, { tabId, url, count: fired.length })
+    logger.info(`[followup] Followup(s) fired — reposting to server`)
+    logger.debug(`[followup] Fired followups payload`, { tabId, url, count: fired.length })
 
     // All fires repost to /check/popup — the backend dispatches by id
     // (emits analytics for TnxAnalytics, returns a popup payload for others, …).
@@ -184,7 +185,7 @@ export const processNavigation = async (tabId: number, url: string): Promise<any
         if (response?.quietDomainsChanged === true) {
             await applyQuietDomainsUpdate(response.quietDomains)
         }
-        logger.info(`[followup] Server response for fired followups`, { tabId, isValid: response?.isValid, iframeUrl: response?.iframeUrl, hasFollowups: Array.isArray(response?.followups) })
+        logger.debug(`[followup] Server response for fired followups`, { tabId, isValid: response?.isValid, iframeUrl: response?.iframeUrl, hasFollowups: Array.isArray(response?.followups) })
         // Return the full response — the caller (handleTabEvents.handlePopupResponse) decides
         // what to do based on isValid / verifiedMatch / followups (mirrors validateAndInject).
         return response ?? null

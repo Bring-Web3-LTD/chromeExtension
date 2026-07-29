@@ -12,7 +12,12 @@ const handleActivate = async (domain: string, extensionId: string, source: strin
 
     const isSameExtension = extensionId === chrome.runtime.id
 
-    logger.info(`[activate] Activating cashback`, { domain, source, tabId, sameExtension: isSameExtension, flowId });
+    logger.info(
+        isSameExtension
+            ? `[activate] Cashback activated on ${domain} (source: ${source})`
+            : `[activate] Cashback activated on ${domain} by another extension — quieting our popup`
+    );
+    logger.debug(`[activate] Activation details`, { domain, source, tabId, sameExtension: isSameExtension, flowId, phase: isSameExtension ? 'activated' : 'quiet', hasRedirect: !!redirectUrl });
 
     if (isSameExtension) {
         const storageOps = [storage.set('lastActivation', now)];

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react"
 import { sendMessage, ACTIONS } from "../../utils/sendMessage"
 import { getIframeStyle } from "../../utils/iframeStyles"
 import { useRouteLoaderData } from "react-router-dom"
+import { useVariant } from "../../hooks/useVariant"
 import PlatformLogo from "../../components/PlatformLogo/PlatformLogo"
 import formatCashback from "../../utils/formatCashback"
 import parseTime from "../../utils/parseTime"
@@ -18,6 +19,9 @@ import styles from "./styles.module.css"
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
 const Framed = () => {
+    // variantC uses a light-friendly platform logo (white circle) to sit on the
+    // light gradient bar; other arms keep the default logo.
+    const logoVariant = useVariant('ecko-topOB-coloring') === 'variantC' ? 'c' : undefined
     const {
         platformName,
         displayPlatformName,
@@ -153,7 +157,7 @@ const Framed = () => {
                                 {/* Logos row — this is the layout anchor */}
                                 <div id="tb-logos-row" className={styles.tbLogosRow}>
                                     <div id="tb-platform-logo" className={styles.tbPlatformLogo}>
-                                        <PlatformLogo size='tb' platformName={platformName} />
+                                        <PlatformLogo size='tb' platformName={platformName} variant={logoVariant} />
                                         <span id="tb-platform-name" className={styles.tbPlatformName}>
                                             {displayPlatformName || platformName}
                                         </span>

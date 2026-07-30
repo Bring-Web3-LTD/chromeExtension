@@ -1,5 +1,5 @@
 import storage from "../storage/storage"
-import { isMsRangeActive } from "./timestampRange"
+import { formatUntil, isMsRangeActive } from "./timestampRange"
 import { logger } from "../logger"
 
 interface OptOut {
@@ -14,7 +14,7 @@ export const setOptOut = async (time: number): Promise<OptOut> => {
     } else {
         const now = Date.now()
         await storage.set('optOut', [now, now + time])
-        logger.debug(`[optout] No popups on all website until ${new Date(now + time).toISOString()}`, { time })
+        logger.debug(`[optout] No popups on all website until ${formatUntil(now + time)}`, { time })
         return { isOptedOut: true }
     }
 }
@@ -25,7 +25,7 @@ export const getOptOut = async (): Promise<OptOut> => {
 
     logger.debug(
         isOptedOut
-            ? `[optout] Popups blocked on every website until ${new Date(optOut[1]).toISOString()}`
+            ? `[optout] Popups blocked on every website until ${formatUntil(optOut[1])}`
             : `[optout] Popups allowed on all websites`
     )
 

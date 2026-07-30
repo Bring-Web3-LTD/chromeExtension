@@ -11,7 +11,7 @@ const closeAllPopups = async (domain: string, currentTabId: number, closer: stri
     const ids = tabs.map(tab => tab.id).filter(id => id && id !== currentTabId) as number[];
 
     logger.info(`[bg-msg] CLOSE_POPUP event sent`);
-    logger.debug(`[bg-msg] CLOSE_POPUP payload`, { domain, path: iframePath || '/', tabs: ids.length, currentTabId, closer });
+    logger.debug(`[bg-msg] CLOSE_POPUP payload`, { domain, iframePath, tabs: ids.length, currentTabId, closer });
 
     const events: any[] = []
 

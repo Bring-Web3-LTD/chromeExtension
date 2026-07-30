@@ -147,7 +147,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         }
 
         if (res?.status !== 'success') {
-            logger.info(`[inject] No popup — content script did not show it: ${res?.message || 'no response'}`, { tabId, phase });
+            logger.info(`[inject] No popup — content script did not show it`, { tabId, phase, status: res?.status, message: res?.message });
             analytics({
                 type: 'no_popup',
                 userId,

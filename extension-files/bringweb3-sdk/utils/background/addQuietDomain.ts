@@ -66,7 +66,7 @@ const addQuietDomain = async (domain: string | string[], time: number, type: str
 
     await storage.set(storageKey, quietDomains)
 
-    logger.debug(`[quiet] Domains marked quiet`, { domains, types, phase: phase || 'quiet', time, until: end, listSize: quietDomains.length })
+    logger.debug(`[quiet] Domains marked quiet`, { domains, types, phase, time, until: end, listSize: quietDomains.length })
 }
 
 export default addQuietDomain;

@@ -8,11 +8,12 @@ import { getOptOut, setOptOut } from "./optOut"
 import { armFollowups } from "./followups"
 import { logger } from "../logger"
 import { DAY_MS } from "../constants"
+import { formatUntil } from "./timestampRange"
 
 // '24Hours' | '30Days' | 'forever' when the popup sent its preset label; the day count
 // covers the keyless callers (e.g. setTurnOff, whose 'forever' is MAX_SAFE_INTEGER).
 const describeWindow = (time: number, key?: string): string =>
-    `${key || `${Math.round(time / DAY_MS)} day(s)`} (until ${new Date(Date.now() + time).toISOString()})`
+    `${key || `${Math.round(time / DAY_MS)} day(s)`} (until ${formatUntil(Date.now() + time)})`
 
 const handleContentMessages = (cashbackPagePath: string | undefined, showNotifications: boolean) => {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

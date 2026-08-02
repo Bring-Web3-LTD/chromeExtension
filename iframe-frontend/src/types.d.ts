@@ -45,7 +45,6 @@ declare global {
         url: string
         domain: string,
         quietDomainType: string,
-        isRegex: boolean,
         searchEngineDomain?: string
         flowId: string
         isTester?: boolean
@@ -60,6 +59,7 @@ declare global {
             match: string
             isRegex: boolean
         }
+        triggerType?: 'domain' | 'keyword'
         inlineSearchLink?: string
         matchedKeyword?: string
         activationPayload?: ActivateResponse | null

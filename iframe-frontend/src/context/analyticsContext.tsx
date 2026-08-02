@@ -37,7 +37,7 @@ interface Props {
     location: string
     flowId: string
     searchEngineDomain: string | undefined
-    verifiedMatch: { match: string; isRegex: boolean } | undefined
+    triggerType: 'domain' | 'keyword' | undefined
     offerBarSearch: string | undefined
     domain: string
     inlineSearchLink: string | undefined
@@ -48,7 +48,7 @@ interface Props {
     pageViewIsWidget: boolean
 }
 
-export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariants, userId, retailerName, location, flowId, searchEngineDomain, verifiedMatch, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar, pageViewIsWidget }) => {
+export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariants, userId, retailerName, location, flowId, searchEngineDomain, triggerType, offerBarSearch, domain, inlineSearchLink, matchedKeyword, isOfferBar, pageViewIsWidget }) => {
     const isInitialMount = useRef(true)
     const { walletAddress } = useWalletAddress()
     const previousWalletAddressRef = useRef<string | undefined>(walletAddress)
@@ -92,9 +92,7 @@ export const AnalyticsProvider: FC<Props> = ({ children, platform, testVariants,
         if (matchedKeyword) backendEvent.matchedKeyword = matchedKeyword
         if (isOfferBar !== undefined) backendEvent.isOfferBar = isOfferBar
         
-        // Calculate triggerType based on verifiedMatch
-        const triggerType = verifiedMatch?.isRegex === true ? 'keyword' : 'domain'
-        backendEvent.triggerType = triggerType
+        backendEvent.triggerType = triggerType || 'domain'
 
 
         // Create the promise for this event

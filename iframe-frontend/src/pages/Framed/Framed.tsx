@@ -38,7 +38,6 @@ const Framed = () => {
         networkUrl,
         isOfferBar,
         searchTermPattern,
-        isRegex,
         verifiedMatch,
         iconUrl,
         offerTextTb,
@@ -102,10 +101,9 @@ const Framed = () => {
         sendMessage({
             action: ACTIONS.ACTIVATE,
             url,
-            // Use the verified-match domain when it's a real domain (direct/inline);
-            // a regex verifiedMatch (keyword) is inert in quietDomains, so keep the
-            // retailer domain + its isRegex, as before.
-            domain: (verifiedMatch && !verifiedMatch.isRegex) ? verifiedMatch.match : domain,
+            // Backend resolves the quiet domain for every type; fall back to the
+            // retailer domain only for tokens issued before verifiedMatch existed.
+            domain: verifiedMatch?.match || domain,
             searchTermPattern,
             time: parseTime(OB_ACTIVATE_QUIET_TIME, version),
             redirectUrl,
@@ -114,7 +112,7 @@ const Framed = () => {
             flowId,
             platformName,
             quietDomainType: 'kds',
-            isRegex,
+            isRegex: verifiedMatch?.isRegex || false,
             followups
         })
 
@@ -125,7 +123,7 @@ const Framed = () => {
         })
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activationPayload, cryptoSymbols, domain, verifiedMatch, isRegex, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
+    }, [activationPayload, cryptoSymbols, domain, verifiedMatch, searchEngineDomain, flowId, name, displayName, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress, networkUrl, isOfferBar, offerBarSearch, searchTermPattern])
 
     useEffect(() => {
         sendMessage({ action: ACTIONS.OPEN, style: getIframeStyle('offerbarFramed', platformName, version, themeIframeStyle, zIndex) })

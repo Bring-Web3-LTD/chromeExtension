@@ -12,6 +12,7 @@ interface TurnOff {
  */
 export const getTurnOff = (): Promise<TurnOff> => {
     return new Promise((resolve, reject) => {
+        logger.info('[api] GET_OPT_OUT event sent');
         chrome.runtime.sendMessage({
             from: 'bringweb3',
             action: 'GET_OPT_OUT'
@@ -21,6 +22,7 @@ export const getTurnOff = (): Promise<TurnOff> => {
                 reject(chrome.runtime.lastError);
                 return;
             }
+            logger.debug('[api] GET_OPT_OUT response', { isTurnedOff: response?.isOptedOut });
             resolve({ isTurnedOff: response.isOptedOut });
         });
     });
@@ -36,6 +38,8 @@ export const getTurnOff = (): Promise<TurnOff> => {
 export const setTurnOff = (state: boolean): Promise<TurnOff> => {
     return new Promise((resolve, reject) => {
         const time = state ? Number.MAX_SAFE_INTEGER : -1
+        logger.info('[api] OPT_OUT event sent');
+        logger.debug('[api] OPT_OUT payload', { state, time });
         chrome.runtime.sendMessage({
             from: 'bringweb3',
             action: "OPT_OUT",
@@ -48,6 +52,7 @@ export const setTurnOff = (state: boolean): Promise<TurnOff> => {
             }
 
             if (response) {
+                logger.debug('[api] OPT_OUT response', { isTurnedOff: response.isOptedOut });
                 resolve({ isTurnedOff: response.isOptedOut });
             } else {
                 reject('No response received');

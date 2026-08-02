@@ -71,14 +71,15 @@ const bringInitContentScript = async ({
     switchWallet = false
 }: Configuration) => {
     if (window.self !== window.top && removeTrailingSlash(window.document.location.origin).endsWith('bringweb3.io')) {
-        // console.log('Running in Bring Web3 iframe, adding activate event listener to:', window.document.location.origin);
+        logger.debug(`[popup-msg] Portal iframe detected — listening for PORTAL_ACTIVATE`, { origin: window.document.location.origin });
 
         window.addEventListener('message', (e) => {
             if (!e.data || e.data.from !== 'bringweb3' || e.data.action !== 'PORTAL_ACTIVATE') return;
 
             const { action, domain, extensionId, time, iframeUrl, token, platformName } = e.data
 
-            // console.log(`Received message from Bring's Portal iframe:`, e.data);
+            logger.info(`[popup-msg] ${action} event sent`);
+            logger.debug(`[popup-msg] ${action} payload`, { domain, extensionId, time, platformName, source: 'portal', hasToken: !!token });
 
             chrome.runtime.sendMessage({
                 action,
@@ -139,22 +140,25 @@ const bringInitContentScript = async ({
                 return true
             case 'CLOSE_POPUP':
                 if (iframeEl && iframePath === request.path && getDomain(location.href) === getDomain(request.domain)) {
-                    logger.info(`[content] Closing popup`, { domain: request.domain, path: request.path });
+                    logger.info(`[content] CLOSE_POPUP event received — popup closed`);
+                    logger.debug(`[content] CLOSE_POPUP payload`, { domain: request.domain, path: request.path, flowId });
                     removeElements();
                     sendResponse({ status: 'success', message: 'Popup closed', location: window.document.location.href, flowId })
                 } else {
-                    logger.debug(`[content] Ignored close request — domain mismatch or popup not open`, { domain: request.domain, path: request.path });
+                    logger.debug(`[content] CLOSE_POPUP ignored — domain mismatch or popup not open`, { domain: request.domain, path: request.path });
                     sendResponse({ status: 'failed', message: 'Domain mismatch or iframe not open' })
                 }
                 return true
             case 'INJECT':
                 try {
-                    logger.info(`[content] Open-popup request received`, { domain: request.domain, page: request.page, isSpaNavigation: request.isSpaNavigation, flowId: request.flowId });
+                    logger.info(`[content] INJECT event received`);
+                    logger.debug(`[content] INJECT payload`, { domain: request.domain, page: request.page, isSpaNavigation: request.isSpaNavigation, flowId: request.flowId });
                     const { referrer } = document
                     const referrers = request.referrers || []
 
                     if (getDomain(location.href) !== getDomain(request.domain)) {
-                        logger.info(`[content] No popup — page domain already changed`, { current: getDomain(location.href), expected: getDomain(request.domain) });
+                        logger.info(`[content] No popup — page navigated away before the popup arrived`);
+                        logger.debug(`[content] Domain mismatch`, { current: getDomain(location.href), expected: getDomain(request.domain) });
                         sendResponse({ status: 'failed', message: 'Domain already changed' });
                         return true
                     } else if (isIframeOpen) {
@@ -163,7 +167,7 @@ const bringInitContentScript = async ({
                             logger.debug(`[content] SPA navigation — closing previous popup before re-injecting`);
                             removeElements();
                         } else {
-                            logger.info(`[content] No popup — popup already open`);
+                            logger.info(`[content] No popup — one is already open on this page`);
                             sendResponse({ status: 'failed', message: 'iframe already open' });
                             return true
                         }
@@ -172,7 +176,8 @@ const bringInitContentScript = async ({
                     const isReferrer = !!referrer && referrers.includes(getDomain(referrer))
 
                     if (isReferrer && request.page === '') {
-                        logger.info(`[content] No popup — already activated by referrer`, { referrer: getDomain(referrer) });
+                        logger.info(`[content] No popup — cashback already activated by the referring page`);
+                        logger.debug(`[content] Referrer match`, { referrer: getDomain(referrer) });
                         sendResponse({ status: 'failed', message: `already activated by ${getDomain(referrer)}`, action: 'activate' });
                         return true
                     }
@@ -197,7 +202,8 @@ const bringInitContentScript = async ({
                     isIframeOpen = true
                     iframePath = `/${request.page || ''}`
                     flowId = request.flowId
-                    logger.info(`[content] Popup shown (iframe injected)`, { domain: request.domain, page: request.page, flowId });
+                    logger.info(`[content] Popup shown (iframe injected)`);
+                    logger.debug(`[content] Popup details`, { domain: request.domain, page: request.page, flowId });
                     sendResponse({ status: 'success' });
                     return true
                 } catch (error) {
@@ -210,7 +216,7 @@ const bringInitContentScript = async ({
                     return true
                 }
             default:
-                logger.error(`Unknown action: ${action}`);
+                logger.warn(`[content] Unknown action: ${action}`);
                 break;
         }
     });

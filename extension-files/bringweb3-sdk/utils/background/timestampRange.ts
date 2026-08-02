@@ -26,3 +26,8 @@ export const isMsRangeExpired = (timestampRange: [number, number], now?: number)
 export const isMsRangeActive = (timestampRange: [number, number], now?: number): boolean => {
     return !isMsRangeExpired(timestampRange, now);
 }
+
+// Date spans ±8.64e15 ms; toISOString throws a RangeError past that. setTurnOff(true)
+// sends Number.MAX_SAFE_INTEGER, so an "off forever" opt-out lands out of range.
+export const formatUntil = (ms: number): string =>
+    Number.isFinite(ms) && Math.abs(ms) <= 8.64e15 ? new Date(ms).toISOString() : 'forever'

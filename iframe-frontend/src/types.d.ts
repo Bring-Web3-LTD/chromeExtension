@@ -68,7 +68,6 @@ declare global {
         zIndex?: number
         isWidgetEnabled?: boolean
         bringTou?: string
-        privacy?: string
     }
 
     interface LoaderData extends Info {

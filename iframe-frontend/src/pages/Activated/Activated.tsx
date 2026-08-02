@@ -10,7 +10,6 @@ import rehypeRaw from 'rehype-raw'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle } from '../../utils/iframeStyles'
 import injectCashback from '../../utils/injectCashback'
-import toCapital from '../../utils/toCapital'
 import { ENV, ACTIVATE_QUIET_TIME, OB_ACTIVATE_QUIET_TIME } from '../../config'
 
 const Activated = () => {
@@ -64,7 +63,7 @@ const Activated = () => {
                 <Icon id="activated-icon" name="activated.svg" />
                 <div id="activated-title" className={styles.title}>{tokenSymbol} cashback activated</div>
                 <p id="activated-text" className={styles.p}>Reward approval may take up to 48 hours.</p>
-                <div id="activated-backed-by" className={styles.backed_by}>Backed by {displayPlatformName || `${toCapital(platformName)} Wallet`}</div>
+                <div id="activated-backed-by" className={styles.backed_by}>Backed by {displayPlatformName || `${platformName} Wallet`}</div>
             </div>
             <Markdown
                 className={styles.markdown}

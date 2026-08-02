@@ -13,6 +13,7 @@ import { OB_ACTIVATE_QUIET_TIME } from "../../config"
 import Optout from "./Optout/Optout"
 import { getInitials } from "../../utils/getInitials"
 import parseOfferText from "../../utils/parseOfferText"
+import toCapital from "../../utils/toCapital"
 import styles from "./styles.module.css"
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
@@ -155,7 +156,7 @@ const Framed = () => {
                                     <div id="tb-platform-logo" className={styles.tbPlatformLogo}>
                                         <PlatformLogo size='tb' platformName={platformName} />
                                         <span id="tb-platform-name" className={styles.tbPlatformName}>
-                                            {displayPlatformName || platformName}
+                                            {displayPlatformName || toCapital(platformName)}
                                         </span>
                                     </div>
                                     <span id="tb-plus" className={styles.tbPlus}>+</span>

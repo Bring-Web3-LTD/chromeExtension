@@ -2,6 +2,7 @@ import styles from './styles.module.css'
 import PlatformLogo from '../PlatformLogo/PlatformLogo';
 import { useRouteLoaderData } from 'react-router-dom';
 import { getInitials } from '../../utils/getInitials';
+import toCapital from '../../utils/toCapital';
 import { useState } from 'react';
 
 const CollaborationLogos = () => {
@@ -53,7 +54,7 @@ const CollaborationLogos = () => {
                         platformName={platformName}
                     />
                 </div>
-                <div id="platform-logo-text" className={styles.logo_text}>{displayPlatformName || platformName}</div>
+                <div id="platform-logo-text" className={styles.logo_text}>{displayPlatformName || toCapital(platformName)}</div>
             </div>
         </div>
     )

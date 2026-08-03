@@ -43,8 +43,7 @@ const CloseBtn = ({ callback, withTime = true, time, className = '', type, overr
             sendMessage({ action: ACTIONS.ACTIVATE, url: `https://${domain}` })
         }
 
-        const quietDomain = (verifiedMatch && !verifiedMatch.isRegex) ? verifiedMatch.match : domain
-        const message: Parameters<typeof sendMessage>[0] = { action: ACTIONS.CLOSE, domain: quietDomain }
+        const message: Parameters<typeof sendMessage>[0] = { action: ACTIONS.CLOSE, domain: verifiedMatch?.match || domain, isRegex: verifiedMatch?.isRegex || false }
         if (withTime) message.time = parseTime(time ?? THIRTY_MIN_MS, version)
         if (type) message.type = type
 

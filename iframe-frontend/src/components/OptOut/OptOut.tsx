@@ -106,14 +106,14 @@ const OptOut = ({ onClose, onOpted }: Props) => {
 
         // SDK < 1.8.0: clamp forever to 60d + tag 'a' - see isLegacyCapSdk
         const isForeverSpecific = !websites.value && duration.label === 'forever' && isLegacyCapSdk(version)
-        const quietDomain = (verifiedMatch && !verifiedMatch.isRegex) ? verifiedMatch.match : domain
 
         const event = {
             action: websites.value ? ACTIONS.OPT_OUT : ACTIONS.OPT_OUT_SPECIFIC,
             time: isForeverSpecific ? 60 * 24 * 60 * 60 * 1000 : +duration.value,
-            domain: quietDomain,
+            domain: verifiedMatch?.match || domain,
+            isRegex: [verifiedMatch?.isRegex || false],
             key: dict[duration.label as keyof typeof dict],
-            ...(isForeverSpecific ? { type: ['kdsa'], isRegex: [false] } : {})
+            ...(isForeverSpecific ? { type: ['kdsa'] } : {})
         }
 
         sendMessage(event)

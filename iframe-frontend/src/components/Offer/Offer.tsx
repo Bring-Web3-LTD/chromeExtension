@@ -107,7 +107,8 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
         sendMessage({
             action: ACTIONS.ACTIVATE,
             url,
-            domain: (verifiedMatch && !verifiedMatch.isRegex) ? verifiedMatch.match : domain,
+            domain: verifiedMatch?.match || domain,
+            isRegex: verifiedMatch?.isRegex || false,
             time: parseTime(ACTIVATE_QUIET_TIME, version),
             redirectUrl,
             iframeUrl,

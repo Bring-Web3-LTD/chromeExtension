@@ -49,7 +49,7 @@ const Layout = () => {
                     location={data.url}
                     flowId={data.flowId}
                     searchEngineDomain={data.searchEngineDomain}
-                    verifiedMatch={data.verifiedMatch}
+                    triggerType={data.triggerType}
                     offerBarSearch={data.offerBarSearch}
                     domain={data.domain}
                     inlineSearchLink={data.inlineSearchLink}

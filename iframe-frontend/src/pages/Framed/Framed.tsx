@@ -3,7 +3,6 @@ import { sendMessage, ACTIONS } from "../../utils/sendMessage"
 import { getIframeStyle } from "../../utils/iframeStyles"
 import { useRouteLoaderData } from "react-router-dom"
 import PlatformLogo from "../../components/PlatformLogo/PlatformLogo"
-import formatCashback from "../../utils/formatCashback"
 import parseTime from "../../utils/parseTime"
 import activate from "../../api/activate"
 import { useAnalytics } from "../../hooks/useAnalytics"
@@ -23,9 +22,6 @@ const Framed = () => {
         displayPlatformName,
         domain,
         cryptoSymbols,
-        maxCashback,
-        cashbackSymbol,
-        cashbackCurrency,
         version,
         flowId,
         name,
@@ -184,9 +180,7 @@ const Framed = () => {
                             {/* Cashback offer text — centered, truncated */}
                             <div id="tb-offer-text" className={styles.tbOfferText}>
                                 <span>
-                                    {parseOfferText(offerTextTb) || (
-                                        <>Up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} {cryptoSymbols[0]} cashback when purchasing with any card</>
-                                    )}
+                                    {parseOfferText(offerTextTb)}
                                 </span>
                             </div>
                         </div>

@@ -59,8 +59,7 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
         followups,
         offerText,
         isOfferBar,
-        bringTou,
-        privacy
+        bringTou
     } = useRouteLoaderData('root') as LoaderData
 
     const defaultOfferText = useMemo(() => {
@@ -264,18 +263,11 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                                 </div>
 
                             </div>
-                            <div id="offer-agree-text" className={`${styles.agree} ${bringTou || privacy ? styles.agree_compact : ''}`}>
-                                {bringTou || privacy ?
+                            <div id="offer-agree-text" className={`${styles.agree} ${bringTou ? styles.agree_compact : ''}`}>
+                                {bringTou ?
                                     <>
                                         By activating you agree to&nbsp;&nbsp;<span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Deal Terms</span>
-                                        {privacy ?
-                                            <><span className={styles.terms_comma}>, </span><span id="offer-privacy-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: privacy })}>Privacy</span></>
-                                            : null
-                                        }
-                                        {bringTou ?
-                                            <><span className={styles.terms_comma}>, </span><span id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</span></>
-                                            : null
-                                        }
+                                        <span className={styles.terms_comma}>, </span><span id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</span>
                                     </>
                                     :
                                     <>By activating, you agree to the <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Terms</span></>

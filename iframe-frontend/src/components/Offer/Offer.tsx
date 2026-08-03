@@ -1,5 +1,5 @@
 import styles from './styles.module.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAnalytics } from '../../hooks/useAnalytics'
 import OptOut from '../OptOut/OptOut'
 import activate from '../../api/activate'
@@ -16,7 +16,6 @@ import { ACTIVATE_QUIET_TIME } from '../../config'
 import parseTime from '../../utils/parseTime'
 import { Oval } from 'react-loader-spinner'
 import CollaborationLogos from '../CollaborationLogos/CollaborationLogos'
-import formatCashback from '../../utils/formatCashback'
 import parseOfferText from '../../utils/parseOfferText'
 import OfferTerms from '../OfferTerms/OfferTerms'
 
@@ -53,20 +52,11 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
         version,
         domain,
         verifiedMatch,
-        maxCashback,
-        cashbackSymbol,
-        cashbackCurrency,
         followups,
         offerText,
         isOfferBar,
         bringTou
     } = useRouteLoaderData('root') as LoaderData
-
-    const defaultOfferText = useMemo(() => {
-        const formattedCashback = formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)
-        const cryptoSymbol = cryptoSymbols[0]
-        return `Earn up to <#${formattedCashback}#> in ${cryptoSymbol}`
-    }, [cryptoSymbols, maxCashback, cashbackCurrency, cashbackSymbol])
 
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [showTerms, setShowTerms] = useState(false)
@@ -201,7 +191,7 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
                                 <div id="offer-details-text" className={styles.details_txt} >
-                                    {parseOfferText(offerText || defaultOfferText)}
+                                    {parseOfferText(offerText)}
                                 </div>
                             </div>
                             <div id="offer-action-container" className={styles.action_container}>

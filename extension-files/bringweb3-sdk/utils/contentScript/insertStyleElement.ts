@@ -12,7 +12,9 @@ const insertStyleElement = (css: string | undefined, id: string) => {
     styleElement.id = id;
     styleElement.textContent = css;
 
-    document.head.appendChild(styleElement);
+    // An INJECT arriving very early can land before <head> is parsed;
+    // documentElement always exists, and a <style> outside <head> still applies.
+    (document.head || document.documentElement).appendChild(styleElement);
 
     // Return cleanup function
     contentScriptCleanup.add(() => {

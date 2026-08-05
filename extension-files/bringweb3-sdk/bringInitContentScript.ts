@@ -4,12 +4,58 @@ import startListenersForWalletAddress from "./utils/contentScript/startLIsteners
 import getDomain from "./utils/getDomain.js";
 import removeTrailingSlash from "./utils/background/removeTrailingSlash.js";
 import { contentScriptCleanup } from "./utils/contentScript/cleanupManager.js";
+import { IFRAME_ID_PREFIX } from "./utils/constants.js";
 import { logger } from "./utils/logger.js";
 
 let iframeEl: IFrame = null
 let iframePath: `/${string}` | undefined = undefined
-let isIframeOpen = false
 let flowId: string | null = null
+
+// The host page can delete our nodes behind our back, so a flag desyncs;
+// presence in the DOM is the only reliable signal.
+const isIframeOpen = () => !!document.getElementById(`${IFRAME_ID_PREFIX}-${chrome.runtime.id}`)
+
+// Self-heal: a host whose React root is `document` (e.g. Remix's hydrateRoot(document, …))
+// regenerates <html> on hydration recovery, wiping our iframe with it. Hydration happens
+// once, early, so a bounded re-inject is enough - not a loop. removeElements() disconnects
+// the observer first, so our own teardown paths never trigger a re-inject.
+const MAX_REINJECTS = 3
+let lastInject: Parameters<typeof injectIFrame>[0] | null = null
+let reinjects = 0
+let settled = false
+
+// Created on first use: this module is bundled together with the background entry,
+// and MutationObserver doesn't exist in a service worker.
+let observer: MutationObserver | null = null
+
+// Past load(+2s) the DOM is hydrated; a host still removing our iframe is doing it
+// deliberately, so stop. Armed on the first successful INJECT - load has usually
+// already fired by the time an activated popup is injected.
+const settle = () => setTimeout(() => { settled = true; observer?.disconnect() }, 2000)
+
+const startSelfHeal = (payload: Parameters<typeof injectIFrame>[0]) => {
+    lastInject = payload
+    reinjects = 0
+    if (settled) return
+    // First injection only: create the observer and schedule the shutdown.
+    if (!observer) {
+        observer = new MutationObserver(() => {
+            if (isIframeOpen()) return
+            if (settled || reinjects >= MAX_REINJECTS || !lastInject) {
+                observer?.disconnect()
+                return
+            }
+            reinjects++
+            logger.info(`[content] Popup removed by the host page - re-injecting`, { attempt: reinjects })
+            contentScriptCleanup.cleanup()
+            iframeEl = injectIFrame(lastInject)
+        })
+        document.readyState === 'complete' ? settle() : window.addEventListener('load', settle, { once: true })
+    }
+    // subtree catches React replacing the <html> node itself - an observer on
+    // documentElement alone would be left watching a detached node.
+    observer.observe(document, { childList: true, subtree: true })
+}
 
 interface Configuration {
     getWalletAddress: () => Promise<WalletAddress>
@@ -23,7 +69,7 @@ interface Configuration {
 }
 
 const removeElements = () => {
-    isIframeOpen = false
+    observer?.disconnect()
     iframePath = undefined
     iframeEl = null
     contentScriptCleanup?.cleanup()
@@ -71,7 +117,7 @@ const bringInitContentScript = async ({
     switchWallet = false
 }: Configuration) => {
     if (window.self !== window.top && removeTrailingSlash(window.document.location.origin).endsWith('bringweb3.io')) {
-        logger.debug(`[popup-msg] Portal iframe detected — listening for PORTAL_ACTIVATE`, { origin: window.document.location.origin });
+        logger.debug(`[popup-msg] Portal iframe detected - listening for PORTAL_ACTIVATE`, { origin: window.document.location.origin });
 
         window.addEventListener('message', (e) => {
             if (!e.data || e.data.from !== 'bringweb3' || e.data.action !== 'PORTAL_ACTIVATE') return;
@@ -108,7 +154,8 @@ const bringInitContentScript = async ({
     window.addEventListener('message', (e) => handleIframeMessages({
         event: e,
         iframeEl,
-        promptLogin
+        promptLogin,
+        onClose: removeElements
     }))
 
     // Listen for message
@@ -161,7 +208,7 @@ const bringInitContentScript = async ({
                         logger.debug(`[content] Domain mismatch`, { current: getDomain(location.href), expected: getDomain(request.domain) });
                         sendResponse({ status: 'failed', message: 'Domain already changed' });
                         return true
-                    } else if (isIframeOpen) {
+                    } else if (isIframeOpen()) {
                         // On SPA navigations, pagehide doesn't fire, so close the old popup before injecting.
                         if (request.isSpaNavigation) {
                             logger.debug(`[content] SPA navigation — closing previous popup before re-injecting`);
@@ -176,7 +223,7 @@ const bringInitContentScript = async ({
                     const isReferrer = !!referrer && referrers.includes(getDomain(referrer))
 
                     if (isReferrer && request.page === '') {
-                        logger.info(`[content] No popup — cashback already activated by the referring page`);
+                        logger.info(`[content] No popup - cashback already activated by the referring page`);
                         logger.debug(`[content] Referrer match`, { referrer: getDomain(referrer) });
                         sendResponse({ status: 'failed', message: `already activated by ${getDomain(referrer)}`, action: 'activate' });
                         return true
@@ -187,7 +234,7 @@ const bringInitContentScript = async ({
                     const query: { [key: string]: string } = { token }
                     if (userId) query['userId'] = userId
 
-                    iframeEl = injectIFrame({
+                    const injectPayload: Parameters<typeof injectIFrame>[0] = {
                         query,
                         iframeUrl,
                         styleUrl,
@@ -198,10 +245,12 @@ const bringInitContentScript = async ({
                         placement,  // Pass placement configuration from server
                         stylesheet,
                         framed
-                    });
-                    isIframeOpen = true
+                    }
+                    iframeEl = injectIFrame(injectPayload);
                     iframePath = `/${request.page || ''}`
                     flowId = request.flowId
+                    // Only watch a popup that actually landed (placement.selector can miss).
+                    if (isIframeOpen()) startSelfHeal(injectPayload)
                     logger.info(`[content] Popup shown (iframe injected)`);
                     logger.debug(`[content] Popup details`, { domain: request.domain, page: request.page, flowId });
                     sendResponse({ status: 'success' });
@@ -222,6 +271,8 @@ const bringInitContentScript = async ({
     });
 
     window.addEventListener('pagehide', () => {
+        // Intentionally also on bfcache-persisted pages: onCommitted fires on
+        // restore and re-injects a fresh popup rather than resuming a frozen one.
         removeElements()
     })
 }

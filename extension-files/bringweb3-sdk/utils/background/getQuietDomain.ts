@@ -7,6 +7,7 @@ type Phases = 'new' | 'activated' | 'quiet'
 interface Payload {
     iframeUrl?: string
     token?: string
+    flowId?: string
     placement?: PlacementConfig  // Optional placement configuration from server
 }
 

@@ -160,6 +160,29 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         return res;
     };
 
+    // Post-activation re-show. Takes the payload stored on the quietDomains entry — no
+    // server round-trip, no relevant-domains match needed.
+    const injectActivatedPopup = async (tabId: number, url: string, payload: any, isSpaNavigation: boolean) => {
+        logger.info(`[popup-check] Showing activated popup (post-activation re-show)`, { tabId, url });
+        const userId = await getUserId();
+        const { iframeUrl, token, placement } = payload || {};
+
+        logger.info(`[bg-msg] INJECT event sent`);
+        logger.debug(`[bg-msg] INJECT payload`, { tabId, phase: 'activated', domain: url, iframeUrl, isSpaNavigation });
+
+        const res = await sendMessage(tabId, {
+            action: 'INJECT',
+            iframeUrl,
+            token,
+            domain: url,
+            userId,
+            page: 'activated',
+            placement,  // Pass placement configuration from payload
+            isSpaNavigation
+        });
+        logger.debug(`[bg-msg] INJECT reply from content script`, { tabId, phase: 'activated', status: res?.status, action: res?.action, message: res?.message });
+    };
+
     const validateAndInject = async (urlToCheck: string, tabId: number, tab: chrome.tabs.Tab, isInlineSearch: boolean = false, inlineSearchResult?: { match: string | string[], type?: string }, isSpaNavigation: boolean = false) => {
 
         // Inline search scans every link on the page (often 50-100), mostly non-matching. Logging each one
@@ -219,24 +242,9 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 await storage.remove('optOut')
             }
         } else if (phase === 'activated') {
-            logger.info(`[popup-check] Showing activated popup (post-activation re-show)`, { tabId, url });
-            const userId = await getUserId()
-            const { iframeUrl, token, placement } = payload || {};
-
-            logger.info(`[bg-msg] INJECT event sent`);
-            logger.debug(`[bg-msg] INJECT payload`, { tabId, phase, domain: url, iframeUrl, isSpaNavigation });
-
-            const res = await sendMessage(tabId, {
-                action: 'INJECT',
-                iframeUrl,
-                token,
-                domain: url,
-                userId,
-                page: phase,
-                placement,  // Pass placement configuration from payload
-                isSpaNavigation
-            });
-            logger.debug(`[bg-msg] INJECT reply from content script`, { tabId, phase, status: res?.status, action: res?.action, message: res?.message });
+            // Main nav never reaches here — onMainNavigation handles activated before calling in.
+            // Inline links don't re-show it: the user isn't on that domain.
+            logger.info(`[popup-check] No popup — domain is activated`, { tabId, url });
             return;
         } else if (phase === 'quiet') {
             // TODO: if(phase === 'quiet') => Purchase-detector
@@ -385,6 +393,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
                 logger.debug(`[followup] Rejected followup result`, { tabId, url, iframeUrl: followupResult.iframeUrl, networkUrl: followupResult.networkUrl });
             }
         }).catch(error => logger.error(`[followup] Followup handling failed`, error));
+
+        const activated = await getQuietDomain(parseUrl(url));
+        if (activated.phase === 'activated') {
+            await injectActivatedPopup(tabId, url, activated.payload, isSpaNavigation);
+            return;
+        }
 
         await applyStandDown(url, chain);
 

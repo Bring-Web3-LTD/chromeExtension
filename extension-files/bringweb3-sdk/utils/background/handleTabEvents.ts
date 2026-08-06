@@ -396,6 +396,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
 
         const activated = await getQuietDomain(parseUrl(url));
         if (activated.phase === 'activated') {
+            logger.debug(`[popup-check] Activated phase detected`, { tabId, url, phase: activated.phase, time: activated.time });
             await injectActivatedPopup(tabId, url, activated.payload, isSpaNavigation);
             return;
         }

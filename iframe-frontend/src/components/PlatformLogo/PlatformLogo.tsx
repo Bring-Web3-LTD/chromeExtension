@@ -6,14 +6,18 @@ interface Props {
     width?: number
     height?: number
     size?: 'sm' | 'md' | 'ob' | 'tb'
+    // Optional AB-test variant suffix, e.g. 'c' → loads `${size}-c.svg`. On a
+    // missing file the onError fallback drops to the platform DEFAULT logo.
+    variant?: string
 }
 
-const PlatformLogo = ({ platformName, size = 'md', width, height }: Props) => {
+const PlatformLogo = ({ platformName, size = 'md', width, height, variant }: Props) => {
     const { themeMode } = useRouteLoaderData('root') as LoaderData
     const [useFallback, setUseFallback] = useState(false)
-    
+
     const platform = useFallback ? 'DEFAULT' : platformName.toUpperCase()
-    const logoSrc = `${import.meta.env.BASE_URL}${themeMode}/images/logos/${platform}/${size}.svg`
+    const suffix = variant && !useFallback ? `-${variant}` : ''
+    const logoSrc = `${import.meta.env.BASE_URL}${themeMode}/images/logos/${platform}/${size}${suffix}.svg`
 
     const handleError = () => {
         if (!useFallback) {

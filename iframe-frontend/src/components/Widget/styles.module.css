@@ -74,7 +74,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--widget-badge-close-bg, #02050A);
+    background: var(--widget-badge-close-bg, #000000);
     cursor: pointer;
 }
 

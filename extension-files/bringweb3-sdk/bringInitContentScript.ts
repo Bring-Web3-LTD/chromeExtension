@@ -15,10 +15,8 @@ let flowId: string | null = null
 // presence in the DOM is the only reliable signal.
 const isIframeOpen = () => !!document.getElementById(`${IFRAME_ID_PREFIX}-${chrome.runtime.id}`)
 
-// Self-heal: a host whose React root is `document` (e.g. Remix's hydrateRoot(document, …))
-// regenerates <html> on hydration recovery, wiping our iframe with it. Hydration happens
-// once, early, so a bounded re-inject is enough - not a loop. removeElements() disconnects
-// the observer first, so our own teardown paths never trigger a re-inject.
+// Self-heal: hosts that hydrate on `document` (e.g. Remix) can wipe our iframe,
+// so re-inject a bounded number of times. Our own teardown disconnects the observer first.
 const MAX_REINJECTS = 3
 let lastInject: Parameters<typeof injectIFrame>[0] | null = null
 let reinjects = 0

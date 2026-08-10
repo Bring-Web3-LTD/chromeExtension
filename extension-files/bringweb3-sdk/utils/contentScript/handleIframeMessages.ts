@@ -8,6 +8,7 @@ interface Props {
     event: BringEvent
     iframeEl: IFrame
     promptLogin: () => Promise<void>
+    onClose?: () => void
 }
 
 const ACTIONS = {
@@ -28,7 +29,7 @@ const UNION_ACTIONS = [ACTIONS.ACTIVATE]
 // Handled entirely in the content script — these never reach the background,
 const LOCAL_ACTIONS = [ACTIONS.OPEN, ACTIONS.ADD_KEYFRAMES, ACTIONS.PROMPT_LOGIN]
 
-const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
+const handleIframeMessages = ({ event, iframeEl, promptLogin, onClose }: Props) => {
     if (!event?.data) return
 
     const { from, action, style, keyFrames, time, key, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName, searchTermPattern, type, quietDomainType, isRegex, followups } = event.data
@@ -57,7 +58,11 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin }: Props) => {
             }
             break;
         case ACTIONS.CLOSE:
-            contentScriptCleanup.cleanup()
+            // The iframe asked to close itself — the self-heal observer must be
+            // disconnected before the nodes go, or it reads this as a host wipe.
+            // onClose (removeElements) already runs the cleanup itself.
+            if (onClose) onClose()
+            else contentScriptCleanup.cleanup()
             if (time) chrome.runtime.sendMessage({ action, time, domain, type, isRegex, from: "bringweb3" })
             logger.debug(`[popup-msg] CLOSE — cleanup ran`, { forwardedToBackground: !!time, domain, time });
             break;

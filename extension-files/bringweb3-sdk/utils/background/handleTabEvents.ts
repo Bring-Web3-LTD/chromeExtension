@@ -45,8 +45,9 @@ interface TabState {
 
 const tabStates = new Map<number, TabState>();
 
-// Tracks URLs per tab for each event source to coordinate between onCommitted and onHistoryStateUpdated.
-const navUrls = new Map<number, { committed?: string; history?: string }>();
+// Last handled URL per tab, to coordinate between onCommitted and onHistoryStateUpdated:
+// a history event for the exact URL onCommitted just handled is the same visit.
+const navUrls = new Map<number, string>();
 
 type StandDown = { hop: string, match: string | string[] } | null;
 
@@ -147,14 +148,19 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         }
 
         if (res?.status !== 'success') {
-            logger.info(`[inject] No popup — content script did not show it`, { tabId, phase, status: res?.status, message: res?.message });
-            analytics({
-                type: 'no_popup',
-                userId,
-                walletAddress: address,
-                details: { url: sourceUrl ?? tab.url, match: popupData.verifiedMatch?.match, iframeUrl: popupData.iframeUrl, reason: res?.message, status: res?.status },
-                flowId: popupData.flowId
-            })
+            // 'iframe already open' means a popup is showing - not a no-popup outcome.
+            if (res?.message === 'iframe already open') {
+                logger.debug(`[inject] Popup already open - no_popup not reported`, { tabId, phase });
+            } else {
+                logger.info(`[inject] No popup — content script did not show it`, { tabId, phase, status: res?.status, message: res?.message });
+                analytics({
+                    type: 'no_popup',
+                    userId,
+                    walletAddress: address,
+                    details: { url: sourceUrl ?? tab.url, match: popupData.verifiedMatch?.match, iframeUrl: popupData.iframeUrl, reason: res?.message, status: res?.status },
+                    flowId: popupData.flowId
+                })
+            }
         }
 
         return res;
@@ -165,10 +171,10 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
     const injectActivatedPopup = async (tabId: number, url: string, payload: any, isSpaNavigation: boolean) => {
         logger.info(`[popup-check] Showing activated popup (post-activation re-show)`, { tabId, url });
         const userId = await getUserId();
-        const { iframeUrl, token, placement } = payload || {};
+        const { iframeUrl, token, flowId, placement } = payload || {};
 
         logger.info(`[bg-msg] INJECT event sent`);
-        logger.debug(`[bg-msg] INJECT payload`, { tabId, phase: 'activated', domain: url, iframeUrl, isSpaNavigation });
+        logger.debug(`[bg-msg] INJECT payload`, { tabId, phase: 'activated', domain: url, iframeUrl, flowId, isSpaNavigation });
 
         const res = await sendMessage(tabId, {
             action: 'INJECT',
@@ -177,6 +183,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
             domain: url,
             userId,
             page: 'activated',
+            flowId,
             placement,  // Pass placement configuration from payload
             isSpaNavigation
         });
@@ -417,8 +424,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
     chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
         if (frameId !== 0) return;
         logger.debug(`[nav] URL changed (full page navigation)`, { tabId, url });
-        const entry = navUrls.get(tabId);
-        entry ? (entry.committed = url) : navUrls.set(tabId, { committed: url });
+        navUrls.set(tabId, url);
         onMainNavigation(tabId, url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
     }, { url: [{ schemes: ['http', 'https'] }] });
 
@@ -426,13 +432,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
     // changes fire no request, so the chain still holds this visit's arrival hops.
     chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId, url }) => {
         if (frameId !== 0) return;
-        if (navUrls.get(tabId)?.committed === url) {
-            logger.debug(`[nav] SPA URL change ignored — already handled by full navigation`, { tabId, url });
+        if (navUrls.get(tabId) === url) {
+            logger.debug(`[nav] SPA URL change ignored — same URL already handled`, { tabId, url });
             return;
         }
         logger.debug(`[nav] URL changed (SPA / history state update)`, { tabId, url });
-        const entry = navUrls.get(tabId);
-        entry ? (entry.history = url) : navUrls.set(tabId, { history: url });
+        navUrls.set(tabId, url);
         onMainNavigation(tabId, url, true).catch(error => logger.error(`[flow] Navigation handling failed`, error));
     }, { url: [{ schemes: ['http', 'https'] }] });
 

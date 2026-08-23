@@ -195,6 +195,10 @@ const bringInitContentScript = async ({
                 }
                 return true
             case 'INJECT':
+                // all_frames is on, so subframes get this too. Don't inject (or answer)
+                // from them: a same-origin subframe would show a second popup and a
+                // third-party one (e.g. hCaptcha) would answer "domain mismatch" first.
+                if (window !== window.top) return false;
                 try {
                     logger.info(`[content] INJECT event received`);
                     logger.debug(`[content] INJECT payload`, { domain: request.domain, page: request.page, isSpaNavigation: request.isSpaNavigation, flowId: request.flowId });

@@ -253,14 +253,12 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                                 </div>
 
                             </div>
-                            <div id="offer-agree-text" className={`${styles.agree} ${bringTou ? styles.agree_compact : ''}`}>
+                            <div id="offer-agree-text" className={styles.agree}>
+                                By activating you agree to <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Deal Terms</span>
+                                {/* bringTou comes from the server for every platform; older backends omit it, so don't render a link with no URL */}
                                 {bringTou ?
-                                    <>
-                                        By activating you agree to&nbsp;&nbsp;<span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Deal Terms</span>
-                                        <span className={styles.terms_comma}>, </span><span id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</span>
-                                    </>
-                                    :
-                                    <>By activating, you agree to the <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Terms</span></>
+                                    <><span className={styles.terms_comma}>, </span><span id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</span></>
+                                    : null
                                 }
                             </div>
                         </motion.div>

@@ -124,6 +124,7 @@ export const themeNames = {
     clarifyFC: "--clarify-f-c",
     agreeFS: "--agree-f-s",
     agreeLS: "--agree-l-s",
+    agreeLH: "--agree-l-h",
     agreeFC: "--agree-f-c",
     agreeLinkFC: "--agree-link-f-c",
     agreeLinkFS: "--agree-link-f-s",

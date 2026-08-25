@@ -1,5 +1,11 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.8.1
+
+### Patch Changes
+
+- 9050eb9: Only inject the popup from the top frame - same-origin subframes showed a duplicate
+
 ## 1.8.0
 
 ### Minor Changes

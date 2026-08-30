@@ -3,6 +3,8 @@ import checkEvents from "../api/checkEvents";
 import getWalletAddress from "./getWalletAddress";
 import { isMsRangeActive } from "./timestampRange";
 
+const ERROR_BACKOFF_MS = 60 * 60 * 1000;
+
 const checkNotifications = async (showNotifications: boolean, tabId?: number, cashbackUrl?: string, checkAnyway: boolean = false) => {
     const falseReturn = { showNotification: false, token: '', iframeUrl: '' };
 
@@ -19,7 +21,9 @@ const checkNotifications = async (showNotifications: boolean, tabId?: number, ca
 
     const res = await checkEvents({ walletAddress, cashbackUrl, lastActivation, timeSinceLastActivation });
 
-    await storage.set('notificationCheck', [now, now + res.nextCall]);
+    // An error body has no nextCall; without a fallback the stored range is [now, NaN],
+    // which reads as expired and retries on every navigation.
+    await storage.set('notificationCheck', [now, now + (res.nextCall ?? ERROR_BACKOFF_MS)]);
 
     const notification = {
         showNotification: res.showNotification as boolean,

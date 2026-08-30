@@ -21,6 +21,7 @@ vi.mock('../utils/background/optOut', () => ({ getOptOut: vi.fn(), setOptOut: vi
 vi.mock('../utils/background/followups', () => ({ armFollowups: vi.fn() }))
 vi.mock('../utils/logger', () => ({ logger: { info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
 
+import storage from '../utils/storage/storage'
 import checkEvents from '../utils/api/checkEvents'
 import checkNotifications from '../utils/background/checkNotifications'
 import handleContentMessages from '../utils/background/handleContentMessages'
@@ -55,9 +56,20 @@ describe('WALLET_ADDRESS_UPDATE', () => {
         await walletUpdate(listener, 'A')
         await walletUpdate(listener, 'A')
         expect(checkNotifications).toHaveBeenCalledTimes(1)
+        expect(vi.mocked(storage.set).mock.calls.filter(([key]) => key === 'walletAddress')).toHaveLength(1)
 
         await walletUpdate(listener, 'B')
         expect(checkNotifications).toHaveBeenCalledTimes(2)
         expect(store.walletAddress).toBe('B')
+    })
+
+    it('still responds when the notification check fails', async () => {
+        let listener: Function = () => { }
+        ;(globalThis as any).chrome = { runtime: { onMessage: { addListener: (fn: Function) => { listener = fn } } } }
+        handleContentMessages(undefined, true)
+        vi.mocked(checkEvents).mockRejectedValue(new Error('403'))
+
+        await expect(walletUpdate(listener, 'C')).resolves.toBe('C')
+        expect(store.walletAddress).toBe('C')
     })
 })

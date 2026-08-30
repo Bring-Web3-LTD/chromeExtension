@@ -114,14 +114,15 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                     // Wallets fire this from every frame on every page load, so only an actual
                     // address change earns the gate-bypassing notification check.
                     storage.get('walletAddress')
-                        .then(prev => storage.set('walletAddress', walletAddress as string).then(() => prev))
                         .then(prev => {
                             if (prev === walletAddress) {
-                                logger.debug(`[bg-msg] WALLET_ADDRESS_UPDATE — address unchanged, skipping notification check`)
+                                logger.debug(`[bg-msg] WALLET_ADDRESS_UPDATE — address unchanged, skipping`)
                                 return
                             }
-                            return checkNotifications(showNotifications, undefined, getCashbackUrl(cashbackPagePath), true)
+                            return storage.set('walletAddress', walletAddress as string)
+                                .then(() => checkNotifications(showNotifications, undefined, getCashbackUrl(cashbackPagePath), true))
                         })
+                        .catch(error => logger.error('failed to handle wallet address update', { error }))
                         .then(() => sendResponse(walletAddress))
                 }
                 return true;

@@ -111,11 +111,21 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                     storage.remove('walletAddress')
                         .then(() => sendResponse({ message: 'wallet address removed successfully' }))
                 } else {
-                    storage.set('walletAddress', walletAddress as string)
-                        .then(() =>
-                            checkNotifications(showNotifications, undefined, getCashbackUrl(cashbackPagePath), true)
-                                .then(() => sendResponse(walletAddress))
-                        )
+                    // Wallets fire this from every frame on every page load, so only an actual
+                    // address change earns the gate-bypassing notification check. Compare against
+                    // the address the last check used, not `walletAddress` - navigation writes
+                    // that first on an account switch (getWalletAddress).
+                    storage.get('lastCheckedWalletAddress')
+                        .then(prev => {
+                            if (prev === walletAddress) {
+                                logger.debug(`[bg-msg] WALLET_ADDRESS_UPDATE — address unchanged, skipping`)
+                                return
+                            }
+                            return storage.set('walletAddress', walletAddress as string)
+                                .then(() => checkNotifications(showNotifications, undefined, getCashbackUrl(cashbackPagePath), true))
+                        })
+                        .catch(error => logger.error('failed to handle wallet address update', { error }))
+                        .then(() => sendResponse(walletAddress))
                 }
                 return true;
             }

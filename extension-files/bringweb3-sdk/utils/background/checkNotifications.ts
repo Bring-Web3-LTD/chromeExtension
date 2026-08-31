@@ -2,6 +2,7 @@ import storage from "../storage/storage";
 import checkEvents from "../api/checkEvents";
 import getWalletAddress from "./getWalletAddress";
 import { isMsRangeActive } from "./timestampRange";
+import { logger } from "../logger";
 
 const ERROR_BACKOFF_MS = 60 * 60 * 1000;
 
@@ -19,11 +20,29 @@ const checkNotifications = async (showNotifications: boolean, tabId?: number, ca
     const lastActivation = await storage.get('lastActivation')
     const timeSinceLastActivation = lastActivation ? now - lastActivation : undefined;
 
-    const res = await checkEvents({ walletAddress, cashbackUrl, lastActivation, timeSinceLastActivation });
+    let res;
+    try {
+        res = await checkEvents({ walletAddress, cashbackUrl, lastActivation, timeSinceLastActivation });
+    } catch (error) {
+        // Network failure or a non-JSON reply (e.g. a WAF block page): store the
+        // backoff here too, or the next trigger retries immediately.
+        logger.warn('notification check failed, backing off', { error });
+        await Promise.all([
+            storage.set('notificationCheck', [now, now + ERROR_BACKOFF_MS]),
+            storage.set('lastCheckedWalletAddress', walletAddress ?? ''),
+        ]);
+        return falseReturn;
+    }
 
-    // An error body has no nextCall; without a fallback the stored range is [now, NaN],
-    // which reads as expired and retries on every navigation.
-    await storage.set('notificationCheck', [now, now + (res.nextCall ?? ERROR_BACKOFF_MS)]);
+    await Promise.all([
+        // An error body has no nextCall; without a fallback the stored range is [now, NaN],
+        // which reads as expired and retries on every navigation.
+        storage.set('notificationCheck', [now, now + (res.nextCall ?? ERROR_BACKOFF_MS)]),
+        // Dedup marker for WALLET_ADDRESS_UPDATE: the address this check actually used.
+        // Not `walletAddress` - getWalletAddress writes that on navigation, so an account
+        // switch would look unchanged by the time the wallet's broadcast arrives.
+        storage.set('lastCheckedWalletAddress', walletAddress ?? ''),
+    ]);
 
     const notification = {
         showNotification: res.showNotification as boolean,

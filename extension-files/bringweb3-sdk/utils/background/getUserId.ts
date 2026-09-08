@@ -1,10 +1,10 @@
 import storage from "../storage/storage"
-import { v4 as uuidv4, validate } from "uuid"
+import isUuid from "./isUuid"
 
 const getUserId = async (): Promise<string | undefined> => {
     let userId = await storage.get('id')
-    if (!validate(userId)) { // If the userId is not a valid UUID
-        userId = uuidv4()
+    if (!isUuid(userId)) { // If the userId is not a valid UUID
+        userId = crypto.randomUUID()
         await storage.set('id', userId)
     }
     return userId

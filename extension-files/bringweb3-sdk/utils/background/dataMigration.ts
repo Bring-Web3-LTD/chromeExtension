@@ -1,5 +1,5 @@
 import storage from "../storage/storage"
-import { v4 as uuidv4, validate } from "uuid";
+import isUuid from "./isUuid";
 
 const CURRENT_MIGRATION_VERSION = 4;
 
@@ -55,8 +55,8 @@ const runMigrationTwo = async () => {
         }
 
         let id = await storage.get('id');
-        if (!validate(id || '')) {
-            id = uuidv4();
+        if (!isUuid(id)) {
+            id = crypto.randomUUID();
             await storage.set('id', id);
         }
 

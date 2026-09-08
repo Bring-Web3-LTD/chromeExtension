@@ -39,9 +39,6 @@
     "crypto",
     "bringweb3"
   ],
-  "dependencies": {
-    "uuid": "^14.0.0"
-  },
   "resolutions": {
     "picomatch": "^4.0.4",
     "micromatch": "^4.0.8",

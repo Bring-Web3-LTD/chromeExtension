@@ -11,6 +11,7 @@ import { logger } from "./utils/logger.js";
 interface Configuration {
     identifier: string
     apiEndpoint: string
+    baseUrl?: string
     whitelistEndpoint?: string
     cashbackPagePath?: string
     isEnabledByDefault: boolean
@@ -25,6 +26,7 @@ interface Configuration {
  * @param {Object} configuration - The configuration object.
  * @param {string} configuration.identifier - The identifier for the extension.
  * @param {string} configuration.apiEndpoint - The API endpoint ('prod' or 'sandbox').
+ * @param {string} [configuration.baseUrl] - Optional full API endpoint every request is sent to, e.g. 'https://api.partner.com/bring'. Bring's own host and paths are skipped entirely. https only (http allowed for localhost).
  * @param {string} configuration.whitelistEndpoint - Endpoint for whitelist of redirect urls.
  * @param {string} [configuration.cashbackPagePath] - Optional path to the cashback page.
  * @param {boolean} [configuration.isEnabledByDefault] - Determine if the user see the popup by default. defaults to true.
@@ -58,7 +60,7 @@ interface Configuration {
 
 const ENDPOINT = ENV_ENDPOINT as EndpointName
 
-const bringInitBackground = async ({ identifier, apiEndpoint, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback }: Configuration) => {
+const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback }: Configuration) => {
     if (!identifier || !apiEndpoint) throw new Error('Missing configuration')
     validatePermissions()
     if (ENDPOINT) logger.debug('endpoint configured', { ENDPOINT });
@@ -68,9 +70,15 @@ const bringInitBackground = async ({ identifier, apiEndpoint, cashbackPagePath, 
     apiEndpointInstance.setApiEndpoint(ENDPOINT || apiEndpoint as EndpointName)
     apiEndpointInstance.setWhitelistEndpoint(whitelistEndpoint || '')
     apiEndpointInstance.setApiKey(identifier)
+    // Throws on a malformed or non-https value, like the apiEndpoint check above.
+    if (baseUrl) apiEndpointInstance.setBaseUrl(baseUrl)
 
     // Initialize debug cache after API endpoint is set
     storage.initializeDebugCache()
+
+    // Dev environment segment. Later bringCache.set('envName', ...) calls sync the instance
+    // through the storage helper; this read covers a restarted worker.
+    apiEndpointInstance.setEnvName(await storage.get('envName') || '')
 
     let popupEnabled = await storage.get('popupEnabled')
 

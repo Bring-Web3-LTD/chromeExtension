@@ -2,7 +2,8 @@ import injectIFrame from "./utils/contentScript/injectIFrame.js";
 import handleIframeMessages from "./utils/contentScript/handleIframeMessages.js";
 import startListenersForWalletAddress from "./utils/contentScript/startLIstenersForWalletAddress.js";
 import getDomain from "./utils/getDomain.js";
-import removeTrailingSlash from "./utils/background/removeTrailingSlash.js";
+import storage from "./utils/storage/storage.js";
+import { isAllowedOrigin } from "./utils/originAllowlist.js";
 import { contentScriptCleanup } from "./utils/contentScript/cleanupManager.js";
 import { IFRAME_ID_PREFIX } from "./utils/constants.js";
 import { logger } from "./utils/logger.js";
@@ -53,6 +54,34 @@ const startSelfHeal = (payload: Parameters<typeof injectIFrame>[0]) => {
     // subtree catches React replacing the <html> node itself - an observer on
     // documentElement alone would be left watching a detached node.
     observer.observe(document, { childList: true, subtree: true })
+}
+
+/**
+ * The base domains allowed to talk to us, as served by /domains and stored by updateCache.
+ * Nothing is hardcoded, so an empty list allows nothing - bringweb3.io included.
+ *
+ * A stored array (even an empty one) is the answer: the server was asked and replied.
+ * A missing key means /domains was never fetched, because updateCache writes the key on
+ * every fetch (an absent field stores []). That happens when popups are disabled, since
+ * the init updateCache() is gated on popupEnabled - without the message below a
+ * self-hosted portal would stay dead forever.
+ *
+ * Only a subframe sends that message: a subframe might be the portal, while a top frame
+ * needs the list solely for another extension's popup, which isn't worth waking the
+ * service worker on every page load. Anything that throws (worker asleep, extension
+ * reloaded mid-navigation) fails closed to [].
+ */
+const loadOriginAllowlist = async (): Promise<string[]> => {
+    try {
+        const stored = await storage.get('originAllowlist')
+        if (Array.isArray(stored)) return stored
+        if (window.self === window.top) return []
+        const res = await chrome.runtime.sendMessage({ from: 'bringweb3', action: 'GET_ORIGIN_ALLOWLIST' })
+        return Array.isArray(res?.originAllowlist) ? res.originAllowlist : []
+    } catch (error) {
+        logger.warn(`[content] Failed to load the origin allowlist`, error)
+        return []
+    }
 }
 
 interface Configuration {
@@ -114,7 +143,11 @@ const bringInitContentScript = async ({
     text,
     switchWallet = false
 }: Configuration) => {
-    if (window.self !== window.top && removeTrailingSlash(window.document.location.origin).endsWith('bringweb3.io')) {
+    // A PORTAL_ACTIVATE arriving while this resolves is dropped - the portal only
+    // posts on a click and there's no buffering.
+    const originAllowlist = await loadOriginAllowlist()
+
+    if (window.self !== window.top && isAllowedOrigin(window.document.location.origin, originAllowlist)) {
         logger.debug(`[popup-msg] Portal iframe detected - listening for PORTAL_ACTIVATE`, { origin: window.document.location.origin });
 
         window.addEventListener('message', (e) => {
@@ -153,6 +186,7 @@ const bringInitContentScript = async ({
         event: e,
         iframeEl,
         promptLogin,
+        originAllowlist,
         onClose: removeElements
     }))
 

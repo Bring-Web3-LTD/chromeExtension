@@ -25,6 +25,13 @@ interface Props {
 
 const STYLESHEET_ID = 'bring-iframe-stylesheet';
 
+// Origin of the last iframe we injected - the only origin allowed to postMessage us
+// (alongside the server allowlist). Not cleared on close: the check is an equality test,
+// a stale value grants nothing the live one didn't.
+let injectedOrigin: string | null = null;
+
+export const getInjectedIframeOrigin = (): string | null => injectedOrigin;
+
 const injectIFrame = ({ query, styleUrl, themeMode, text, iframeUrl, page, switchWallet, placement, stylesheet, framed }: Props): HTMLIFrameElement => {
     const extensionId = chrome.runtime.id;
     const iframeId = `${IFRAME_ID_PREFIX}-${extensionId}`;
@@ -40,6 +47,7 @@ const injectIFrame = ({ query, styleUrl, themeMode, text, iframeUrl, page, switc
     if (!url.hash && query.token) url.hash = `token=${encodeURIComponent(query.token)}`
     // Dev override: keep the server-built path/query/fragment, swap the origin
     if (ENV_IFRAME_URL) Object.assign(url, { protocol: new URL(ENV_IFRAME_URL).protocol, host: new URL(ENV_IFRAME_URL).host })
+    injectedOrigin = url.origin
     iframe.src = url.toString()
     const sandbox = "allow-scripts allow-same-origin"
     iframe.setAttribute('sandbox', sandbox)

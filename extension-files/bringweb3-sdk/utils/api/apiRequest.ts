@@ -16,20 +16,9 @@ const apiRequest = async (req: Request) => {
     if (!req || !path || !method || (!params && method === 'POST')) throw new Error('Missing endpoint or method')
 
     const apiEndpointInstance = ApiEndpoint.getInstance()
-    const baseDomain = apiEndpointInstance.getBaseDomain()
-    const apiPath = apiEndpointInstance.getApiPath()
-    const envName = await storage.get('envName')
+    let endpoint = apiEndpointInstance.getEndpoint(path)
 
-    // Build URL structure: https://api.bringweb3.io/{envName}/v1/extension{path}
-    // Or for production: https://api.bringweb3.io/v1/extension{path}
-    let endpoint: string
-    if (envName) {
-        endpoint = `${baseDomain}/${envName}/${apiPath}${path}`
-    } else {
-        endpoint = `${baseDomain}/${apiPath}${path}`
-    }
-
-    const apiKey = ApiEndpoint.getInstance().getApiKey()
+    const apiKey = apiEndpointInstance.getApiKey()
 
     if (method === 'GET') {
         const urlParams = new URLSearchParams({

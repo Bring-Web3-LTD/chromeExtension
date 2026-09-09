@@ -4,6 +4,7 @@ import safeStringify from "./safeStringify"
 import { fetchWhitelist } from "../api/fetchWhitelist"
 import { ApiEndpoint } from "../apiEndpoint"
 import { isMsRangeExpired } from "./timestampRange"
+import { sanitizeOriginAllowlist } from "../originAllowlist"
 
 let pending: Promise<any> | null = null;
 
@@ -49,7 +50,7 @@ export const updateCache = async () => {
     return pending = (async () => {
         try {
             const res = await fetchDomains(trigger, 30000);
-            const { nextUpdateTimestamp, relevantDomains, flags, types, quietDomainsMaxLength, standDownOffset } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
+            const { nextUpdateTimestamp, relevantDomains, flags, types, quietDomainsMaxLength, standDownOffset, originAllowlist } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
 
             whitelist = await fetchWhitelist(30000)
 
@@ -58,6 +59,15 @@ export const updateCache = async () => {
                 storage.set('relevantDomainsCheck', [now, now + nextUpdateTimestamp]),
                 storage.set('domainsTypes', types)
             ]
+
+            // Origins allowed to relay PORTAL_ACTIVATE / postMessage to us. Always written
+            // (an absent field stores []), so the content script can tell "not fetched yet"
+            // from "fetched, nothing allowed" and only messages the background in the first case.
+            // Revocation waits for the next /domains fetch - an allowlist, not a kill switch.
+            const origins = sanitizeOriginAllowlist(originAllowlist)
+            if (origins) {
+                storageUpdates.push(storage.set('originAllowlist', origins))
+            }
 
             if (quietDomainsMaxLength) {
                 storageUpdates.push(storage.set('quietDomainsMaxLength', quietDomainsMaxLength))

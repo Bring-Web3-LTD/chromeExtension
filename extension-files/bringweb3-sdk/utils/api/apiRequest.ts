@@ -21,15 +21,18 @@ const apiRequest = async (req: Request) => {
     const apiKey = apiEndpointInstance.getApiKey()
 
     if (method === 'GET') {
-        const urlParams = new URLSearchParams({
+        // Merged into the URL rather than concatenated: a partner baseUrl may already
+        // carry a query string, and `endpoint += '?...'` would emit a second '?'.
+        const url = new URL(endpoint)
+        Object.entries({
             ...params,
             version: getVersion(),
             timestamp: Date.now().toString(),
             opt_out: await storage.get('optOut') || 0,
             user_id: await getUserId() || 'undefined',
             wallet_address: await storage.get('walletAddress') || 'undefined'
-        })
-        endpoint += `?${urlParams.toString()}`
+        }).forEach(([key, value]) => url.searchParams.set(key, String(value)))
+        endpoint = url.toString()
     } else if (method === 'POST') {
         params = {
             ...params,

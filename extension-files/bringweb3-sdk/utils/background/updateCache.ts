@@ -60,9 +60,11 @@ export const updateCache = async () => {
                 storage.set('domainsTypes', types)
             ]
 
-            // Origins allowed to relay PORTAL_ACTIVATE / postMessage to us. Always written
-            // (an absent field stores []), so the content script can tell "not fetched yet"
-            // from "fetched, nothing allowed" and only messages the background in the first case.
+            // Origins allowed to relay PORTAL_ACTIVATE / postMessage to us. An absent field
+            // stores [], so "fetched, nothing allowed" is distinguishable from "never fetched"
+            // and the content script only messages the background in the second case. The one
+            // exception is a malformed (non-array) value: nothing is written, the previous list
+            // stands, and the key can still be missing after a fetch.
             // Revocation waits for the next /domains fetch - an allowlist, not a kill switch.
             const origins = sanitizeOriginAllowlist(originAllowlist)
             if (origins) {

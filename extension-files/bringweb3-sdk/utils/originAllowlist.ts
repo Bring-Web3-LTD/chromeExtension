@@ -1,11 +1,15 @@
 import { logger } from "./logger"
 
-// Base domain only - no scheme, no path, no port, no wildcard. 'bringweb3.io', not
-// 'https://portal.bringweb3.io/'.
-const DOMAIN_RE = /^[a-z0-9-]+(\.[a-z0-9-]+)+$/
+// One hostname label: alphanumeric ends, hyphens only inside (RFC 1123).
+const LABEL_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/
 
-const isValidDomain = (value: unknown): value is string =>
-    typeof value === 'string' && value.length <= 253 && DOMAIN_RE.test(value)
+// Base domain only - no scheme, no path, no port, no wildcard. 'bringweb3.io', not
+// 'https://portal.bringweb3.io/'. Compared against URL.hostname, which is lowercase.
+const isValidDomain = (value: unknown): value is string => {
+    if (typeof value !== 'string' || value.length > 253) return false
+    const labels = value.split('.')
+    return labels.length > 1 && labels.every(label => label.length <= 63 && LABEL_RE.test(label))
+}
 
 /**
  * Validates the originAllowlist field of a /domains response.
@@ -18,7 +22,9 @@ export const sanitizeOriginAllowlist = (raw: unknown): string[] | null => {
         return raw == null ? [] : null
     }
 
-    const valid = raw.filter(isValidDomain)
+    // Domains are case-insensitive, so 'Partner.com' is a valid entry - fold it to the
+    // lowercase form URL.hostname will be compared against.
+    const valid = raw.map(entry => typeof entry === 'string' ? entry.trim().toLowerCase() : entry).filter(isValidDomain)
     if (valid.length !== raw.length) {
         logger.warn(`[origins] Dropped invalid entries from originAllowlist`, { kept: valid.length, received: raw.length })
     }

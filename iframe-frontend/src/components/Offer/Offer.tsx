@@ -254,10 +254,10 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
 
                             </div>
                             <div id="offer-agree-text" className={styles.agree}>
-                                By activating you agree to <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Deal Terms</span>
+                                By activating you agree to <button type="button" id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Deal Terms</button>
                                 {/* bringTou comes from the server for every platform; older backends omit it, so don't render a link with no URL */}
                                 {bringTou ?
-                                    <><span className={styles.terms_comma}>, </span><span id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</span></>
+                                    <><span className={styles.terms_comma}>, </span><button type="button" id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</button></>
                                     : null
                                 }
                             </div>

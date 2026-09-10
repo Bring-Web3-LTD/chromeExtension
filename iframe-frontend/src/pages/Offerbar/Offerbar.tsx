@@ -14,6 +14,7 @@ import { useWalletAddress } from '../../hooks/useWalletAddress'
 import activate from '../../api/activate'
 import { OB_ACTIVATE_QUIET_TIME } from '../../config'
 import { useActivationPayload } from '../../hooks/useActivationPayload'
+import { useEscape } from '../../hooks/useEscape'
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
@@ -62,6 +63,9 @@ const Offerbar = () => {
       sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['kdsi'], isRegex: [false] })
     }
   }
+
+  // Escape does what both X buttons do.
+  useEscape(close)
 
   const handleActivate = useCallback(async () => {
     setStatus('activating')

@@ -8,6 +8,7 @@ import activate from "../../api/activate"
 import { useAnalytics } from "../../hooks/useAnalytics"
 import { useWalletAddress } from "../../hooks/useWalletAddress"
 import { useActivationPayload } from "../../hooks/useActivationPayload"
+import { useEscape } from "../../hooks/useEscape"
 import { OB_ACTIVATE_QUIET_TIME } from "../../config"
 import Optout from "./Optout/Optout"
 import { getInitials } from "../../utils/getInitials"
@@ -65,6 +66,9 @@ const Framed = () => {
             sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['kdsi'], isRegex: [false] })
         }
     }
+
+    // Escape does what the X button does.
+    useEscape(close)
 
     const handleActivate = useCallback(async () => {
         setStatus('activating')

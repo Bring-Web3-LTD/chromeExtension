@@ -228,7 +228,7 @@ const OneStep = () => {
                             </button>
                         </div>
                         <div id="onestep-agree-text" className={styles.agree}>
-                            By activating, I accept the <button type="button" id="onestep-terms-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: 'https://www.argent.xyz/legal/privacy/argent-x' })}>legal terms.</button>
+                            By activating, I accept the <span id="onestep-terms-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: 'https://www.argent.xyz/legal/privacy/argent-x' })}>legal terms.</span>
                         </div>
                     </motion.div>
                 ) : (

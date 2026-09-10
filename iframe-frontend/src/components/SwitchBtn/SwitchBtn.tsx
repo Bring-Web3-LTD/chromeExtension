@@ -24,11 +24,12 @@ const SwitchBtn = ({ callback }: Props) => {
             id="switch-btn"
             className={styles.switch_btn}
             onClick={promptLogin}
+            aria-label="Switch wallet"
         >
             <Icon
                 id="switch-btn-icon"
                 name="switch.svg"
-                alt="switch icon"
+                alt=""
             />
         </button>
     )

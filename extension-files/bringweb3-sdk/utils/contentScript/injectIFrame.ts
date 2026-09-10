@@ -43,6 +43,9 @@ const injectIFrame = ({ query, styleUrl, themeMode, text, iframeUrl, page, switc
     iframe.src = url.toString()
     const sandbox = "allow-scripts allow-same-origin"
     iframe.setAttribute('sandbox', sandbox)
+    // Without a title the frame is announced as an unlabelled frame, so assistive tech gives
+    // no hint that the popup/bar exists.
+    iframe.title = "Cashback offer"
     iframe.style.position = "fixed";
     iframe.style.right = "8px";
     iframe.scrolling = "no";

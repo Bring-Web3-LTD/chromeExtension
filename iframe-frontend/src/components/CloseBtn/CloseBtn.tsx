@@ -64,6 +64,7 @@ const CloseBtn = ({ callback, withTime = true, time, className = '', type, overr
             id="close-btn"
             onClick={handleClose}
             className={`${styles.btn} ${className}`}
+            aria-label="Close"
         >
             <div
                 id="close-btn-icon"

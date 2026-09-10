@@ -3,6 +3,19 @@ body {
     background: var(--popup-bg);
 }
 
+/* In the accessibility tree, never painted. Not display:none, which would hide it
+   from screen readers too. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
 /* Framed pages (TB) override: the iframe covers the full viewport with a CSS mask,
    so the body must be transparent for the host page to show through. */
 body:has(.framed-transparent) {

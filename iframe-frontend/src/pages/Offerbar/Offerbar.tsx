@@ -46,6 +46,7 @@ const Offerbar = () => {
   } = useRouteLoaderData('root') as LoaderData
   const [showOptout, setShowOptout] = useState(false)
   const [isOptedOut, setIsOptedOut] = useState(false)
+  const [announcement, setAnnouncement] = useState('')
   const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
   const { sendAnalyticsEvent } = useAnalytics()
   const { walletAddress } = useWalletAddress()
@@ -69,6 +70,7 @@ const Offerbar = () => {
 
   const handleActivate = useCallback(async () => {
     setStatus('activating')
+    setAnnouncement('Activating cashback')
 
     const body: Parameters<typeof activate>[0] = {
       walletAddress,
@@ -92,8 +94,11 @@ const Offerbar = () => {
 
     if (status !== 200) {
       setStatus('idle')
+      setAnnouncement('Activation failed')
       return
     }
+
+    setAnnouncement('Cashback activated')
 
     sendMessage({
       action: ACTIONS.ACTIVATE,
@@ -128,18 +133,29 @@ const Offerbar = () => {
     <div
       id="offerbar-container"
       className={styles.offerbar}
+      role="region"
+      aria-label={showOptout ? "Turn off cashback offers" : "Cashback offer"}
     >
+      {/* Activation and the opt-out switch change the bar in place, which is silent
+          without a live region. */}
+      <div className="sr-only" role="status">{announcement}</div>
       <button id="offerbar-close-btn-top" className={styles.closeButton} onClick={close}><Icon name="ob-close-btn.svg" alt="Close" /></button>
       {showOptout ? <Optout closeFn={() => setShowOptout(false)} onOptOut={() => setIsOptedOut(true)} />
         :
         <>
           <div id="offerbar-spacer" className={styles.spacer}></div>
           <Logos />
-          <div id="offerbar-offer-text-container" className={styles.offer_text_container}>
-            <div id="offerbar-offer-text-up-to" className={styles.offer_text}>Up to</div>
-            <div id="offerbar-cashback-amount" className={styles.offer_amount}>{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</div>
-            <div id="offerbar-crypto-symbol" className={styles.offer_amount}>{cryptoSymbols[0]}</div>
-            <div id="offerbar-offer-text-cashback" className={styles.offer_text}>Cashback</div>
+          <div
+            id="offerbar-offer-text-container"
+            className={styles.offer_text_container}
+            role="heading"
+            aria-level={1}
+            aria-label={`Up to ${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} ${cryptoSymbols[0]} cashback`}
+          >
+            <div id="offerbar-offer-text-up-to" className={styles.offer_text} aria-hidden="true">Up to</div>
+            <div id="offerbar-cashback-amount" className={styles.offer_amount} aria-hidden="true">{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</div>
+            <div id="offerbar-crypto-symbol" className={styles.offer_amount} aria-hidden="true">{cryptoSymbols[0]}</div>
+            <div id="offerbar-offer-text-cashback" className={styles.offer_text} aria-hidden="true">Cashback</div>
           </div>
           <button id="offerbar-activate-btn" className={styles.activateButton} onClick={handleActivate} disabled={status !== 'idle'}>
             {toCaseString('Activate', textMode, platformName)}
@@ -147,7 +163,10 @@ const Offerbar = () => {
           <button
             id="offerbar-opt-out-btn"
             className={styles.optOutButton}
-            onClick={() => setShowOptout(true)}
+            onClick={() => {
+              setShowOptout(true)
+              setAnnouncement('Turn off cashback offers')
+            }}
           >{toCaseString('Turn Off', textMode, platformName)}</button>
         </>
       }

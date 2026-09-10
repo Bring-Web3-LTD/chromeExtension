@@ -133,7 +133,12 @@ const Framed = () => {
     return (
         <div className={`${styles.frameContainer} framed-transparent`}>
             {/* Top bar — fixed 71px strip at top of viewport */}
-            <div id="tb-container" className={styles.tbBar}>
+            <div
+                id="tb-container"
+                className={styles.tbBar}
+                role="region"
+                aria-label={showOptout ? "Turn off cashback offers" : "Cashback offer"}
+            >
                 {showOptout ? (
                     <Optout
                         closeFn={() => setShowOptout(false)}
@@ -182,7 +187,10 @@ const Framed = () => {
                             </div>
 
                             {/* Cashback offer text — centered, truncated */}
-                            <div id="tb-offer-text" className={styles.tbOfferText}>
+                            {/* The offer text is the bar's heading. Kept as a div with
+                                role=heading so the existing class - and the appearance -
+                                stay exactly as they are. */}
+                            <div id="tb-offer-text" className={styles.tbOfferText} role="heading" aria-level={1}>
                                 <span>
                                     {parseOfferText(offerTextTb)}
                                 </span>

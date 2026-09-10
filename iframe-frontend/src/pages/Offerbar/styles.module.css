@@ -22,7 +22,6 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    outline: none;
 }
 
 .closeButton:hover {
@@ -98,7 +97,6 @@
     line-height: var(--ob-close-btn-l-h);
     background: transparent;
     border: none;
-    outline: none;
     cursor: pointer;
     color: var(--ob-close-btn-f-c);
     bottom: 66px;

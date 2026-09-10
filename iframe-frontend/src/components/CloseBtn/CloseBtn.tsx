@@ -4,6 +4,7 @@ import { useAnalytics } from '../../hooks/useAnalytics'
 import { useRouteLoaderData } from 'react-router-dom'
 import compareVersions from '../../utils/compareVersions'
 import parseTime from '../../utils/parseTime'
+import { useEscape } from '../../hooks/useEscape'
 
 interface Props {
     callback?: () => void
@@ -50,13 +51,18 @@ const CloseBtn = ({ callback, withTime = true, time, className = '', type, overr
         sendMessage(message)
     }
 
+    // Click and Escape run the same path - same analytics, same quiet window, same callback.
+    const handleClose = () => {
+        close()
+        callback && callback()
+    }
+
+    useEscape(handleClose)
+
     return (
         <button
             id="close-btn"
-            onClick={() => {
-                close()
-                callback && callback()
-            }}
+            onClick={handleClose}
             className={`${styles.btn} ${className}`}
         >
             <div

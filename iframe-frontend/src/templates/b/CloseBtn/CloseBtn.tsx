@@ -5,6 +5,7 @@ import { useRouteLoaderData } from 'react-router-dom'
 import Icon from '../../../components/Icon/Icon'
 import compareVersions from '../../../utils/compareVersions'
 import parseTime from '../../../utils/parseTime'
+import { useEscape } from '../../../hooks/useEscape'
 interface Props {
     callback?: () => void
 }
@@ -28,13 +29,18 @@ const CloseBtn = ({ callback }: Props) => {
         sendMessage({ action: ACTIONS.CLOSE, domain, time: parseTime(THIRTY_MIN_MS, version) })
     }
 
+    // Click and Escape run the same path - same analytics, same quiet window, same callback.
+    const handleClose = () => {
+        close()
+        callback && callback()
+    }
+
+    useEscape(handleClose)
+
     return (
         <button
             id="template-close-btn"
-            onClick={() => {
-                close()
-                callback && callback()
-            }}
+            onClick={handleClose}
             className={styles.btn}
         >
             <Icon id="template-close-btn-icon" name="x-mark.svg" alt="exit icon" />

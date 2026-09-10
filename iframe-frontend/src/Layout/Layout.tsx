@@ -27,6 +27,27 @@ const AutoCloseTimer = ({ timeout }: { timeout?: number }) => {
     return null
 }
 
+// Takes focus when the host page says it's safe (it checks its own caret - we can't, being
+// cross-origin). Focusing the body routes Escape and Tab into this document; falling back to
+// the first control if a browser refuses to focus the body.
+const FocusOnOffer = () => {
+    useEffect(() => {
+        const onMessage = (e: MessageEvent) => {
+            if (e.data?.from !== 'bringweb3' || e.data?.action !== 'FOCUS_SURFACE') return
+            document.body.tabIndex = -1
+            document.body.focus()
+            if (document.activeElement !== document.body) {
+                document.querySelector<HTMLElement>('button')?.focus()
+            }
+        }
+
+        window.addEventListener('message', onMessage)
+        return () => window.removeEventListener('message', onMessage)
+    }, [])
+
+    return null
+}
+
 const Layout = () => {
     const data = useLoaderData() as LoaderData
     const { pathname } = useLocation()
@@ -58,6 +79,7 @@ const Layout = () => {
                     pageViewIsWidget={pageViewIsWidget}
                 >
                     <Beamer enabled={data.beamer} />
+                    <FocusOnOffer />
                     <AutoCloseTimer timeout={data.timeout} />
                     <Outlet />
                 </AnalyticsProvider>

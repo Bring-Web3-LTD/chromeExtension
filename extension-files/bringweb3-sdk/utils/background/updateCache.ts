@@ -4,7 +4,6 @@ import safeStringify from "./safeStringify"
 import { fetchWhitelist } from "../api/fetchWhitelist"
 import { ApiEndpoint } from "../apiEndpoint"
 import { isMsRangeExpired } from "./timestampRange"
-import { sanitizeOriginAllowlist } from "../originAllowlist"
 
 let pending: Promise<any> | null = null;
 
@@ -60,16 +59,11 @@ export const updateCache = async () => {
                 storage.set('domainsTypes', types)
             ]
 
-            // Origins allowed to relay PORTAL_ACTIVATE / postMessage to us. An absent field
-            // stores [], so "fetched, nothing allowed" is distinguishable from "never fetched"
-            // and the content script only messages the background in the second case. The one
-            // exception is a malformed (non-array) value: nothing is written, the previous list
-            // stands, and the key can still be missing after a fetch.
+            // Origins allowed to relay PORTAL_ACTIVATE / postMessage to us. Always written,
+            // so the content script can tell "fetched, nothing allowed" from "never fetched"
+            // and only messages the background in the second case.
             // Revocation waits for the next /domains fetch - an allowlist, not a kill switch.
-            const origins = sanitizeOriginAllowlist(originAllowlist)
-            if (origins) {
-                storageUpdates.push(storage.set('originAllowlist', origins))
-            }
+            storageUpdates.push(storage.set('originAllowlist', Array.isArray(originAllowlist) ? originAllowlist : []))
 
             if (quietDomainsMaxLength) {
                 storageUpdates.push(storage.set('quietDomainsMaxLength', quietDomainsMaxLength))

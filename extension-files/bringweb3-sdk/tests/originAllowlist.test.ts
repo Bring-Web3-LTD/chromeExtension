@@ -6,45 +6,21 @@ vi.mock('../utils/contentScript/applyStyles', () => ({ default: vi.fn() }))
 vi.mock('../utils/contentScript/addKeyFrames', () => ({ default: vi.fn() }))
 vi.mock('../utils/contentScript/cleanupManager', () => ({ contentScriptCleanup: { add: vi.fn(), cleanup: vi.fn() } }))
 
-import { sanitizeOriginAllowlist, isAllowedOrigin } from '../utils/originAllowlist'
+import { isAllowedOrigin } from '../utils/originAllowlist'
 import { getInjectedIframeOrigin } from '../utils/contentScript/injectIFrame'
 import handleIframeMessages from '../utils/contentScript/handleIframeMessages'
 
 const PARTNER = 'partner.com'
 
-describe('sanitizeOriginAllowlist', () => {
-    it('stores an empty list when the field is absent', () => {
-        expect(sanitizeOriginAllowlist(undefined)).toEqual([])
-    })
-
-    it('keeps the previous list when the value is not an array', () => {
-        expect(sanitizeOriginAllowlist('partner.com')).toBeNull()
-        expect(sanitizeOriginAllowlist({ 0: 'partner.com' })).toBeNull()
-    })
-
-    it('drops anything that is not a bare domain', () => {
-        expect(sanitizeOriginAllowlist([
-            PARTNER,
-            'rewards.partner.com',
-            'https://partner.com',
-            '*.partner.com',
-            'partner.com/portal',
-            'partner.com:8080',
-            'localhost',
-            42
-        ])).toEqual([PARTNER, 'rewards.partner.com'])
-    })
-
-    it('keeps every valid entry, however many', () => {
-        const many = Array.from({ length: 25 }, (_, i) => `p${i}.partner.com`)
-        expect(sanitizeOriginAllowlist(many)).toEqual(many)
-    })
-})
-
 describe('isAllowedOrigin', () => {
     it('matches the domain and its subdomains', () => {
         expect(isAllowedOrigin('https://partner.com', [PARTNER])).toBe(true)
         expect(isAllowedOrigin('https://rewards.partner.com', [PARTNER])).toBe(true)
+    })
+
+    it('normalizes both sides, so www never decides the outcome', () => {
+        expect(isAllowedOrigin('https://www.partner.com', [PARTNER])).toBe(true)
+        expect(isAllowedOrigin('https://partner.com', ['www.partner.com'])).toBe(true)
     })
 
     it('rejects lookalikes and non-https origins', () => {

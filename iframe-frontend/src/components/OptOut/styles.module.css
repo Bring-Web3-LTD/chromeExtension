@@ -133,7 +133,6 @@
     font-size: var(--descriptive-back-btn-f-s, var(--close-f-s, 14px));
     font-weight: var(--descriptive-back-btn-f-w, var(--close-f-w, 500));
     border: none;
-    outline: none;
     cursor: pointer;
     line-height: 22px;
     margin-top: 8px;
@@ -145,7 +144,6 @@
     font-size: var(--close-f-s, 14px);
     font-weight: var(--close-f-w, 500);
     border: none;
-    outline: none;
     cursor: pointer;
     line-height: 22px;
     margin-top: 8px;

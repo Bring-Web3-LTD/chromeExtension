@@ -27,7 +27,7 @@ const LoadingOverlay = ({ open, text = "Log into your wallet to proceed" }: Prop
                         strokeWidthSecondary="4"
                         color="var(--loader-bg)"
                         secondaryColor=""
-                        ariaLabel="oval-loading"
+                        ariaLabel="Loading"
                     />
                 </motion.div>
                 : null}

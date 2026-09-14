@@ -27,6 +27,5 @@
     padding: 4px 9px;
     text-align: center;
     border-radius: var(--token-radius);
-    outline: none;
     cursor: pointer;
 }

@@ -8,6 +8,7 @@ import activate from "../../api/activate"
 import { useAnalytics } from "../../hooks/useAnalytics"
 import { useWalletAddress } from "../../hooks/useWalletAddress"
 import { useActivationPayload } from "../../hooks/useActivationPayload"
+import { useEscape } from "../../hooks/useEscape"
 import { OB_ACTIVATE_QUIET_TIME } from "../../config"
 import Optout from "./Optout/Optout"
 import { getInitials } from "../../utils/getInitials"
@@ -65,6 +66,9 @@ const Framed = () => {
             sendMessage({ action: ACTIONS.CLOSE, domain: ['google.com'], time: parseTime(THIRTY_MIN_MS, version), type: ['kdsi'], isRegex: [false] })
         }
     }
+
+    // Escape does what the X button does.
+    useEscape(close)
 
     const handleActivate = useCallback(async () => {
         setStatus('activating')
@@ -129,7 +133,12 @@ const Framed = () => {
     return (
         <div className={`${styles.frameContainer} framed-transparent`}>
             {/* Top bar — fixed 71px strip at top of viewport */}
-            <div id="tb-container" className={styles.tbBar}>
+            <div
+                id="tb-container"
+                className={styles.tbBar}
+                role="region"
+                aria-label={showOptout ? "Turn off cashback offers" : "Cashback offer"}
+            >
                 {showOptout ? (
                     <Optout
                         closeFn={() => setShowOptout(false)}
@@ -178,7 +187,10 @@ const Framed = () => {
                             </div>
 
                             {/* Cashback offer text — centered, truncated */}
-                            <div id="tb-offer-text" className={styles.tbOfferText}>
+                            {/* The offer text is the bar's heading. Kept as a div with
+                                role=heading so the existing class - and the appearance -
+                                stay exactly as they are. */}
+                            <div id="tb-offer-text" className={styles.tbOfferText} role="heading" aria-level={1}>
                                 <span>
                                     {parseOfferText(offerTextTb)}
                                 </span>

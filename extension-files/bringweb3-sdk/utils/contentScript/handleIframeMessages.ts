@@ -21,10 +21,28 @@ const ACTIONS = {
     ADD_KEYFRAMES: 'ADD_KEYFRAMES',
     ERASE_NOTIFICATION: 'ERASE_NOTIFICATION',
     OPEN_CASHBACK_PAGE: 'OPEN_CASHBACK_PAGE',
-    STOP_REMINDERS: 'STOP_REMINDERS'
+    STOP_REMINDERS: 'STOP_REMINDERS',
+    // Host page -> iframe only.
+    FOCUS_SURFACE: 'FOCUS_SURFACE'
 }
 
 const UNION_ACTIONS = [ACTIONS.ACTIVATE]
+
+// The surface is injected automatically, never opened by the user, so it may take focus
+// only when the host page's caret isn't in an editable field - never yank a user out of a
+// merchant checkout form. Only the host page can see this; the iframe is cross-origin.
+const canTakeFocus = () => {
+    const el = document.activeElement as HTMLElement | null
+    if (!el) return true
+    if (el.isContentEditable) return false
+    return !['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)
+}
+
+// One focus hand-off per injected surface: OPEN is re-sent on every resize (the widget
+// sends it on each expand/collapse), and re-focusing would yank focus off whatever the
+// user had just tabbed to. Keyed on the element, so a re-injected surface (SPA navigation,
+// self-heal, bfcache restore) is a new iframe and gets its own hand-off.
+let focusedIframe: IFrame = null
 
 // Handled entirely in the content script — these never reach the background,
 const LOCAL_ACTIONS = [ACTIONS.OPEN, ACTIONS.ADD_KEYFRAMES, ACTIONS.PROMPT_LOGIN]
@@ -55,6 +73,14 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin, onClose }: Props) 
             }
             if (style && 'iframe' in style) {
                 applyStyles(iframeEl, style.iframe);
+            }
+            // Hand focus to the surface so Escape and Tab reach it without the user having
+            // to find it first. The iframe can't read the host page's activeElement, so the
+            // safety call is made here and the iframe only acts on our go-ahead.
+            if (focusedIframe !== iframeEl && canTakeFocus()) {
+                focusedIframe = iframeEl
+                iframeEl?.contentWindow?.postMessage({ from: 'bringweb3', action: ACTIONS.FOCUS_SURFACE }, '*')
+                logger.debug(`[popup-msg] FOCUS_SURFACE offered to the iframe`)
             }
             break;
         case ACTIONS.CLOSE:

@@ -36,6 +36,8 @@ interface Followup {
 }
 
 interface BringEvent {
+    // Set by the browser on a MessageEvent - the only field a page script can't forge.
+    origin: string
     data: {
         from: string
         action: string

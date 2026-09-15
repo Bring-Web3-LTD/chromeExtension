@@ -6,6 +6,7 @@ import getCashbackUrl from "./getCashbackUrl"
 import { openExtensionCashbackPage } from "./openExtensionCashbackPage"
 import { getOptOut, setOptOut } from "./optOut"
 import { armFollowups } from "./followups"
+import { updateCache } from "./updateCache"
 import { logger } from "../logger"
 import { DAY_MS } from "../constants"
 import { formatUntil } from "./timestampRange"
@@ -72,6 +73,27 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 }
                 logger.info(`[optout] User opted out of ${domain} for ${describeWindow(time, key)}`)
                 addQuietDomain(domain, time, type, isRegex).then(res => sendResponse(res))
+                return true;
+            }
+            case 'GET_ORIGIN_ALLOWLIST': {
+                // Bootstrap only: the content script asks when the key was never written.
+                // updateCache() at init is gated on popupEnabled and the other callers are
+                // circular (isWhitelisted needs an activation the portal must produce first),
+                // so with popups disabled the list would stay empty forever and a self-hosted
+                // portal would never activate. Fetch once here rather than dropping that gate.
+                (async () => {
+                    let list = await storage.get('originAllowlist')
+                    if (!Array.isArray(list)) {
+                        await updateCache()
+                        list = await storage.get('originAllowlist')
+                    }
+                    const originAllowlist = Array.isArray(list) ? list : []
+                    logger.debug(`[bg-msg] GET_ORIGIN_ALLOWLIST — resolved`, { count: originAllowlist.length })
+                    sendResponse({ originAllowlist })
+                })().catch(error => {
+                    logger.error('failed to resolve origin allowlist', { error })
+                    sendResponse({ originAllowlist: [] })
+                })
                 return true;
             }
             case 'GET_POPUP_ENABLED': {

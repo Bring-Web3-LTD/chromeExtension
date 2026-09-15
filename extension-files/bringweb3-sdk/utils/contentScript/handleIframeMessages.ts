@@ -2,12 +2,15 @@ import applyStyles from "./applyStyles"
 import addKeyframes from "./addKeyFrames"
 import { OFFERBAR_CONTAINER_ID } from "../constants"
 import { contentScriptCleanup } from "./cleanupManager"
+import { getInjectedIframeOrigin } from "./injectIFrame"
+import { isAllowedOrigin } from "../originAllowlist"
 import { logger } from "../logger"
 
 interface Props {
     event: BringEvent
     iframeEl: IFrame
     promptLogin: () => Promise<void>
+    originAllowlist: string[]
     onClose?: () => void
 }
 
@@ -29,11 +32,22 @@ const UNION_ACTIONS = [ACTIONS.ACTIVATE]
 // Handled entirely in the content script — these never reach the background,
 const LOCAL_ACTIONS = [ACTIONS.OPEN, ACTIONS.ADD_KEYFRAMES, ACTIONS.PROMPT_LOGIN]
 
-const handleIframeMessages = ({ event, iframeEl, promptLogin, onClose }: Props) => {
+const handleIframeMessages = ({ event, iframeEl, promptLogin, originAllowlist, onClose }: Props) => {
     if (!event?.data) return
 
     const { from, action, style, keyFrames, time, key, extensionId, url, domain, redirectUrl, iframeUrl, token, flowId, platformName, searchTermPattern, type, quietDomainType, isRegex, followups } = event.data
     if (from !== 'bringweb3') return
+
+    // Without this any script on the page could post an ACTIVATE and drive a redirect -
+    // `from` and `extensionId` are attacker-controlled, and ACTIVATE skips the extensionId
+    // check below (UNION_ACTIONS). event.origin is set by the browser.
+    // A popup injected by another extension (UNION_ACTIONS) only gets through if
+    // its domain is in the server allowlist - we have no injected origin of our own to
+    // compare it against.
+    if (event.origin !== getInjectedIframeOrigin() && !isAllowedOrigin(event.origin, originAllowlist)) {
+        logger.warn(`[popup-msg] Ignored — message from an unrecognized origin`, { origin: event.origin, action })
+        return
+    }
 
     // If the event comes from another extension that installed our package, ignore it (unless it ACTIVATE action)
     if (extensionId !== chrome.runtime.id && !UNION_ACTIONS.includes(action)) {

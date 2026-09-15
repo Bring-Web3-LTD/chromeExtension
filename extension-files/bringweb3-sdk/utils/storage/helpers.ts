@@ -1,4 +1,5 @@
 import { logger } from "../logger";
+import { ApiEndpoint } from "../apiEndpoint";
 
 interface Helpers {
     [key: string]: {
@@ -53,7 +54,19 @@ const buildFollowupRegexes = (records: any) => {
     })
 }
 
+// `await bringCache.set('envName', 'dev')` in the extension console has to switch the
+// environment without a reload, so the request builder reads it off the singleton rather
+// than from storage on every call. Runs on read too, which covers a restarted worker.
+const syncEnvName = (envName: any) => {
+    ApiEndpoint.getInstance().setEnvName(typeof envName === 'string' ? envName : '')
+    return envName
+}
+
 const helpers: Helpers = {
+    envName: {
+        get: syncEnvName,
+        set: syncEnvName
+    },
     relevantDomains: {
         get: buildRegExpArray,
         set: buildRegExpArray

@@ -91,8 +91,20 @@ bringInitBackground({
     // ── OPTIONAL ─────────────────────────
     // relative path to your Cashback Dashboard inside the extension
     cashbackPagePath: '/wallet/cashback',
+    /* Route every Bring API call through your own backend instead of api.bringweb3.io.
+       This is the full endpoint — Bring's host and paths are not appended, so every
+       request goes to exactly this URL and your backend decides where it goes next.
+       Use https: the requests carry your identifier and the user's wallet address.
+       A value that isn't a valid URL throws at init. Omit it to use Bring's API directly. */
+    baseUrl: 'https://api.partner.com/bring',
 })
 ```
+
+### Self-hosted portal
+If you host the Bring portal on your own domain, that domain has to be allowed to talk to
+the SDK. The allowlist is served by Bring in the `/domains` response — send us the base
+domain (e.g. `partner.com`, which covers `rewards.partner.com`) and we'll add it. Only
+https origins match. Nothing to set in the extension.
 
 ### contentScript.js
 ```js 

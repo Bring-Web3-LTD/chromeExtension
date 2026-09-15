@@ -38,19 +38,14 @@ export class ApiEndpoint {
 
   /**
    * Stores the partner endpoint as given - it's the full URL we request, so a trailing
-   * slash is theirs to keep. Throws on anything that isn't an https URL (http is allowed
-   * for local development only).
+   * slash is theirs to keep. Throws if it isn't a parseable URL; the scheme is the
+   * partner's call.
    */
   public setBaseUrl(baseUrl: string): void {
-    let url: URL;
     try {
-      url = new URL(baseUrl);
+      new URL(baseUrl);
     } catch {
       throw new Error('invalid baseUrl');
-    }
-    const isLocal = ['localhost', '127.0.0.1'].includes(url.hostname);
-    if (url.protocol !== 'https:' && !(url.protocol === 'http:' && isLocal)) {
-      throw new Error('baseUrl must use https');
     }
     this.baseUrl = baseUrl;
   }

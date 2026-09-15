@@ -94,8 +94,8 @@ bringInitBackground({
     /* Route every Bring API call through your own backend instead of api.bringweb3.io.
        This is the full endpoint — Bring's host and paths are not appended, so every
        request goes to exactly this URL and your backend decides where it goes next.
-       https only (http is accepted for localhost during development).
-       An invalid value throws at init. Omit it to use Bring's API directly. */
+       Use https: the requests carry your identifier and the user's wallet address.
+       A value that isn't a valid URL throws at init. Omit it to use Bring's API directly. */
     baseUrl: 'https://api.partner.com/bring',
 })
 ```

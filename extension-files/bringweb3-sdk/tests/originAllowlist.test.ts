@@ -23,11 +23,23 @@ describe('isAllowedOrigin', () => {
         expect(isAllowedOrigin('https://partner.com', ['www.partner.com'])).toBe(true)
     })
 
-    it('rejects lookalikes and non-https origins', () => {
+    it('rejects lookalikes and unrelated hosts', () => {
         expect(isAllowedOrigin('https://evil-partner.com', [PARTNER])).toBe(false)
         expect(isAllowedOrigin('https://rewards.partner.com.evil.com', [PARTNER])).toBe(false)
-        expect(isAllowedOrigin('http://partner.com', [PARTNER])).toBe(false)
         expect(isAllowedOrigin('not-an-origin', [PARTNER])).toBe(false)
+    })
+
+    it('matches on the host alone, whatever the scheme', () => {
+        expect(isAllowedOrigin('http://partner.com', [PARTNER])).toBe(true)
+    })
+
+    // normalizeUrl returns `host`, so a port is part of the match. A bare 'localhost:5173'
+    // entry parses as scheme + path and normalizes to '', so a dev portal has to be
+    // allowlisted with its scheme.
+    it('treats a port as part of the host', () => {
+        expect(isAllowedOrigin('http://localhost:5173', ['http://localhost:5173'])).toBe(true)
+        expect(isAllowedOrigin('http://localhost:5173', ['localhost'])).toBe(false)
+        expect(isAllowedOrigin('http://localhost:5173', ['localhost:5173'])).toBe(false)
     })
 
     it('allows nothing when the list is empty - bringweb3.io included', () => {

@@ -38,9 +38,9 @@ describe('setBaseUrl', () => {
         expect(setBaseUrl('https://api.partner.com/bring/')).toBe('https://api.partner.com/bring/')
     })
 
-    it('allows http on localhost only', () => {
+    it('accepts any scheme the partner configures', () => {
         expect(setBaseUrl('http://localhost:3000/bring')).toBe('http://localhost:3000/bring')
-        expect(() => setBaseUrl('http://api.partner.com/bring')).toThrow()
+        expect(setBaseUrl('http://api.partner.com/bring')).toBe('http://api.partner.com/bring')
     })
 
     it('throws on a value that is not a URL', () => {

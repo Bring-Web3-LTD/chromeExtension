@@ -26,7 +26,7 @@ interface Configuration {
  * @param {Object} configuration - The configuration object.
  * @param {string} configuration.identifier - The identifier for the extension.
  * @param {string} configuration.apiEndpoint - The API endpoint ('prod' or 'sandbox').
- * @param {string} [configuration.baseUrl] - Optional full API endpoint every request is sent to, e.g. 'https://api.partner.com/bring'. Bring's own host and paths are skipped entirely. https only (http allowed for localhost).
+ * @param {string} [configuration.baseUrl] - Optional full API endpoint every request is sent to, e.g. 'https://api.partner.com/bring'. Bring's own host and paths are skipped entirely. Throws at init if it isn't a valid URL.
  * @param {string} configuration.whitelistEndpoint - Endpoint for whitelist of redirect urls.
  * @param {string} [configuration.cashbackPagePath] - Optional path to the cashback page.
  * @param {boolean} [configuration.isEnabledByDefault] - Determine if the user see the popup by default. defaults to true.
@@ -70,7 +70,7 @@ const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackP
     apiEndpointInstance.setApiEndpoint(ENDPOINT || apiEndpoint as EndpointName)
     apiEndpointInstance.setWhitelistEndpoint(whitelistEndpoint || '')
     apiEndpointInstance.setApiKey(identifier)
-    // Throws on a malformed or non-https value, like the apiEndpoint check above.
+    // Throws on a malformed value, like the apiEndpoint check above.
     if (baseUrl) apiEndpointInstance.setBaseUrl(baseUrl)
 
     // Initialize debug cache after API endpoint is set

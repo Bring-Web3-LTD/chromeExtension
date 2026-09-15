@@ -5,15 +5,11 @@ import { normalizeUrl } from "./normalizeUrl"
 const hostOf = (value: string) => normalizeUrl(value, { hostOnly: true, reverseHost: false })
 
 /**
- * An https origin whose host is an allowlisted domain or a subdomain of one.
+ * An origin whose host is an allowlisted domain or a subdomain of one.
  * The dot anchor is what makes the suffix safe: a bare endsWith('partner.com') would
  * also match evil-partner.com.
  */
 export const isAllowedOrigin = (origin: string, allowlist: string[]): boolean => {
-    // normalizeUrl retries a bare string as https://, so it can't tell us the scheme -
-    // checked here so an http portal never matches.
-    if (!/^https:\/\//i.test(origin)) return false
-
     const host = hostOf(origin)
     if (!host) return false
 

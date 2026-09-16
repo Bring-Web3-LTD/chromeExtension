@@ -31,6 +31,7 @@ export const uint8ArrayToStr = (blob: Uint8Array): string => {
 }
 
 const buildRegExpArray = (obj: { regexes: string[], flags: string[] }) => {
+    if (!obj?.regexes) return null
     try {
         return obj.regexes.map((pattern, i) => new RegExp(pattern, obj.flags[i] || ''))
     } catch (error) {

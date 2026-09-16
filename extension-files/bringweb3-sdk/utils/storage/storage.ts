@@ -62,6 +62,10 @@ const get = async (key: string, useCache: boolean = true) => {
 const remove = async (key: string) => {
     cache.delete(key);
 
+    // A key's helper can hold state outside storage, so a removal has to reach it too - otherwise the deleted value keeps
+    // being used until the worker restarts.
+    helpers[key]?.set(undefined);
+
     return new Promise<void>((resolve, reject) => {
         chrome.storage.local.remove([`${STORAGE_PREFIX}${key}`], () => {
             if (chrome.runtime.lastError) {

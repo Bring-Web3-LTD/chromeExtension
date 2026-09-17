@@ -91,7 +91,10 @@ const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackP
 
     handleContentMessages(cashbackPagePath, showNotifications)
 
-    if (popupEnabled) await updateCache()
+    // A failed fetch must not take the navigation listeners below down with it: without them
+    // the popup never runs again for this worker's lifetime. The cache retries on the next
+    // navigation anyway.
+    if (popupEnabled) await updateCache().catch(error => logger.error('initial cache update failed', { error }))
 
     handleTabEvents(cashbackPagePath, showNotifications, notificationCallback)
 }

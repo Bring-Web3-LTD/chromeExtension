@@ -49,7 +49,7 @@ export const updateCache = async () => {
     return pending = (async () => {
         try {
             const res = await fetchDomains(trigger, 30000);
-            const { nextUpdateTimestamp, relevantDomains, flags, types, quietDomainsMaxLength, standDownOffset } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
+            const { nextUpdateTimestamp, relevantDomains, flags, types, quietDomainsMaxLength, standDownOffset, originAllowlist } = res // nextUpdateTimestamp is the delta in milliseconds until the next update
 
             whitelist = await fetchWhitelist(30000)
 
@@ -58,6 +58,12 @@ export const updateCache = async () => {
                 storage.set('relevantDomainsCheck', [now, now + nextUpdateTimestamp]),
                 storage.set('domainsTypes', types)
             ]
+
+            // Origins allowed to relay PORTAL_ACTIVATE / postMessage to us. Always written,
+            // so the content script can tell "fetched, nothing allowed" from "never fetched"
+            // and only messages the background in the second case.
+            // Revocation waits for the next /domains fetch - an allowlist, not a kill switch.
+            storageUpdates.push(storage.set('originAllowlist', Array.isArray(originAllowlist) ? originAllowlist : []))
 
             if (quietDomainsMaxLength) {
                 storageUpdates.push(storage.set('quietDomainsMaxLength', quietDomainsMaxLength))

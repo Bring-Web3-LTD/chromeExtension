@@ -117,6 +117,41 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
     }, [activationPayload, cryptoSymbols, domain, verifiedMatch, flowId, isDemo, isTester, name, platformName, retailerId, sendAnalyticsEvent, url, userId, version, walletAddress])
 
 
+    // The popup is a dialog, but this component returns a fragment - there is no single
+    // element to mark. #root already wraps the whole iframe, so use it rather than adding a
+    // wrapper, which would put a new box in the layout the popup sizes against.
+    // Deliberately no aria-modal: the merchant page behind us stays reachable.
+    useEffect(() => {
+        const root = document.getElementById('root')
+        if (!root) return
+
+        root.setAttribute('role', 'dialog')
+
+        return () => {
+            root.removeAttribute('role')
+            root.removeAttribute('aria-label')
+            root.removeAttribute('aria-labelledby')
+        }
+    }, [])
+
+    // The dialog's name follows the panel on screen. Only the main view has a heading to
+    // point at - it is unmounted while a sub-panel is open, which would leave
+    // aria-labelledby dangling and the dialog nameless - so those name themselves.
+    useEffect(() => {
+        const root = document.getElementById('root')
+        if (!root) return
+
+        const label = showTerms ? 'Deal terms' : optOutOpen ? 'Turn off cashback offers' : null
+
+        if (label) {
+            root.setAttribute('aria-label', label)
+            root.removeAttribute('aria-labelledby')
+        } else {
+            root.setAttribute('aria-labelledby', 'offer-details-text')
+            root.removeAttribute('aria-label')
+        }
+    }, [showTerms, optOutOpen])
+
     useEffect(() => {
         if (status === 'done') return
 
@@ -163,7 +198,11 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                             <div id="offer-top-container" className={styles.top_container}>
                                 {walletAddress ?
                                     <div id="wallet-display-container" className={styles.wallet_container}>
-                                        <span id="wallet-address" className={styles.wallet} >{splitWordMaxFive(walletAddress)}</span>
+                                        {/* On screen the address is truncated; the full value only
+                                            exists for screen readers, which would otherwise read
+                                            out the shortened string as if it were the address. */}
+                                        <span id="wallet-address" className={styles.wallet} aria-hidden="true">{splitWordMaxFive(walletAddress)}</span>
+                                        <span className="sr-only">Wallet address {walletAddress}</span>
                                     </div>
                                     :
                                     <button
@@ -190,7 +229,10 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                             </div>
                             <div id="offer-details" className={styles.details}>
                                 <CollaborationLogos />
-                                <div id="offer-details-text" className={styles.details_txt} >
+                                {/* The offer text is the popup's heading. Kept as a div with
+                                    role=heading so the existing class - and the appearance -
+                                    stay exactly as they are. */}
+                                <div id="offer-details-text" className={styles.details_txt} role="heading" aria-level={1}>
                                     {parseOfferText(offerText)}
                                 </div>
                             </div>
@@ -200,20 +242,25 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                                     onClick={activateAction}
                                     className={styles.btn}
                                     disabled={status !== 'idle'}
+                                    aria-label={toCaseString("Activate", textMode)}
+                                    aria-busy={status !== 'idle'}
                                 >
                                     {status === 'idle' ?
                                         toCaseString("Activate", textMode)
                                         :
-                                        <Oval
-                                            visible={true}
-                                            height="20"
-                                            width="20"
-                                            strokeWidth="4"
-                                            strokeWidthSecondary="4"
-                                            color="var(--primary-btn-processing-f-c, var(--primary-btn-f-c))"
-                                            secondaryColor=""
-                                            ariaLabel="oval-loading"
-                                        />
+                                        // The spinner renders its own role=progressbar with a
+                                        // label, which would otherwise become the button's name.
+                                        <span aria-hidden="true">
+                                            <Oval
+                                                visible={true}
+                                                height="20"
+                                                width="20"
+                                                strokeWidth="4"
+                                                strokeWidthSecondary="4"
+                                                color="var(--primary-btn-processing-f-c, var(--primary-btn-f-c))"
+                                                secondaryColor=""
+                                            />
+                                        </span>
                                     }
                                 </button>
 
@@ -254,10 +301,10 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
 
                             </div>
                             <div id="offer-agree-text" className={styles.agree}>
-                                By activating you agree to <span id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Deal Terms</span>
+                                By activating you agree to <button type="button" id="offer-terms-link" className={styles.terms} onClick={() => setShowTerms(true)}>Deal Terms</button>
                                 {/* bringTou comes from the server for every platform; older backends omit it, so don't render a link with no URL */}
                                 {bringTou ?
-                                    <><span className={styles.terms_comma}>, </span><span id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</span></>
+                                    <><span className={styles.terms_comma}>, </span><button type="button" id="offer-tou-link" className={styles.terms} onClick={() => sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: bringTou })}>Terms of Use</button></>
                                     : null
                                 }
                             </div>

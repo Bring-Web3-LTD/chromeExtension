@@ -181,7 +181,13 @@
     user-select: none;
 }
 
+/* <button> (keyboard reachable) */
 .terms {
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    font: inherit;
     color: var(--agree-link-f-c);
     font-size: var(--agree-link-f-s, inherit);
     font-weight: var(--agree-link-f-w, 500);

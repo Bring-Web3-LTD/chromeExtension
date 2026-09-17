@@ -1,5 +1,17 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.9.0
+
+### Minor Changes
+
+- a1615db: Add `baseUrl` config, gate the portal relay on the server's `originAllowlist`, and validate `event.origin` on iframe messages.
+
+### Patch Changes
+
+- 9050eb9: Only inject the popup from the top frame - same-origin subframes showed a duplicate
+- 68c0759: Stop the notification request storm: WALLET_ADDRESS_UPDATE only triggers a notification check when the address actually changed, and an error response now backs off for an hour instead of retrying on every navigation
+- e3f0c06: Drop the uuid dependency: ids now come from crypto.randomUUID() and are validated with a local regex
+
 ## 1.8.0
 
 ### Minor Changes

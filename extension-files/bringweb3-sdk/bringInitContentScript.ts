@@ -12,6 +12,11 @@ let iframeEl: IFrame = null
 let iframePath: `/${string}` | undefined = undefined
 let flowId: string | null = null
 
+// all_frames is on, so we run in every frame of the page. A function rather than a const:
+// this module is bundled with the background entry, where `window` doesn't exist, so the
+// check has to stay inside a call that only the content script makes.
+const isSubframe = () => window.self !== window.top
+
 // The host page can delete our nodes behind our back, so a flag desyncs;
 // presence in the DOM is the only reliable signal.
 const isIframeOpen = () => !!document.getElementById(`${IFRAME_ID_PREFIX}-${chrome.runtime.id}`)
@@ -75,7 +80,7 @@ const loadOriginAllowlist = async (): Promise<string[]> => {
     try {
         const stored = await storage.get('originAllowlist')
         if (Array.isArray(stored)) return stored
-        if (window.self === window.top) return []
+        if (!isSubframe()) return []
         const res = await chrome.runtime.sendMessage({ from: 'bringweb3', action: 'GET_ORIGIN_ALLOWLIST' })
         return Array.isArray(res?.originAllowlist) ? res.originAllowlist : []
     } catch (error) {
@@ -143,11 +148,20 @@ const bringInitContentScript = async ({
     text,
     switchWallet = false
 }: Configuration) => {
-    // A PORTAL_ACTIVATE arriving while this resolves is dropped - the portal only
-    // posts on a click and there's no buffering.
-    const originAllowlist = await loadOriginAllowlist()
+    // Loaded in the background, never awaited in the top frame: the INJECT listener below
+    // must be registered before the background can send a popup, and a storage read (or a
+    // worker round-trip) ahead of it delays or loses that message. The message handlers read
+    // this variable when an event fires, by which point it's filled in.
+    let originAllowlist: string[] = []
+    const allowlistLoaded = loadOriginAllowlist().then(list => { originAllowlist = list })
 
-    if (window.self !== window.top && isAllowedOrigin(window.document.location.origin, originAllowlist)) {
+    if (isSubframe()) {
+        // Subframes inject no popup, so waiting here costs nothing. A PORTAL_ACTIVATE arriving
+        // while it resolves is dropped - the portal only posts on a click, and there's no buffering.
+        await allowlistLoaded
+    }
+
+    if (isSubframe() && isAllowedOrigin(window.document.location.origin, originAllowlist)) {
         logger.debug(`[popup-msg] Portal iframe detected - listening for PORTAL_ACTIVATE`, { origin: window.document.location.origin });
 
         window.addEventListener('message', (e) => {
@@ -205,7 +219,7 @@ const bringInitContentScript = async ({
                 return true
             case 'GET_PAGE_LINKS':
                 // Only respond from the main frame, not from iframes
-                if (window !== window.top) return false;
+                if (isSubframe()) return false;
                 try {
                     const links = Array.from(document.querySelectorAll('a[href]'))
                         .map(a => (a as HTMLAnchorElement).href)
@@ -232,7 +246,7 @@ const bringInitContentScript = async ({
                 // all_frames is on, so subframes get this too. Don't inject (or answer)
                 // from them: a same-origin subframe would show a second popup and a
                 // third-party one (e.g. hCaptcha) would answer "domain mismatch" first.
-                if (window !== window.top) return false;
+                if (isSubframe()) return false;
                 try {
                     logger.info(`[content] INJECT event received`);
                     logger.debug(`[content] INJECT payload`, { domain: request.domain, page: request.page, isSpaNavigation: request.isSpaNavigation, flowId: request.flowId });

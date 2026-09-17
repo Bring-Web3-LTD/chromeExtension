@@ -103,8 +103,10 @@ bringInitBackground({
 ### Self-hosted portal
 If you host the Bring portal on your own domain, that domain has to be allowed to talk to
 the SDK. The allowlist is served by Bring in the `/domains` response — send us the base
-domain (e.g. `partner.com`, which covers `rewards.partner.com`) and we'll add it. Only
-https origins match. Nothing to set in the extension.
+domain (e.g. `partner.com`, which covers `rewards.partner.com`) and we'll add it. Matching
+is on the host, so the scheme and the path don't matter, but a port does: a portal on a
+non-default port has to be listed with it (e.g. `http://localhost:5173`). Nothing to set in
+the extension.
 
 ### contentScript.js
 ```js 

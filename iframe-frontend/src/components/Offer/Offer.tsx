@@ -171,6 +171,10 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
     return (
         <>
             <CloseBtn withTime={!isOpted && !showTerms} overrideClose={onCollapse} />
+            {/* Outside AnimatePresence: a live region that mounts with its message is missed. */}
+            <div className="sr-only" role="status">
+                {isOpted ? 'Cashback offers turned off' : optOutOpen ? 'Turn off cashback offers' : showTerms ? 'Deal terms' : ''}
+            </div>
             <AnimatePresence>
                 {
                     showTerms ?

@@ -139,6 +139,10 @@ const Framed = () => {
                 role="region"
                 aria-label={showOptout ? "Turn off cashback offers" : "Cashback offer"}
             >
+                {/* Outside the branch: a live region that mounts with its message is missed. */}
+                <div className="sr-only" role="status">
+                    {isOptedOut ? 'Cashback offers turned off' : showOptout ? 'Turn off cashback offers' : ''}
+                </div>
                 {showOptout ? (
                     <Optout
                         closeFn={() => setShowOptout(false)}

@@ -6,6 +6,7 @@ import { useAnalytics } from "../hooks/useAnalytics"
 import WalletAddressProvider from "../context/walletAddressContext"
 import Beamer from "../components/Beamer/Beamer"
 import { sendMessage, ACTIONS } from "../utils/sendMessage"
+import { focusSurface } from "../hooks/useFocusPanel"
 
 const AutoCloseTimer = ({ timeout }: { timeout?: number }) => {
     const { sendAnalyticsEvent } = useAnalytics()
@@ -34,8 +35,7 @@ const FocusOnOffer = () => {
     useEffect(() => {
         const onMessage = (e: MessageEvent) => {
             if (e.data?.from !== 'bringweb3' || e.data?.action !== 'FOCUS_SURFACE') return
-            document.body.tabIndex = -1
-            document.body.focus()
+            focusSurface()
             if (document.activeElement !== document.body) {
                 document.querySelector<HTMLElement>('button')?.focus()
             }

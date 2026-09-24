@@ -1,6 +1,15 @@
 import { useEffect } from "react"
 
 /**
+ * Puts focus in the surface without selecting a control: nothing takes a focus ring, but Tab
+ * continues inside the iframe instead of leaving for the merchant page.
+ */
+export const focusSurface = () => {
+    document.body.tabIndex = -1
+    document.body.focus()
+}
+
+/**
  * Keeps keyboard focus inside the surface when a panel opens or swaps its contents,
  * then hands it back to the trigger on close.
  *
@@ -11,10 +20,7 @@ import { useEffect } from "react"
  * `key` re-runs the focus when a panel swaps its contents in place (Apply -> confirmation).
  */
 export const useFocusPanel = (returnFocusId: string, key?: unknown) => {
-    useEffect(() => {
-        document.body.tabIndex = -1
-        document.body.focus()
-    }, [key])
+    useEffect(focusSurface, [key])
 
     useEffect(() => {
         return () => {

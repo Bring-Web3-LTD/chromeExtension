@@ -140,7 +140,9 @@ const Offerbar = () => {
           without a live region. */}
       <div className="sr-only" role="status">{announcement}</div>
       <button id="offerbar-close-btn-top" className={styles.closeButton} onClick={close}><Icon name="ob-close-btn.svg" alt="Close" /></button>
-      {showOptout ? <Optout closeFn={() => setShowOptout(false)} onOptOut={() => setIsOptedOut(true)} />
+      {/* Clearing on Back matters: a live region only speaks when its text changes, so
+          re-opening would be silent if the previous message were still sitting there. */}
+      {showOptout ? <Optout closeFn={() => { setShowOptout(false); setAnnouncement('') }} onOptOut={() => setIsOptedOut(true)} />
         :
         <>
           <div id="offerbar-spacer" className={styles.spacer}></div>

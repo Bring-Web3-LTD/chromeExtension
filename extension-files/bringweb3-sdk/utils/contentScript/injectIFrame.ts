@@ -32,6 +32,14 @@ let injectedOrigin: string | null = null;
 
 export const getInjectedIframeOrigin = (): string | null => injectedOrigin;
 
+// Accessible name of the injected frame, keyed by the `page` the background asked for.
+// The AB popup ('') and both bars keep the default; only these two are not offers.
+const DEFAULT_FRAME_TITLE = 'Cashback offer';
+const FRAME_TITLES: Record<string, string> = {
+    notification: 'Cashback reward',
+    activated: 'Cashback activated',
+};
+
 const injectIFrame = ({ query, styleUrl, themeMode, text, iframeUrl, page, switchWallet, placement, stylesheet, framed }: Props): HTMLIFrameElement => {
     const extensionId = chrome.runtime.id;
     const iframeId = `${IFRAME_ID_PREFIX}-${extensionId}`;
@@ -52,8 +60,9 @@ const injectIFrame = ({ query, styleUrl, themeMode, text, iframeUrl, page, switc
     const sandbox = "allow-scripts allow-same-origin"
     iframe.setAttribute('sandbox', sandbox)
     // Without a title the frame is announced as an unlabelled frame, so assistive tech gives
-    // no hint that the popup/bar exists.
-    iframe.title = "Cashback offer"
+    // no hint that it exists. Named per surface: the notification and the post-activation
+    // screen are not offers.
+    iframe.title = FRAME_TITLES[page || ''] ?? DEFAULT_FRAME_TITLE
     iframe.style.position = "fixed";
     iframe.style.right = "8px";
     iframe.scrolling = "no";

@@ -168,6 +168,25 @@ VITE_API_KEY: TfWwmWc13...
 BUILD_ENV: (none)
 ```
 
+## Runtime Env Override (iframe)
+
+A built iframe (prod included) can be pointed at another env without rebuilding, the same way the extension does with `envName`. The value is the env name you'd pass to `build.sh` (e.g. `automation`); API calls go to `https://api.bringweb3.io/<envName>/v1/extension`.
+
+1. Open DevTools on a page showing the iframe, and in the Console context dropdown pick the iframe (not `top`).
+2. Set it and reload the page:
+   ```js
+   localStorage.setItem('envName', 'automation')
+   ```
+3. Clear it and reload to go back to the build-time env:
+   ```js
+   localStorage.removeItem('envName')
+   ```
+
+Notes:
+- The key lives in the iframe's own storage, which Chrome partitions per top-level site: set it on each merchant site you test on.
+- Only plain segments (`A-Z a-z 0-9 _ -`, up to 64 chars) are used; anything else is ignored and the build-time env applies.
+- The override changes the API URL only. The API key is still the one baked into the build.
+
 ## Warnings
 
 If required variables are missing, you'll see warnings:

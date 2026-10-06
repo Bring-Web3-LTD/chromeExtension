@@ -1,5 +1,11 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.9.1
+
+### Patch Changes
+
+- 930aa62: Accessibility (WCAG 2.1 AA): name the injected iframe per surface and hand keyboard focus to it on open
+
 ## 1.9.0
 
 ### Minor Changes

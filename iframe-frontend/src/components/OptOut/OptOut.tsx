@@ -6,6 +6,7 @@ import { useRouteLoaderData } from 'react-router-dom';
 import toCapital from '../../utils/toCapital';
 import toCaseString from '../../utils/toCaseString';
 import isLegacyCapSdk from '../../utils/isLegacyCapSdk';
+import { useFocusPanel } from '../../hooks/useFocusPanel';
 
 interface Option {
     label: string
@@ -82,8 +83,11 @@ interface Props {
 const OptOut = ({ onClose, onOpted }: Props) => {
     const { cryptoSymbols, platformName, displayPlatformName, textMode, domain, verifiedMatch, name, version } = useRouteLoaderData('root') as LoaderData
     const { sendAnalyticsEvent } = useAnalytics()
-    const [isOpted, setIsOpted] = useState(false)  
-    
+    const [isOpted, setIsOpted] = useState(false)
+
+    // Applying swaps the buttons out for the confirmation, so re-focus on that change too.
+    useFocusPanel('opt-out-btn', isOpted)
+
     const [selection, setSelection] = useState<Selection>({
         websites: websiteOptions[0],
         duration: durationOptions[0]

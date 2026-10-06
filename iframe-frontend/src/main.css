@@ -3,6 +3,26 @@ body {
     background: var(--popup-bg);
 }
 
+/* Panels are focused programmatically when they open, so a screen reader starts reading at
+   the top of the new view. They are not controls and are not in the tab order, so they take
+   no focus ring - unlike the buttons inside them. */
+[tabindex="-1"]:focus {
+    outline: none;
+}
+
+/* In the accessibility tree, never painted. Not display:none, which would hide it
+   from screen readers too. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
 /* Framed pages (TB) override: the iframe covers the full viewport with a CSS mask,
    so the body must be transparent for the host page to show through. */
 body:has(.framed-transparent) {

@@ -6,6 +6,7 @@ import { useAnalytics } from "../hooks/useAnalytics"
 import WalletAddressProvider from "../context/walletAddressContext"
 import Beamer from "../components/Beamer/Beamer"
 import { sendMessage, ACTIONS } from "../utils/sendMessage"
+import { focusSurface } from "../hooks/useFocusPanel"
 
 const AutoCloseTimer = ({ timeout }: { timeout?: number }) => {
     const { sendAnalyticsEvent } = useAnalytics()
@@ -22,6 +23,26 @@ const AutoCloseTimer = ({ timeout }: { timeout?: number }) => {
         }, timeout)
         return () => clearTimeout(timer)
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    return null
+}
+
+// Takes focus when the host page says it's safe (it checks its own caret - we can't, being
+// cross-origin). Focusing the body routes Escape and Tab into this document; falling back to
+// the first control if a browser refuses to focus the body.
+const FocusOnOffer = () => {
+    useEffect(() => {
+        const onMessage = (e: MessageEvent) => {
+            if (e.data?.from !== 'bringweb3' || e.data?.action !== 'FOCUS_SURFACE') return
+            focusSurface()
+            if (document.activeElement !== document.body) {
+                document.querySelector<HTMLElement>('button')?.focus()
+            }
+        }
+
+        window.addEventListener('message', onMessage)
+        return () => window.removeEventListener('message', onMessage)
     }, [])
 
     return null
@@ -58,6 +79,7 @@ const Layout = () => {
                     pageViewIsWidget={pageViewIsWidget}
                 >
                     <Beamer enabled={data.beamer} />
+                    <FocusOnOffer />
                     <AutoCloseTimer timeout={data.timeout} />
                     <Outlet />
                 </AnalyticsProvider>

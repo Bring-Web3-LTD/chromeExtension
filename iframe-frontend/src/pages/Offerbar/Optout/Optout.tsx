@@ -4,6 +4,7 @@ import toCaseString from '../../../utils/toCaseString'
 import { sendMessage, ACTIONS } from '../../../utils/sendMessage'
 import { useAnalytics } from '../../../hooks/useAnalytics'
 import isLegacyCapSdk from '../../../utils/isLegacyCapSdk'
+import { useFocusPanel } from '../../../hooks/useFocusPanel'
 import styles from './styles.module.css'
 
 interface Props {
@@ -28,6 +29,8 @@ const Optout = ({ closeFn, onOptOut }: Props) => {
     const { sendAnalyticsEvent } = useAnalytics()
     const [isOpted, setIsOpted] = useState(false)
 
+    // Opting out swaps the buttons out for the confirmation, so re-focus on that change too.
+    useFocusPanel('offerbar-opt-out-btn', isOpted)
 
     const handleOptOut = (duration: typeof durationOptions[0]) => {
         // SDK < 1.8.0: clamp forever to 60d + tag 'a' - see isLegacyCapSdk

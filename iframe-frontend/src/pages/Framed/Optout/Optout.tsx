@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { sendMessage, ACTIONS } from '../../../utils/sendMessage'
 import { useAnalytics } from '../../../hooks/useAnalytics'
 import isLegacyCapSdk from '../../../utils/isLegacyCapSdk'
+import { useFocusPanel } from '../../../hooks/useFocusPanel'
 import styles from './styles.module.css'
 
 interface Props {
@@ -28,6 +29,9 @@ const Optout = ({ closeFn, onOptOut, onConfirmClose }: Props) => {
     const { sendAnalyticsEvent } = useAnalytics()
     const [isOpted, setIsOpted] = useState(false)
     const [selectedOption, setSelectedOption] = useState(durationOptions[0]) // 24 hours by default
+
+    // Opting out swaps the buttons out for the confirmation, so re-focus on that change too.
+    useFocusPanel('tb-opt-out-btn', isOpted)
 
     const handleOptOut = (duration: typeof durationOptions[0]) => {
         // SDK < 1.8.0: clamp forever to 60d + tag 'a' - see isLegacyCapSdk

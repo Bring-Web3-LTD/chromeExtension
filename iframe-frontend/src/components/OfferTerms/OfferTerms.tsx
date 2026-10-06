@@ -6,6 +6,7 @@ import rehypeRaw from 'rehype-raw'
 import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { useWalletAddress } from '../../hooks/useWalletAddress'
 import injectCashback from '../../utils/injectCashback'
+import { useFocusPanel } from '../../hooks/useFocusPanel'
 import { ENV } from '../../config'
 
 interface Props {
@@ -25,6 +26,8 @@ const OfferTerms = ({ onBack }: Props) => {
     } = useRouteLoaderData('root') as LoaderData
 
     const [markdownContent, setMarkdownContent] = useState('')
+
+    useFocusPanel('offer-terms-link')
 
     useEffect(() => {
         const controller = new AbortController()

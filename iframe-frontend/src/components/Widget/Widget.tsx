@@ -7,6 +7,8 @@ import { sendMessage, ACTIONS } from '../../utils/sendMessage'
 import { getIframeStyle, slideInAnimation } from '../../utils/iframeStyles'
 import { widgetStorageKey, wasWidgetExpanded } from '../../utils/widgetSession'
 import { useAnalytics } from '../../hooks/useAnalytics'
+import { focusSurface } from '../../hooks/useFocusPanel'
+import { useEscape } from '../../hooks/useEscape'
 
 interface Props {
     closeFn: () => void
@@ -106,7 +108,27 @@ const Widget = ({ closeFn }: Props) => {
             /* ignore - expansion still works, it just won't persist across navigation */
         }
         setMode('expanding')
+        // The badge unmounts as the AB grows, which would drop focus to the merchant page.
+        // This is the one surface the user opens themselves, so focus follows them into it.
+        focusSurface()
     }, [mode, sendAnalyticsEvent, name, domain, storageKey])
+
+    // Dismissing the badge is the widget's own close - unlike the expanded AB's X, which
+    // sends the standard (unflagged) popup_close. Guarded to 'collapsed' so it stays inert
+    // during the transitions, and so Escape can't double up with the expanded AB's own
+    // handler (CloseBtn registers its own listener while the AB is open).
+    const dismissBadge = useCallback(async () => {
+        if (mode !== 'collapsed') return
+        await sendAnalyticsEvent('popup_close', {
+            category: 'user_action',
+            action: 'click',
+            details: 'extension',
+            isWidget: true,
+        })
+        closeFn()
+    }, [mode, sendAnalyticsEvent, closeFn])
+
+    useEscape(dismissBadge)
 
     // Reversible close: collapse the AB back to the badge WITHOUT writing to quietDomains.
     // PARKED for now - the expanded AB's X/Close send the standard AB close instead
@@ -206,19 +228,8 @@ const Widget = ({ closeFn }: Props) => {
                         className={styles.close}
                         aria-label="Dismiss"
                         // Stays mounted through the transitions so it scales with the badge,
-                        // but is only actionable once fully collapsed.
-                        onClick={async () => {
-                            if (mode !== 'collapsed') return
-                            // Dismissing the badge is the widget's own close - unlike the
-                            // expanded AB's X, which sends the standard (unflagged) popup_close.
-                            await sendAnalyticsEvent('popup_close', {
-                                category: 'user_action',
-                                action: 'click',
-                                details: 'extension',
-                                isWidget: true,
-                            })
-                            closeFn()
-                        }}
+                        // but is only actionable once fully collapsed (guarded in dismissBadge).
+                        onClick={dismissBadge}
                     >
                         <span
                             className={styles.closeIcon}

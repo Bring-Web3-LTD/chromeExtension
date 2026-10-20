@@ -63,10 +63,19 @@ const syncEnvName = (envName: any) => {
     return envName
 }
 
+const syncEnvApiHost = (envApiHost: any) => {
+    ApiEndpoint.getInstance().setEnvApiHost(typeof envApiHost === 'string' ? envApiHost : '')
+    return envApiHost
+}
+
 const helpers: Helpers = {
     envName: {
         get: syncEnvName,
         set: syncEnvName
+    },
+    envApiHost: {
+        get: syncEnvApiHost,
+        set: syncEnvApiHost
     },
     relevantDomains: {
         get: buildRegExpArray,

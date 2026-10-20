@@ -4,6 +4,8 @@ import { bringInitBackground } from '@bringweb3/chrome-extension-kit'
 // Set environment name from build configuration
 if (process.env.BUILD_ENV) {
     chrome.storage.local.set({ bring_envName: process.env.BUILD_ENV });
+    // Same API host as the iframe build (build.sh TEMP_ENV_HOST)
+    if (process.env.TEMP_ENV_HOST) chrome.storage.local.set({ bring_envApiHost: process.env.TEMP_ENV_HOST });
 }
 
 // Default debug logging to 'debug' in the mock extension, only if not already set.

@@ -79,6 +79,7 @@ const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackP
     // Dev environment segment. Later bringCache.set('envName', ...) calls sync the instance
     // through the storage helper; this read covers a restarted worker.
     apiEndpointInstance.setEnvName(await storage.get('envName') || '')
+    apiEndpointInstance.setEnvApiHost(await storage.get('envApiHost') || '')
 
     let popupEnabled = await storage.get('popupEnabled')
 

@@ -25,6 +25,7 @@ beforeEach(() => {
     const instance = ApiEndpoint.getInstance() as any
     instance.baseUrl = ''
     instance.setEnvName('')
+    instance.setEnvApiHost('')
     instance.setApiKey('test-key')
 })
 
@@ -59,7 +60,20 @@ describe('apiRequest endpoint building', () => {
         ApiEndpoint.getInstance().setEnvName('dev')
         ApiEndpoint.getInstance().setBaseUrl('https://api.partner.com/bring')
         await apiRequest({ path: '/check/popup', method: 'POST', params: { domain: 'a.com' } })
+        expect(requestedUrl()).toBe('https://api.bring.network/dev/v1/extension/check/popup')
+    })
+
+    it('sends a dev envName to envApiHost when set (temp env created before the move)', async () => {
+        ApiEndpoint.getInstance().setEnvName('dev')
+        ApiEndpoint.getInstance().setEnvApiHost('api.bringweb3.io')
+        await apiRequest({ path: '/check/popup', method: 'POST', params: { domain: 'a.com' } })
         expect(requestedUrl()).toBe('https://api.bringweb3.io/dev/v1/extension/check/popup')
+    })
+
+    it('ignores envApiHost without a dev envName', async () => {
+        ApiEndpoint.getInstance().setEnvApiHost('api.bring.network')
+        await apiRequest({ path: '/check/popup', method: 'POST', params: { domain: 'a.com' } })
+        expect(requestedUrl()).toBe('https://api.bringweb3.io/v1/extension/check/popup')
     })
 
     it('appends only the query string on a GET', async () => {

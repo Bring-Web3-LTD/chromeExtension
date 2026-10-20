@@ -3,6 +3,9 @@ export type EndpointName = string
 export class ApiEndpoint {
   private static instance: ApiEndpoint | null = null;
   private readonly baseDomain: string = 'https://api.bringweb3.io';
+  // Temp envs live on devEnvDeployer's custom domain. Envs created before the move are
+  // mapped on api.bringweb3.io: point envApiHost there for those.
+  private readonly envDomain: string = 'https://api.bring.network';
   private readonly apiPath: string = 'v1/extension';
   private endpoint: EndpointName | '' = ''
   private whitelistEndpoint: string = '';
@@ -13,6 +16,8 @@ export class ApiEndpoint {
   private baseUrl: string = '';
   // Dev-only environment segment, read from storage at init.
   private envName: string = '';
+  // Dev-only host override for envName requests (e.g. 'api.bringweb3.io'), read from storage at init.
+  private envApiHost: string = '';
 
   private constructor() {
   }
@@ -54,19 +59,27 @@ export class ApiEndpoint {
     this.envName = envName;
   }
 
+  public setEnvApiHost(envApiHost: string): void {
+    this.envApiHost = envApiHost;
+  }
+
   public getWhitelistEndpoint(): string {
     return this.whitelistEndpoint;
   }
 
   /**
    * Full URL for an API call.
-   * - envName set (dev only): https://api.bringweb3.io/{envName}/v1/extension{path}
+   * - envName set (dev only): https://api.bring.network/{envName}/v1/extension{path}
+   *   (or https://{envApiHost}/... when envApiHost is set)
    * - baseUrl set: the partner endpoint itself - our path isn't appended, so their
    *   proxy keeps its own routing
    * - otherwise: https://api.bringweb3.io/v1/extension{path}
    */
   public getEndpoint(path: string): string {
-    if (this.envName) return `${this.baseDomain}/${this.envName}/${this.apiPath}${path}`;
+    if (this.envName) {
+      const envDomain = this.envApiHost ? `https://${this.envApiHost}` : this.envDomain;
+      return `${envDomain}/${this.envName}/${this.apiPath}${path}`;
+    }
     if (this.baseUrl) return this.baseUrl;
     return `${this.baseDomain}/${this.apiPath}${path}`;
   }

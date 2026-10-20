@@ -34,7 +34,8 @@ const config = merge(common, {
         'PLATFORM_IDENTIFIER': JSON.stringify(process.env.PLATFORM_IDENTIFIER),
         'WALLET_ADDRESS': JSON.stringify(process.env.WALLET_ADDRESS),
         'IFRAME_ENDPOINT': JSON.stringify(process.env.IFRAME_ENDPOINT),
-        'BUILD_ENV': JSON.stringify(process.env.BUILD_ENV)
+        'BUILD_ENV': JSON.stringify(process.env.BUILD_ENV),
+        'TEMP_ENV_HOST': JSON.stringify(process.env.TEMP_ENV_HOST)
       }
     })
   ]

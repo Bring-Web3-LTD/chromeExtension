@@ -59,7 +59,8 @@ NOTES:
     - VITE_API_KEY can be loaded from iframe-frontend/.env.local if not provided
     - --identifier and --wallet are NOT required when using --iframe-only
     - Production build uses https://api.bringweb3.io/v1/extension
-    - Other environments use https://api.bringweb3.io/[env]/v1/extension
+    - Other environments (temp envs) use https://api.bring.network/[env]/v1/extension
+      (set TEMP_ENV_API_HOST=api.bringweb3.io for a temp env created before the move)
 
 EOF
     exit 0
@@ -78,6 +79,9 @@ validate_version() {
 
 # Parse command line arguments
 HOST=api.bringweb3.io
+# Temp envs live on devEnvDeployer's custom domain (bringweb3 project.json apiGateway.customDomain).
+# Envs created before the move are mapped on api.bringweb3.io: rebuild those with TEMP_ENV_API_HOST=api.bringweb3.io
+TEMP_ENV_HOST="${TEMP_ENV_API_HOST:-api.bring.network}"
 ENV_PARAM=""
 IFRAME_ONLY=false
 while [[ $# -gt 0 ]]; do
@@ -130,7 +134,9 @@ else
     # Custom environment build
     echo "Building for '$ENV_PARAM' environment..."
     export BUILD_ENV="$ENV_PARAM"
-    export VITE_API_URL="https://$HOST/$ENV_PARAM/v1/extension"
+    export VITE_API_URL="https://$TEMP_ENV_HOST/$ENV_PARAM/v1/extension"
+    # The test extension's SDK uses the same host (stored as bring_envApiHost)
+    export TEMP_ENV_HOST
 fi
 
 echo "API URL: $VITE_API_URL"

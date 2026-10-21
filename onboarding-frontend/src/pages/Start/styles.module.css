@@ -1,5 +1,4 @@
-/* ponytail: fixed below 1100px with horizontal scroll, as the design asks. Fails WCAG 1.4.10
-   Reflow at 400% zoom - drop min-width and let the brand list wrap if design agrees. */
+/* Fixed below 1100px with horizontal scroll, as the design asks */
 .page {
     position: relative;
     min-width: 1100px;

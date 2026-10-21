@@ -1,0 +1,29 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="57.7225" height="57.7225" viewBox="0 0 57.7225 57.7225" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Booking.com">
+<g id="Vector" filter="url(#filter0_d_0_15)">
+<path d="M28.8613 48.7171C41.0115 48.7171 50.8613 38.8674 50.8613 26.7171C50.8613 14.5669 41.0115 4.71712 28.8613 4.71712C16.711 4.71712 6.86127 14.5669 6.86127 26.7171C6.86127 38.8674 16.711 48.7171 28.8613 48.7171Z" fill="white" stroke-width="0.857659" stroke="#E8E0C8"/>
+</g>
+<g id="Booking.com_Icon_2022 1" clip-path="url(#clip0_0_15)">
+<path id="Vector_2" d="M39.4623 20.4048C39.4623 18.2463 37.7091 16.4939 35.5507 16.4939H22.5463C20.3879 16.4939 18.6347 18.2463 18.6347 20.4048V32.9523C18.6347 35.1102 20.3879 36.8632 22.5463 36.8632H35.5507C37.7091 36.8632 39.4623 35.1102 39.4623 32.9523L39.4623 20.4048Z" fill-rule="evenodd" clip-rule="evenodd" fill="#0C3B7C"/>
+<path id="Vector_3" d="M18.6356 29.1484H29.0377V36.8633H18.6356L18.6356 29.1484Z" fill-rule="evenodd" clip-rule="evenodd" fill="#0C3B7C"/>
+<g id="logo">
+<path id="Vector_4" d="M28.2312 29.7771L26.5537 29.7754V27.7696C26.5537 27.341 26.7199 27.118 27.0867 27.067H28.2312C29.0474 27.067 29.5754 27.5816 29.5754 28.4145C29.5754 29.27 29.0607 29.7763 28.2312 29.7771ZM26.5537 24.3669V23.8389C26.5537 23.377 26.7491 23.1572 27.1777 23.1288H28.0365C28.7725 23.1288 29.2136 23.5691 29.2136 24.3068C29.2136 24.8682 28.9112 25.524 28.0633 25.524H26.5537V24.3669ZM30.3732 26.3686L30.0699 26.1982L30.3348 25.9718C30.643 25.7069 31.1593 25.1113 31.1593 24.0837C31.1593 22.5098 29.9388 21.4948 28.0499 21.4948H25.8945V21.4939H25.6489C25.0892 21.5148 24.6406 21.9701 24.6347 22.5332V31.4638H28.0925C30.1919 31.4638 31.5469 30.3209 31.5469 28.5507C31.5469 27.5975 31.1092 26.7829 30.3732 26.3686Z" fill="white"/>
+<path id="Vector_5" d="M32.4472 30.23C32.4472 29.5478 32.9974 28.9959 33.6754 28.9959C34.355 28.9959 34.9078 29.5478 34.9078 30.23C34.9078 30.9114 34.355 31.4642 33.6754 31.4642C32.9974 31.4642 32.4472 30.9114 32.4472 30.23Z" fill="#00BAFC"/>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_15" x="1.78814e-07" y="-1.19209e-07" width="57.7225" height="57.7225" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="2.14415"/>
+<feGaussianBlur stdDeviation="3.21622"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.133333 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_15"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_15" result="shape"/>
+</filter>
+<clipPath id="clip0_0_15">
+<rect width="20.8276" height="20.3694" fill="white" transform="translate(18.6347 16.4939)"/>
+</clipPath>
+</defs>
+</svg>

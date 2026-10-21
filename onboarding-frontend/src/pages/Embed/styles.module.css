@@ -1,0 +1,79 @@
+/* Ecko's start screen gives us a 355x353 slot */
+.frame {
+    position: relative;
+    width: 355px;
+    height: 353px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.background {
+    position: absolute;
+    left: -47.5px;
+    top: 70px;
+    width: 450px;
+    height: 300px;
+    pointer-events: none;
+}
+
+.scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(7, 9, 28, 0.73), rgba(11, 12, 34, 0.65) 55%, rgba(11, 12, 34, 0.34));
+}
+
+.content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 38px;
+    text-align: center;
+}
+
+.offering {
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #aeb0bb;
+}
+
+.title {
+    margin: 0 0 26px;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+/* 5 per row */
+.brands {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    width: 268px;
+    margin: 0 0 30px;
+    padding: 0;
+    list-style: none;
+}
+
+.portal {
+    width: 268px;
+    height: 46px;
+    border: none;
+    border-radius: 80px;
+    background: #ffc800;
+    color: #080a1d;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.portal:hover {
+    background: #daab03;
+}
+
+.portal:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+}

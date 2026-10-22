@@ -1,3 +1,4 @@
+import storage from "./utils/storage/storage.js";
 import { logger } from "./utils/logger.js";
 
 const ACTIONS = {
@@ -16,23 +17,32 @@ interface Configuration {
  * @param {Object} configuration - The configuration object.
  * @param {Function} configuration.onWalletClick - Called when the user clicks "KDA Wallet" on the welcome page.
  * @throws {Error} Throws an error if onWalletClick is missing.
+ * @returns {Promise<void>}
  *
  * @example
  * bringInitOnboardingContentScript({
  *   onWalletClick: () => { ... }
  * });
  */
-const bringInitOnboardingContentScript = ({ onWalletClick }: Configuration) => {
+const bringInitOnboardingContentScript = async ({ onWalletClick }: Configuration) => {
     if (typeof onWalletClick !== 'function') throw new Error('Missing configuration')
 
-    // Tab only: the welcome page posts to its own window. all_frames is on, so skip subframes.
-    if (window.self !== window.top) return
+    // Runs in every frame (all_frames is on), so a welcome page in an iframe is handled too.
+    // Written by the background when it opens the welcome page. Unset means onboarding never ran.
+    let origin: string | undefined
+    try {
+        origin = await storage.get('onboardingOrigin')
+    } catch (error) {
+        logger.warn(`[onboarding-msg] Failed to read the onboarding origin`, error)
+        return
+    }
+    if (!origin || window.location.origin !== origin) return
 
-    // Not gated on the welcome page's origin, so new welcome origins need no kit change. Any page can
-    // therefore send these actions; they only open the fixed cashbackPagePath or call onWalletClick.
+    logger.debug(`[onboarding-msg] Welcome page detected - listening for messages`, { origin })
+
     window.addEventListener('message', (e) => {
-        // event.source is set by the browser; `from` and `extensionId` are not.
-        if (e.source !== window) return
+        // event.origin and event.source are set by the browser; `from` and `extensionId` are not.
+        if (e.source !== window || e.origin !== origin) return
         if (!e.data || e.data.from !== 'bringweb3') return
 
         const { action, extensionId } = e.data

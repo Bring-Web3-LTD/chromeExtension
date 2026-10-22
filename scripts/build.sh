@@ -8,6 +8,7 @@
 #   ./scripts/build.sh --identifier my-id --wallet addr1qy... --iframe-api-key my-key
 #   ./scripts/build.sh --identifier prod-id --iframe-api-key prod-key
 #   ./scripts/build.sh --iframe-only --iframe-api-key my-key --version 1.6.4
+#   ./scripts/build.sh --onboarding-only --version 1.6.4
 #
 # Arguments:
 #   environment              - Optional environment name (danielk, automation, etc.)
@@ -16,6 +17,7 @@
 #   --iframe-api-key VALUE   - API key for iframe-frontend (VITE_API_KEY)
 #   --version VALUE          - SDK version (optional)
 #   --iframe-only            - Build only the iframe-frontend (skips SDK & extension)
+#   --onboarding-only        - Build only the onboarding-frontend (no API key needed)
 
 set -e  # Exit on error
 
@@ -37,6 +39,7 @@ OPTIONS:
     --iframe-api-key VALUE  API key for iframe-frontend (required or use .env.local)
     --version VALUE         SDK version (optional, reads from package.json if omitted)
     --iframe-only           Build only the iframe-frontend (skip SDK, extension, zip)
+    --onboarding-only       Build only the onboarding-frontend (no API key needed)
     -h, --help             Show this help message
 
 EXAMPLES:
@@ -51,6 +54,9 @@ EXAMPLES:
 
     # Iframe-only for a custom environment
     ./scripts/build.sh automation --iframe-only --iframe-api-key my-key --version 1.6.4
+
+    # Onboarding-only build (CI mode)
+    ./scripts/build.sh --onboarding-only --version 1.6.4
 
     # Using .env.local for iframe API key
     ./scripts/build.sh --identifier my-id --wallet addr1qy...
@@ -80,6 +86,7 @@ validate_version() {
 HOST=api.bringweb3.io
 ENV_PARAM=""
 IFRAME_ONLY=false
+ONBOARDING_ONLY=false
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
@@ -106,6 +113,10 @@ while [[ $# -gt 0 ]]; do
             IFRAME_ONLY=true
             shift
             ;;
+        --onboarding-only)
+            ONBOARDING_ONLY=true
+            shift
+            ;;
         --*)
             echo "Unknown option: $1"
             exit 1
@@ -119,6 +130,38 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Frontend version and base path: from SDK package.json or the provided SDK_VERSION
+if [ -n "$SDK_VERSION" ]; then
+    VERSION="$SDK_VERSION"
+else
+    VERSION=$(node -p "require('./extension-files/bringweb3-sdk/package.json').version")
+    validate_version "$VERSION"
+fi
+if [ -n "$ENV_PARAM" ]; then
+    BASE_PATH="/v$VERSION/$ENV_PARAM/"
+else
+    BASE_PATH="/v$VERSION/"
+fi
+export VITE_BASE_PATH="$BASE_PATH"
+
+# Onboarding-only: static pages with no API, so skip API URL/key setup entirely
+if [ "$ONBOARDING_ONLY" = true ]; then
+    echo "========================================"
+    echo "Building onboarding-frontend..."
+    echo "Environment: ${ENV_PARAM:-prod}"
+    echo "Version: $VERSION"
+    echo "Base Path: $BASE_PATH"
+    echo "========================================"
+
+    NODE_ENV=development yarn install --cwd onboarding-frontend --frozen-lockfile
+    cd onboarding-frontend
+    # Prevent Git Bash path conversion on Windows
+    MSYS_NO_PATHCONV=1 yarn build --base="$BASE_PATH"
+    cd ..
+    echo "✓ Onboarding frontend build complete"
+    exit 0
+fi
 
 # Set environment variables based on input
 if [ -z "$ENV_PARAM" ]; then
@@ -259,24 +302,8 @@ echo "Api URL: $VITE_API_URL"
 echo "=========================================="
 cd iframe-frontend
 export VITE_API_KEY
-
-# Get version from SDK package.json or use provided SDK_VERSION
-if [ -n "$SDK_VERSION" ]; then
-    VERSION="$SDK_VERSION"
-else
-    VERSION=$(node -p "require('../extension-files/bringweb3-sdk/package.json').version")
-    validate_version "$VERSION"
-fi
 echo "Version: $VERSION"
-
-# Set base path based on environment
-if [ -n "$ENV_PARAM" ]; then
-    BASE_PATH="/v$VERSION/$ENV_PARAM/"
-else
-    BASE_PATH="/v$VERSION/"
-fi
 echo "Base Path: $BASE_PATH"
-export VITE_BASE_PATH="$BASE_PATH"
 
 # Prevent Git Bash path conversion on Windows
 MSYS_NO_PATHCONV=1 yarn build --base="$BASE_PATH"

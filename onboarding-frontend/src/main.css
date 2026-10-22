@@ -1,0 +1,25 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #080a1d;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* In the accessibility tree, never painted. Not display:none, which would hide it
+   from screen readers too. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}

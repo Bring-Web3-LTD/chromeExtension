@@ -1,8 +1,10 @@
-/* Ecko's start screen gives us a 355x353 slot */
+/* Ecko's start screen gives us a 355x353 slot. Max/min instead of fixed, so a narrower slot
+   or enlarged text grows the frame instead of clipping the button. */
 .frame {
     position: relative;
-    width: 355px;
-    height: 353px;
+    width: 100%;
+    max-width: 355px;
+    min-height: 353px;
     margin: 0 auto;
     overflow: hidden;
 }

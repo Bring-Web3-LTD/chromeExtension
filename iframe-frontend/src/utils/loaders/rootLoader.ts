@@ -2,6 +2,7 @@ import { sendMessage, ACTIONS } from "../sendMessage"
 import { keyFrames } from "../iframeStyles"
 import verify from "../../api/verify"
 import { variantOf } from "../ABTest/testVariants"
+import { applyFramedColorVariant } from "../ABTest/framedColorVariant"
 import { BASE_PATH, ENV } from "../../config"
 import removeTrailingSlash from "../removeTrailingSlash"
 import loadTheme from "../loadTheme"
@@ -30,6 +31,8 @@ const rootLoader = async ({ request }: Props) => {
 
     // AB-test assignments are computed on the backend and returned by /verify.
     const testVariants = res.testVariants ?? []
+    // ecko framed-popup colour test: override --tb-* vars before paint (no-op for control).
+    applyFramedColorVariant(variantOf(testVariants, 'ecko-topOB-coloring'))
     // Argent Control: only load on base path
     if (variantOf(testVariants, 'argent-onestep-v1') === 'argentControl'
         && path !== removeTrailingSlash(BASE_PATH) && path !== '/') {

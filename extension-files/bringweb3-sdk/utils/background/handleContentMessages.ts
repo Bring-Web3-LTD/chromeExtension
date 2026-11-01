@@ -3,6 +3,7 @@ import handleActivate from "./activate"
 import addQuietDomain from "./addQuietDomain"
 import checkNotifications from "./checkNotifications"
 import getCashbackUrl from "./getCashbackUrl"
+import getUserId from "./getUserId"
 import { openExtensionCashbackPage } from "./openExtensionCashbackPage"
 import { getOptOut, setOptOut } from "./optOut"
 import { armFollowups } from "./followups"
@@ -94,6 +95,16 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                     logger.error('failed to resolve origin allowlist', { error })
                     sendResponse({ originAllowlist: [] })
                 })
+                return true;
+            }
+            case 'GET_USER_ID': {
+                // The portal in a rewards extension (CAB) has no wallet; this id is its identity.
+                getUserId()
+                    .then(userId => sendResponse({ userId }))
+                    .catch(error => {
+                        logger.error('failed to resolve user id', { error })
+                        sendResponse({})
+                    })
                 return true;
             }
             case 'GET_POPUP_ENABLED': {

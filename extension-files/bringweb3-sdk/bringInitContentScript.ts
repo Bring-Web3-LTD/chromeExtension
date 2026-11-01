@@ -166,6 +166,7 @@ const bringInitContentScript = async ({
 
         window.addEventListener('message', (e) => {
             if (!e.data || e.data.from !== 'bringweb3') return;
+            if (e.data.action !== 'PORTAL_ACTIVATE' && e.data.action !== 'GET_USER_ID') return;
 
             const { action, domain, extensionId, time, iframeUrl, token, platformName } = e.data
 
@@ -182,8 +183,6 @@ const bringInitContentScript = async ({
                     .catch(error => logger.warn(`[popup-msg] ${action} failed`, error))
                 return
             }
-
-            if (action !== 'PORTAL_ACTIVATE') return;
 
             logger.info(`[popup-msg] ${action} event sent`);
             logger.debug(`[popup-msg] ${action} payload`, { domain, extensionId, time, platformName, source: 'portal', hasToken: !!token });

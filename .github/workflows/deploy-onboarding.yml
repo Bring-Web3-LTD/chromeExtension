@@ -1,0 +1,188 @@
+name: Deploy Onboarding Frontend
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_mode:
+        description: 'Deployment mode'
+        required: true
+        default: 'override'
+        type: choice
+        options:
+          - override
+          - new_version
+
+env:
+  NODE_VERSION: 'lts/*'
+  AWS_REGION: eu-central-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Ensure running on main branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "ERROR: This workflow can only be run from the main branch."
+          echo "Current branch: ${{ github.ref }}"
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: 'onboarding-frontend/yarn.lock'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActions-OnboardingDeployment
+
+      - name: Resolve deploy environment
+        id: env
+        run: |
+          DEPLOY_ENV="${{ secrets.DEPLOY_ENV }}"
+          # Default to prod if DEPLOY_ENV secret is not set
+          if [ -z "$DEPLOY_ENV" ]; then
+            DEPLOY_ENV="prod"
+          fi
+          echo "Deploy environment: $DEPLOY_ENV"
+          echo "deploy_env=$DEPLOY_ENV" >> $GITHUB_OUTPUT
+
+      - name: Determine version
+        id: version
+        run: |
+          MODE="${{ github.event.inputs.deployment_mode }}"
+          echo "Deployment mode: $MODE"
+
+          if [ "$MODE" = "new_version" ]; then
+            # Read version from the SDK package.json (same source as build.sh)
+            VERSION=$(node -p "require('./extension-files/bringweb3-sdk/package.json').version")
+          else
+            # Override: find the latest version folder in S3
+            VERSION=$(aws s3 ls "s3://${{ secrets.ONBOARDING_S3_BUCKET }}/${{ steps.env.outputs.deploy_env }}/" \
+              | grep -oP 'v\d+\.\d+\.\d+' \
+              | sort -V | tail -1 | sed 's/^v//')
+
+            if [ -z "$VERSION" ]; then
+              echo "ERROR: No existing versions found in S3 for override mode"
+              exit 1
+            fi
+          fi
+
+          # Validate
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "ERROR: Invalid version format: $VERSION"
+            exit 1
+          fi
+
+          echo "Resolved version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build onboarding frontend
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          DEPLOY_ENV="${{ steps.env.outputs.deploy_env }}"
+          # Pass environment as positional arg only for non-prod (prod is the default in build.sh)
+          if [ "$DEPLOY_ENV" = "prod" ]; then
+            bash ./scripts/build.sh --onboarding-only --version "$VERSION"
+          else
+            bash ./scripts/build.sh "$DEPLOY_ENV" --onboarding-only --version "$VERSION"
+          fi
+        env:
+          NODE_ENV: production
+
+      - name: Upload to S3
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          S3_PATH="${{ steps.env.outputs.deploy_env }}/v${VERSION}"
+          S3_BUCKET="${{ secrets.ONBOARDING_S3_BUCKET }}"
+          MODE="${{ github.event.inputs.deployment_mode }}"
+
+          # Block new_version if folder already exists
+          if [ "$MODE" = "new_version" ]; then
+            if aws s3 ls "s3://${S3_BUCKET}/${S3_PATH}/" 2>/dev/null | head -1 | grep -q .; then
+              echo "ERROR: Version v${VERSION} already exists in S3. Aborting."
+              exit 1
+            fi
+          fi
+          # copy from local builds to s3
+          aws s3 sync onboarding-frontend/dist/ "s3://${S3_BUCKET}/${S3_PATH}/" \
+            --delete \
+            --cache-control "public, max-age=31536000" \
+            --metadata-directive REPLACE
+
+          # index.html gets a short cache so updates propagate quickly
+          aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}/index.html" \
+            "s3://${S3_BUCKET}/${S3_PATH}/index.html" \
+            --content-type "text/html" \
+            --cache-control "public, max-age=300" \
+            --metadata-directive REPLACE
+
+          echo "✅ Uploaded to s3://${S3_BUCKET}/${S3_PATH}/"
+
+      - name: Update CloudFront KeyValueStore
+        run: |
+          S3_BUCKET="${{ secrets.ONBOARDING_S3_BUCKET }}"
+          KVS_ARN="${{ secrets.ONBOARDING_CLOUDFRONT_KVS_ARN }}"
+
+          # Read current state of S3 and rebuild the value
+          VERSIONS=$(aws s3 ls "s3://${S3_BUCKET}/${{ steps.env.outputs.deploy_env }}/" \
+            | grep -oP 'v\d+\.\d+\.\d+' \
+            | sed 's/^v//' \
+            | sort -V \
+            | tr '\n' ',' \
+            | sed 's/,$//')
+
+          if [ -z "$VERSIONS" ]; then
+            echo "ERROR: No versions found in S3 ${{ steps.env.outputs.deploy_env }}/ folder"
+            exit 1
+          fi
+
+          echo "KVS value for ${{ steps.env.outputs.deploy_env }}: $VERSIONS"
+
+          ETAG=$(aws cloudfront-keyvaluestore describe-key-value-store \
+            --kvs-arn "$KVS_ARN" \
+            --query 'ETag' --output text 2>/dev/null || echo "")
+          if [ -n "$ETAG" ] && [ "$ETAG" != "None" ]; then
+            aws cloudfront-keyvaluestore put-key \
+              --kvs-arn "$KVS_ARN" \
+              --key "${{ steps.env.outputs.deploy_env }}" \
+              --value "$VERSIONS" \
+              --if-match "$ETAG"
+          else
+            aws cloudfront-keyvaluestore put-key \
+              --kvs-arn "$KVS_ARN" \
+              --key "${{ steps.env.outputs.deploy_env }}" \
+              --value "$VERSIONS"
+          fi
+
+          echo "✅ Updated KVS key '${{ steps.env.outputs.deploy_env }}' → $VERSIONS"
+
+      - name: Invalidate CloudFront
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.ONBOARDING_CLOUDFRONT_ID }}" \
+            --paths "/${{ steps.env.outputs.deploy_env }}/v${VERSION}/*"
+          echo "✅ Invalidation created for /${{ steps.env.outputs.deploy_env }}/v${VERSION}/*"
+
+      - name: Summary
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Mode | ${{ github.event.inputs.deployment_mode }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | ${{ steps.env.outputs.deploy_env }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | v${VERSION} |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3 Path | ${{ steps.env.outputs.deploy_env }}/v${VERSION}/ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY

@@ -85,7 +85,7 @@ const Start = () => {
                 <ul className={styles.brands} aria-label="Brands">
                     {BRANDS.map(brand => <BrandBadge key={brand.name} brand={brand} size="lg" />)}
                 </ul>
-                <button type="button" className={styles.portal} onClick={() => sendMessage(ACTIONS.OPEN_CASHBACK_PAGE)}>Go to Portal</button>
+                <button type="button" className={styles.portal} onClick={() => sendMessage(ACTIONS.OPEN_CASHBACK_PAGE)}>Go to Rewards</button>
                 {termsUrl &&
                     <p className={styles.terms}>
                         By continuing you agree to the <a href={termsUrl} target="_blank" rel="noopener noreferrer">Terms of Use<NewTab /></a>

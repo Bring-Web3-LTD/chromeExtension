@@ -38,7 +38,7 @@ const Embed = () => {
                 <ul className={styles.brands} aria-label="Brands">
                     {BRANDS.map(brand => <BrandBadge key={brand.name} brand={brand} size="sm" />)}
                 </ul>
-                <button type="button" className={styles.portal} onClick={() => sendMessage(ACTIONS.OPEN_CASHBACK_PAGE)}>Cashback Portal</button>
+                <button type="button" className={styles.portal} onClick={() => sendMessage(ACTIONS.OPEN_CASHBACK_PAGE)}>Go to Rewards</button>
             </div>
         </main>
     )

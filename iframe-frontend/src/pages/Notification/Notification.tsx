@@ -93,11 +93,15 @@ interface Notification {
     isRemindingPeriod: boolean
     promptPairing: boolean
     version: string
+    platformType?: 'integrated' | 'rewards' | null
+    surface?: 'extension' | 'webpage' | null
 }
 
 const Notification = () => {
-    const { platformName, textMode, cashbackUrl, new: _new, eligible, total, expiredAt, promptPairing, iframeStyle: themeIframeStyle, version } = useRouteLoaderData('root') as Notification & { iframeStyle?: Record<string, string> }
+    const { platformName, textMode, cashbackUrl, new: _new, eligible, total, expiredAt, promptPairing, iframeStyle: themeIframeStyle, version, platformType, surface } = useRouteLoaderData('root') as Notification & { iframeStyle?: Record<string, string> }
     const { walletAddress } = useWalletAddress()
+    // A rewards platform inside an extension (CAB) has no wallet to pair: Details goes straight to the portal
+    const isRewardsExtension = platformType === 'rewards' && surface === 'extension'
     const ctaText = !promptPairing ? 'Details' : eligible ? 'Claim' : 'Connect'
     const isExtraBtn = !_new
     const { start, clear } = useTimeout({
@@ -130,7 +134,7 @@ const Notification = () => {
     }
 
     const openCashbackPage = () => {
-        if (!walletAddress) {
+        if (!walletAddress && !isRewardsExtension) {
             sendMessage({ action: ACTIONS.PROMPT_LOGIN })
         } else {
             sendMessage({ action: ACTIONS.OPEN_CASHBACK_PAGE, url: cashbackUrl })

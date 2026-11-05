@@ -127,6 +127,49 @@ export const captureOnboardingClick = async (senderOrigin: string | undefined, c
     await sendOnboardingClick()
 }
 
+/**
+ * The onboarding messages, on their own listener so none of this touches the shared one.
+ * Registered synchronously; each handler waits for `ready` (bringInitBackground) before acting.
+ */
+export const handleOnboardingMessages = (ready: Promise<void>) => {
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request?.from !== 'bringweb3') return
+        const { action } = request
+
+        switch (action) {
+            case 'ONBOARDING_CAPTURE': {
+                // The welcome origin's content script found the campaign the user came from.
+                const { campaignId, clickId } = request
+                // sender.origin is MV3 only; sender.url covers MV2.
+                const senderOrigin = sender.origin || (sender.url ? new URL(sender.url).origin : undefined)
+                logger.info(`[onboarding-bg] ${action} event received`)
+                ready.then(() => captureOnboardingClick(senderOrigin, campaignId, clickId))
+                    .catch(error => logger.error(`[onboarding-bg] failed to record the click, will retry on the next start`, { error }))
+                    .then(() => sendResponse())
+                return true;
+            }
+            case 'GET_ONBOARDING_URL': {
+                const { page } = request
+                logger.info(`[onboarding-bg] ${action} event received`)
+                if (page !== 'start' && page !== 'embed') {
+                    logger.warn(`[onboarding-bg] ${action} ignored - unknown page`, { page })
+                    sendResponse({})
+                    return true;
+                }
+                ready.then(() => getOnboardingUrl(page))
+                    .then(url => sendResponse({ url }))
+                    .catch(error => {
+                        logger.error(`[onboarding-bg] failed to resolve the onboarding url`, { error })
+                        sendResponse({ error: 'failed to resolve the onboarding url' })
+                    })
+                return true;
+            }
+            default:
+                return
+        }
+    })
+}
+
 /** Worker start: finish whatever an earlier run left behind. */
 export const retryPendingOnboarding = async (): Promise<void> => {
     if (await storage.get('onboardingPending')) {

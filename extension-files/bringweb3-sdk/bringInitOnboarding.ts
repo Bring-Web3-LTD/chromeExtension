@@ -1,5 +1,5 @@
 import { backgroundReady } from "./bringInitBackground.js"
-import { openWelcomePage, retryPendingOnboarding } from "./utils/background/onboarding.js"
+import { handleOnboardingMessages, openWelcomePage, retryPendingOnboarding } from "./utils/background/onboarding.js"
 import { logger } from "./utils/logger.js"
 
 /**
@@ -27,7 +27,9 @@ const bringInitOnboarding = () => {
             .catch(error => logger.error(`[onboarding] Failed to open the welcome page, will retry on the next start`, { error }))
     })
 
-    // Requests wait for the environment and the migration; the listener above doesn't.
+    handleOnboardingMessages(ready)
+
+    // Requests wait for the environment and the migration; the listeners above don't.
     ready.then(retryPendingOnboarding)
         .catch(error => logger.error(`[onboarding] Not started`, { error }))
 }

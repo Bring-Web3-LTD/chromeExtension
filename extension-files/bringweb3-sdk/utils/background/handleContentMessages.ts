@@ -17,10 +17,8 @@ import { formatUntil } from "./timestampRange"
 const describeWindow = (time: number, key?: string): string =>
     `${key || `${Math.round(time / DAY_MS)} day(s)`} (until ${formatUntil(Date.now() + time)})`
 
-const handleContentMessages = (cashbackPagePath: string | undefined, showNotifications: boolean) => {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
-        if (request?.from !== 'bringweb3') return
+const handleContentMessages = (ready: Promise<unknown>, cashbackPagePath: string | undefined, showNotifications: boolean) => {
+    const handle = (request: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
 
         // token is pulled out so it never reaches the log; the rest is spread so a new
         // message field shows up without touching this line.
@@ -180,6 +178,14 @@ const handleContentMessages = (cashbackPagePath: string | undefined, showNotific
                 return true;
             }
         }
+    }
+
+    // Registered synchronously at startup (see bringInitBackground); the work waits for init.
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request?.from !== 'bringweb3') return
+        ready.then(() => handle(request, sender, sendResponse))
+            .catch(error => logger.error(`[bg-msg] ${request.action} dropped - background init failed`, { error }))
+        return true
     })
 }
 

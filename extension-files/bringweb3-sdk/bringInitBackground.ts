@@ -76,27 +76,37 @@ const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackP
     // Initialize debug cache after API endpoint is set
     storage.initializeDebugCache()
 
-    // Dev environment segment. Later bringCache.set('envName', ...) calls sync the instance
-    // through the storage helper; this read covers a restarted worker.
-    apiEndpointInstance.setEnvName(await storage.get('envName') || '')
+    // Settles once the environment and the migration are in place.
+    const ready = (async () => {
+        // Dev environment segment. Later bringCache.set('envName', ...) calls sync the instance
+        // through the storage helper; this read covers a restarted worker.
+        apiEndpointInstance.setEnvName(await storage.get('envName') || '')
 
-    let popupEnabled = await storage.get('popupEnabled')
+        let popupEnabled = await storage.get('popupEnabled')
 
-    if (popupEnabled === undefined) {
-        await storage.set('popupEnabled', isEnabledByDefault)
-        popupEnabled = isEnabledByDefault
-    }
+        if (popupEnabled === undefined) {
+            await storage.set('popupEnabled', isEnabledByDefault)
+            popupEnabled = isEnabledByDefault
+        }
 
-    await checkAndRunMigration();
+        await checkAndRunMigration();
+        return popupEnabled as boolean
+    })()
 
-    handleContentMessages(cashbackPagePath, showNotifications)
-
-    // A failed fetch must not take the navigation listeners below down with it: without them
-    // the popup never runs again for this worker's lifetime. The cache retries on the next
+    // A failed fetch must not take the navigation listeners down with it: without them the
+    // popup never runs again for this worker's lifetime. The cache retries on the next
     // navigation anyway.
-    if (popupEnabled) await updateCache().catch(error => logger.error('initial cache update failed', { error }))
+    const cacheReady = ready.then(popupEnabled =>
+        popupEnabled ? updateCache().catch(error => logger.error('initial cache update failed', { error })) : undefined)
 
-    handleTabEvents(cashbackPagePath, showNotifications, notificationCallback)
+    // Registered before the first await settles: Chrome hands the event that woke the worker
+    // (a message, a navigation) only to listeners added synchronously at startup. A listener
+    // added after an await misses it, so the first click after the worker idled did nothing.
+    // Each handler waits for the init above before doing its work.
+    handleContentMessages(ready, cashbackPagePath, showNotifications)
+    handleTabEvents(cacheReady, cashbackPagePath, showNotifications, notificationCallback)
+
+    await cacheReady
 }
 
 export default bringInitBackground

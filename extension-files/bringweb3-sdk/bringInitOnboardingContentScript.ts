@@ -59,6 +59,7 @@ const bringInitOnboardingContentScript = async ({ onWalletClick }: Configuration
             case ACTIONS.OPEN_CASHBACK_PAGE:
                 // No url: the page never chooses where we navigate, the background opens cashbackPagePath.
                 chrome.runtime.sendMessage({ action, from: "bringweb3", source: 'onboarding' })
+                    .catch(error => logger.warn(`[onboarding-msg] ${action} failed`, error))
                 break;
             case ACTIONS.OPEN_WALLET:
                 onWalletClick()

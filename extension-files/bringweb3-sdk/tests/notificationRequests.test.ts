@@ -58,7 +58,7 @@ describe('WALLET_ADDRESS_UPDATE', () => {
     it('only checks notifications when the address actually changed', async () => {
         let listener: Function = () => { }
         ;(globalThis as any).chrome = { runtime: { onMessage: { addListener: (fn: Function) => { listener = fn } } } }
-        handleContentMessages(undefined, true)
+        handleContentMessages(Promise.resolve(), undefined, true)
 
         await walletUpdate(listener, 'A')
         await walletUpdate(listener, 'A')
@@ -74,7 +74,7 @@ describe('WALLET_ADDRESS_UPDATE', () => {
     it('still checks when navigation already stored the new address', async () => {
         let listener: Function = () => { }
         ;(globalThis as any).chrome = { runtime: { onMessage: { addListener: (fn: Function) => { listener = fn } } } }
-        handleContentMessages(undefined, true)
+        handleContentMessages(Promise.resolve(), undefined, true)
         // Account switch: getWalletAddress wrote the new address during navigation,
         // but the last notification check ran for the old one.
         store.walletAddress = 'B'
@@ -88,7 +88,7 @@ describe('WALLET_ADDRESS_UPDATE', () => {
     it('still responds when the notification check fails', async () => {
         let listener: Function = () => { }
         ;(globalThis as any).chrome = { runtime: { onMessage: { addListener: (fn: Function) => { listener = fn } } } }
-        handleContentMessages(undefined, true)
+        handleContentMessages(Promise.resolve(), undefined, true)
         vi.mocked(checkEvents).mockRejectedValue(new Error('403'))
 
         await expect(walletUpdate(listener, 'C')).resolves.toBe('C')

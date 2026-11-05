@@ -76,7 +76,8 @@ export const openWelcomePage = (): Promise<void> => {
         try {
             await chrome.tabs.create({ url })
         } catch (error) {
-            logger.error(`[onboarding] Failed to open the welcome page`, { error })
+            logger.error(`[onboarding] Failed to open the welcome page, will retry on the next start`, { error })
+            await storage.set('onboardingPending', true)
         }
     })().finally(() => { opening = null })
 }

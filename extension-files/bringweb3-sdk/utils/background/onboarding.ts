@@ -93,6 +93,15 @@ export const sendOnboardingClick = async (): Promise<void> => {
 
     const { campaignId, clickId } = click
     const res = await apiRequest({ path: '/onboarding/click', method: 'POST', params: { campaignId, clickId }, timeout: REQUEST_TIMEOUT })
+
+    // A newer click may have been captured while this one was in flight; its result is the
+    // one that counts, so this (stale) outcome must not overwrite it.
+    const current: OnboardingClick | undefined = await storage.get('onboardingClick')
+    if (current?.clickId !== clickId) {
+        logger.debug(`[onboarding] Click result discarded - a newer click replaced it`, { clickId })
+        return
+    }
+
     if (res?.status === 200) {
         logger.info(`[onboarding] Click paired with this install`, { campaignId })
         await storage.set('onboardingCampaignId', campaignId)

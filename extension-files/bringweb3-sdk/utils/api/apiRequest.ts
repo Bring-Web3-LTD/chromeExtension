@@ -20,6 +20,10 @@ const apiRequest = async (req: Request) => {
 
     const apiKey = apiEndpointInstance.getApiKey()
 
+    // Landing-page campaign captured at onboarding (bringInitOnboarding): rewards are paid in
+    // its token. Not `campaignId` - /activate already uses that key for the affiliate campaign.
+    const onboardingCampaignId = await storage.get('onboardingCampaignId')
+
     if (method === 'GET') {
         // Merged into the URL rather than concatenated: a partner baseUrl may already
         // carry a query string, and `endpoint += '?...'` would emit a second '?'.
@@ -30,7 +34,8 @@ const apiRequest = async (req: Request) => {
             timestamp: Date.now().toString(),
             opt_out: await storage.get('optOut') || 0,
             user_id: await getUserId() || 'undefined',
-            wallet_address: await storage.get('walletAddress') || 'undefined'
+            wallet_address: await storage.get('walletAddress') || 'undefined',
+            ...(onboardingCampaignId && { onboarding_campaign_id: onboardingCampaignId })
         }).forEach(([key, value]) => url.searchParams.set(key, String(value)))
         endpoint = url.toString()
     } else if (method === 'POST') {
@@ -40,7 +45,8 @@ const apiRequest = async (req: Request) => {
             timestamp: Date.now(),
             optOut: await storage.get('optOut') || 0,
             userId: await getUserId() || undefined,
-            walletAddress: params?.walletAddress || await storage.get('walletAddress') || undefined
+            walletAddress: params?.walletAddress || await storage.get('walletAddress') || undefined,
+            ...(onboardingCampaignId && { onboardingCampaignId })
         }
     }
 

@@ -105,8 +105,6 @@ const handleContentMessages = (ready: Promise<unknown>, cashbackPagePath: string
                     })
                 return true;
             }
-            // ONBOARDING_CAPTURE and GET_ONBOARDING_URL (opt-in CAB onboarding) have their own
-            // listener, registered by bringInitOnboarding: utils/background/onboarding.ts.
             case 'GET_POPUP_ENABLED': {
                 storage.get('popupEnabled').then(res => {
                     logger.debug(`[bg-msg] GET_POPUP_ENABLED — resolved`, { isPopupEnabled: res })

@@ -21,6 +21,9 @@ const MAX_AGE_MS = 183 * DAY_MS
 // Only the welcome tab sees the record: the embed iframe is third-party on the partner's
 // page, so its storage is partitioned.
 const reportOnboardingClick = () => {
+    // The welcome page was opened for one extension (its id is on the URL). Another kit
+    // extension on the same origin must not claim the click as its own.
+    if (new URLSearchParams(window.location.search).get('extensionId') !== chrome.runtime.id) return
     let record: any
     try {
         record = JSON.parse(localStorage.getItem(ONBOARDING_KEY) || 'null')

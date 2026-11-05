@@ -1,5 +1,6 @@
 import storage from "./utils/storage/storage.js";
 import { logger } from "./utils/logger.js";
+import { DAY_MS } from "./utils/constants.js";
 
 const ACTIONS = {
     OPEN_CASHBACK_PAGE: 'OPEN_CASHBACK_PAGE',
@@ -8,6 +9,32 @@ const ACTIONS = {
 
 interface Configuration {
     onWalletClick: () => void
+}
+
+// Written by the welcome app's silent page (/go) when the user came from a campaign.
+const ONBOARDING_KEY = 'bringOnboarding'
+// The campaign attribution window; localStorage has no expiry of its own.
+const MAX_AGE_MS = 183 * DAY_MS
+
+// Hand the background the campaign and click the user came from, if the silent page left
+// them here. Missing keys mean the user didn't come from a campaign: nothing to do.
+// Only the welcome tab sees the record: the embed iframe is third-party on the partner's
+// page, so its storage is partitioned.
+const reportOnboardingClick = () => {
+    let record: any
+    try {
+        record = JSON.parse(localStorage.getItem(ONBOARDING_KEY) || 'null')
+    } catch {
+        return
+    }
+    if (!record?.campaignId || !record?.clickId) return
+    if (typeof record.ts !== 'number' || Date.now() - record.ts > MAX_AGE_MS) {
+        logger.debug(`[onboarding-msg] Stored campaign ignored - older than the attribution window`)
+        return
+    }
+    logger.info(`[onboarding-msg] ONBOARDING_CAPTURE event sent`)
+    chrome.runtime.sendMessage({ from: 'bringweb3', source: 'onboarding', action: 'ONBOARDING_CAPTURE', campaignId: record.campaignId, clickId: record.clickId })
+        .catch(error => logger.warn(`[onboarding-msg] ONBOARDING_CAPTURE failed`, error))
 }
 
 /**
@@ -39,6 +66,8 @@ const bringInitOnboardingContentScript = async ({ onWalletClick }: Configuration
     if (!origin || window.location.origin !== origin) return
 
     logger.debug(`[onboarding-msg] Welcome page detected - listening for messages`, { origin })
+
+    reportOnboardingClick()
 
     window.addEventListener('message', (e) => {
         // event.origin and event.source are set by the browser; `from` and `extensionId` are not.

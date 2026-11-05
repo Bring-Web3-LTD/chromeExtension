@@ -60,7 +60,14 @@ interface Configuration {
 
 const ENDPOINT = ENV_ENDPOINT as EndpointName
 
-const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback }: Configuration) => {
+// Settles when the environment, the migration and the message listeners are in place, so
+// an opt-in started right after this init (bringInitOnboarding) sends nothing too early.
+let ready: Promise<void> | null = null
+export const backgroundReady = () => ready
+
+const bringInitBackground = (configuration: Configuration) => ready = init(configuration)
+
+const init = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback }: Configuration) => {
     if (!identifier || !apiEndpoint) throw new Error('Missing configuration')
     validatePermissions()
     if (ENDPOINT) logger.debug('endpoint configured', { ENDPOINT });

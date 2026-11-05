@@ -4,6 +4,7 @@ import addQuietDomain from "./addQuietDomain"
 import checkNotifications from "./checkNotifications"
 import getCashbackUrl from "./getCashbackUrl"
 import getUserId from "./getUserId"
+import { captureOnboardingClick, getOnboardingUrl } from "./onboarding"
 import { openExtensionCashbackPage } from "./openExtensionCashbackPage"
 import { getOptOut, setOptOut } from "./optOut"
 import { armFollowups } from "./followups"
@@ -102,6 +103,31 @@ const handleContentMessages = (ready: Promise<unknown>, cashbackPagePath: string
                     .catch(error => {
                         logger.error('failed to resolve user id', { error })
                         sendResponse({})
+                    })
+                return true;
+            }
+            case 'ONBOARDING_CAPTURE': {
+                // The welcome origin's content script found the campaign the user came from.
+                const { campaignId, clickId } = request
+                // sender.origin is MV3 only; sender.url covers MV2.
+                const senderOrigin = sender.origin || (sender.url ? new URL(sender.url).origin : undefined)
+                captureOnboardingClick(senderOrigin, campaignId, clickId)
+                    .catch(error => logger.error('[onboarding] failed to record the click, will retry on the next start', { error }))
+                    .then(() => sendResponse())
+                return true;
+            }
+            case 'GET_ONBOARDING_URL': {
+                const { page } = request
+                if (page !== 'start' && page !== 'embed') {
+                    logger.warn(`[bg-msg] GET_ONBOARDING_URL ignored - unknown page`, { page })
+                    sendResponse({})
+                    return true;
+                }
+                getOnboardingUrl(page)
+                    .then(url => sendResponse({ url }))
+                    .catch(error => {
+                        logger.error('failed to resolve the onboarding url', { error })
+                        sendResponse({ error: 'failed to resolve the onboarding url' })
                     })
                 return true;
             }

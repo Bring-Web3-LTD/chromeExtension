@@ -1,0 +1,137 @@
+import apiRequest from "../api/apiRequest"
+import storage from "../storage/storage"
+import getUserId from "./getUserId"
+import { logger } from "../logger"
+
+const REQUEST_TIMEOUT = 30000
+// campaignAttributions columns are VARCHAR(255); the server rejects longer values anyway.
+const MAX_ID_LENGTH = 255
+
+export type OnboardingPage = 'start' | 'embed'
+
+interface OnboardingConfig {
+    origin?: string
+    startUrl?: string
+    embedUrl?: string
+}
+
+interface OnboardingClick {
+    campaignId: string
+    clickId: string
+    sent: boolean
+}
+
+// Per-platform welcome URLs; a platform without an entry gets none. Anything but a 200 body
+// is a failure (the handler puts the status in the body), not "no welcome page".
+const fetchOnboardingConfig = async (): Promise<OnboardingConfig> => {
+    const res = await apiRequest({ path: '/onboarding/config', method: 'GET', timeout: REQUEST_TIMEOUT })
+    if (res?.status !== 200) throw new Error(`onboarding config failed: ${res?.status ?? 'no status'}`)
+    return res
+}
+
+// The welcome page reads this id back from the URL and puts it on every message it posts, so
+// our content script can tell our messages from another kit extension's on the same page.
+const withExtensionId = (url: string) => {
+    const parsed = new URL(url)
+    parsed.searchParams.set('extensionId', chrome.runtime.id)
+    return parsed.toString()
+}
+
+/** The welcome URL the partner asked for, with our extensionId on it. Undefined when the platform has none. */
+export const getOnboardingUrl = async (page: OnboardingPage): Promise<string | undefined> => {
+    const config = await fetchOnboardingConfig()
+    const url = page === 'embed' ? config.embedUrl : config.startUrl
+    return url ? withExtensionId(url) : undefined
+}
+
+// One attempt at a time: at install the onInstalled listener and the pending retry can both
+// ask for it before either has finished.
+let opening: Promise<void> | null = null
+
+/**
+ * First install: generate the userId, fetch the welcome config and open the welcome page.
+ * The pending flag is set before the request, so an attempt that fails or is interrupted
+ * is retried on the next worker start.
+ */
+export const openWelcomePage = (): Promise<void> => {
+    if (opening) return opening
+    return opening = (async () => {
+        await storage.set('onboardingPending', true)
+        // Written before any request goes out, so every request from this install carries it.
+        await getUserId()
+
+        const { origin, startUrl } = await fetchOnboardingConfig()
+        if (!origin || !startUrl) {
+            logger.info(`[onboarding] No welcome page for this platform`)
+            await storage.remove('onboardingPending')
+            return
+        }
+
+        // The only origin the content script reads campaignId / clickId from.
+        await storage.set('onboardingOrigin', origin)
+        // Cleared before the tab opens: a worker killed in between must not open it twice.
+        await storage.remove('onboardingPending')
+        const url = withExtensionId(startUrl)
+        logger.info(`[onboarding] Opening the welcome page`, { url })
+        try {
+            await chrome.tabs.create({ url })
+        } catch (error) {
+            logger.error(`[onboarding] Failed to open the welcome page`, { error })
+        }
+    })().finally(() => { opening = null })
+}
+
+/**
+ * Pair this install with the click it came from. On 200 the campaign is kept for the rest of
+ * the install (apiRequest puts it on every request). A rejection (4xx, or no status at all)
+ * is final: the server won't take it later either. Anything else is kept for a retry.
+ */
+export const sendOnboardingClick = async (): Promise<void> => {
+    const click: OnboardingClick | undefined = await storage.get('onboardingClick')
+    if (!click || click.sent) return
+
+    const { campaignId, clickId } = click
+    const res = await apiRequest({ path: '/onboarding/click', method: 'POST', params: { campaignId, clickId }, timeout: REQUEST_TIMEOUT })
+    if (res?.status === 200) {
+        logger.info(`[onboarding] Click paired with this install`, { campaignId })
+        await storage.set('onboardingCampaignId', campaignId)
+    } else if (typeof res?.status !== 'number' || (res.status >= 400 && res.status < 500)) {
+        logger.warn(`[onboarding] Click rejected by the server, not retrying`, { campaignId, status: res?.status, message: res?.message })
+    } else {
+        throw new Error(`onboarding click failed: ${res.status}`)
+    }
+    await storage.set('onboardingClick', { ...click, sent: true })
+}
+
+/**
+ * The content script found campaignId / clickId on the welcome origin. Only that origin is
+ * believed: the sender's origin has to match the one the server returned.
+ */
+export const captureOnboardingClick = async (senderOrigin: string | undefined, campaignId: unknown, clickId: unknown): Promise<void> => {
+    const origin = await storage.get('onboardingOrigin')
+    if (!origin || senderOrigin !== origin) {
+        logger.warn(`[onboarding] Capture ignored - not from the welcome origin`, { senderOrigin })
+        return
+    }
+    if (typeof campaignId !== 'string' || typeof clickId !== 'string' || !campaignId || !clickId
+        || campaignId.length > MAX_ID_LENGTH || clickId.length > MAX_ID_LENGTH) {
+        logger.warn(`[onboarding] Capture ignored - invalid campaignId or clickId`)
+        return
+    }
+    // The welcome tab reports on every load; the same click once is enough.
+    // ponytail: two reports in the same tick can both POST; the server upserts, so no harm.
+    const previous: OnboardingClick | undefined = await storage.get('onboardingClick')
+    if (previous?.clickId === clickId && previous.sent) return
+
+    await storage.set('onboardingClick', { campaignId, clickId, sent: false })
+    await sendOnboardingClick()
+}
+
+/** Worker start: finish whatever an earlier run left behind. */
+export const retryPendingOnboarding = async (): Promise<void> => {
+    if (await storage.get('onboardingPending')) {
+        logger.info(`[onboarding] Retrying the welcome page from an earlier failed attempt`)
+        await openWelcomePage().catch(error => logger.error(`[onboarding] Welcome page retry failed`, { error }))
+    }
+    await sendOnboardingClick().catch(error => logger.error(`[onboarding] Click retry failed`, { error }))
+}

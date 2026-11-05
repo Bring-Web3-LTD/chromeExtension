@@ -40,6 +40,9 @@ const withExtensionId = (url: string) => {
 /** The welcome URL the partner asked for, with our extensionId on it. Undefined when the platform has none. */
 export const getOnboardingUrl = async (page: OnboardingPage): Promise<string | undefined> => {
     const config = await fetchOnboardingConfig()
+    // The partner may open this page on an install that never went through openWelcomePage;
+    // the content script only wakes up on the stored origin.
+    if (config.origin) await storage.set('onboardingOrigin', config.origin)
     const url = page === 'embed' ? config.embedUrl : config.startUrl
     return url ? withExtensionId(url) : undefined
 }

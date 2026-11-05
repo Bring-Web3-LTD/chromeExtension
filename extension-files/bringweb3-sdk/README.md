@@ -112,6 +112,43 @@ On a rewards platform (an extension with no wallet), the portal identifies the u
 id the kit created at install: it posts `GET_USER_ID` to its own window and the kit answers
 with `USER_ID`. Nothing to set in the extension either.
 
+### Onboarding (optional)
+Opt-in. On first install the kit opens Bring's welcome page in a tab, and if the user came
+from a Bring campaign (they passed through our page on the way to the Chrome Web Store),
+the kit pairs the install with that campaign: its rewards are paid in the campaign's token,
+and every request carries `onboardingCampaignId`. Updates and reloads open nothing (unless
+the install-time attempt failed, in which case it is retried on the next start). If you
+don't call these functions, nothing changes.
+
+```js
+// background.js - right after bringInitBackground, at the top level of the service worker
+import { bringInitBackground, bringInitOnboarding } from '@bringweb3/chrome-extension-kit';
+
+bringInitBackground({ ... });
+bringInitOnboarding();
+```
+```js
+// contentScript.js - next to bringInitContentScript
+import { bringInitOnboardingContentScript } from '@bringweb3/chrome-extension-kit';
+
+bringInitOnboardingContentScript({
+    // Called when the user clicks the wallet button on the welcome page; you decide what it opens.
+    onWalletClick: () => {...},
+});
+```
+The welcome page's "Go to Portal" opens `cashbackPagePath`.
+
+To open the welcome page yourself, or embed the start-screen block in your own page, ask
+the kit for the URL instead of hardcoding it. Works from any part of the extension once
+`bringInitBackground` has run:
+```js
+import { getOnboardingUrl } from '@bringweb3/chrome-extension-kit';
+
+const startUrl = await getOnboardingUrl('start'); // the welcome page, open it in a tab
+const embedUrl = await getOnboardingUrl('embed'); // the block to put in an iframe
+// undefined when your platform has no welcome page
+```
+
 ### contentScript.js
 ```js 
 import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";

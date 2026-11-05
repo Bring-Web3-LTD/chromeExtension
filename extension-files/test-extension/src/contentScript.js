@@ -1,5 +1,10 @@
 'use strict';
-import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";
+import { bringInitContentScript, bringInitOnboardingContentScript } from "@bringweb3/chrome-extension-kit";
+
+// Opt-in: handles the welcome page's buttons and the campaign it stored.
+bringInitOnboardingContentScript({
+    onWalletClick: () => { console.log('onWalletClick running from the extension') },
+});
 
 const promptLogin = async () => {
     chrome.runtime.sendMessage({

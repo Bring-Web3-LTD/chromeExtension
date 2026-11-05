@@ -1,5 +1,5 @@
 'use strict';
-import { bringInitBackground } from '@bringweb3/chrome-extension-kit'
+import { bringInitBackground, bringInitOnboarding } from '@bringweb3/chrome-extension-kit'
 
 // Set environment name from build configuration
 if (process.env.BUILD_ENV) {
@@ -21,6 +21,9 @@ bringInitBackground({
     notificationCallback: () => { console.log('notificationCallback running from the extension') },
 
 })
+
+// Opt-in: opens Bring's welcome page on first install (platforms with one).
+bringInitOnboarding()
 
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     if (message.from !== 'demoExtension') return;

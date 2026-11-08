@@ -1,0 +1,31 @@
+.badge {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.lg {
+    width: 82.084px;
+    height: 82.084px;
+}
+
+.sm {
+    width: 44px;
+    height: 44px;
+}
+
+/* The ring SVG is larger than the circle: it carries the drop shadow, offset as in the design */
+.ring {
+    position: absolute;
+    left: -15.59%;
+    top: -10.72%;
+    display: block;
+    max-width: none;
+}
+
+.logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    max-width: none;
+    object-fit: cover;
+}

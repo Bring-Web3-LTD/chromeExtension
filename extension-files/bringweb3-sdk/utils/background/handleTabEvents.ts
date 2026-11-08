@@ -106,7 +106,9 @@ const applyStandDown = async (url: string, chain: string[]): Promise<void> => {
     });
 };
 
-const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
+// `ready`: the listeners are registered synchronously at startup (see bringInitBackground);
+// the navigation work waits for it.
+const handleTabEvents = (ready: Promise<unknown>, cashbackPagePath: string | undefined, showNotifications: boolean, notificationCallback: (() => void) | undefined) => {
 
     // webNavigation and webRequest are validated present at init (see validatePermissions).
     registerRedirectChain();
@@ -425,7 +427,7 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         if (frameId !== 0) return;
         logger.debug(`[nav] URL changed (full page navigation)`, { tabId, url });
         navUrls.set(tabId, url);
-        onMainNavigation(tabId, url).catch(error => logger.error(`[flow] Navigation handling failed`, error));
+        ready.then(() => onMainNavigation(tabId, url)).catch(error => logger.error(`[flow] Navigation handling failed`, error));
     }, { url: [{ schemes: ['http', 'https'] }] });
 
     // SPA navigations — only processes if onCommitted hasn't handled this URL. Route
@@ -438,12 +440,12 @@ const handleTabEvents = (cashbackPagePath: string | undefined, showNotifications
         }
         logger.debug(`[nav] URL changed (SPA / history state update)`, { tabId, url });
         navUrls.set(tabId, url);
-        onMainNavigation(tabId, url, true).catch(error => logger.error(`[flow] Navigation handling failed`, error));
+        ready.then(() => onMainNavigation(tabId, url, true)).catch(error => logger.error(`[flow] Navigation handling failed`, error));
     }, { url: [{ schemes: ['http', 'https'] }] });
 
     chrome.webNavigation.onCompleted.addListener(async ({ tabId, frameId, url }) => {
         if (frameId !== 0) return;
-        onPageComplete(tabId, url).catch(error => logger.error(`[popup-check] Inline search failed`, error));
+        ready.then(() => onPageComplete(tabId, url)).catch(error => logger.error(`[popup-check] Inline search failed`, error));
     }, { url: [{ schemes: ['http', 'https'] }] });
 
     chrome.tabs.onRemoved.addListener((tabId) => {

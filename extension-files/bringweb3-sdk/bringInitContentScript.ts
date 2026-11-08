@@ -162,12 +162,27 @@ const bringInitContentScript = async ({
     }
 
     if (isSubframe() && isAllowedOrigin(window.document.location.origin, originAllowlist)) {
-        logger.debug(`[popup-msg] Portal iframe detected - listening for PORTAL_ACTIVATE`, { origin: window.document.location.origin });
+        logger.debug(`[popup-msg] Portal iframe detected - listening for PORTAL_ACTIVATE and GET_USER_ID`, { origin: window.document.location.origin });
 
         window.addEventListener('message', (e) => {
-            if (!e.data || e.data.from !== 'bringweb3' || e.data.action !== 'PORTAL_ACTIVATE') return;
+            if (!e.data || e.data.from !== 'bringweb3') return;
+            if (e.data.action !== 'PORTAL_ACTIVATE' && e.data.action !== 'GET_USER_ID') return;
 
             const { action, domain, extensionId, time, iframeUrl, token, platformName } = e.data
+
+            if (action === 'GET_USER_ID') {
+                // CAB (no wallet): the portal identifies the user by our install userId.
+                // It posts to its own window, so only answer this frame, this origin, our id.
+                if (e.source !== window || e.origin !== window.location.origin || extensionId !== chrome.runtime.id) return
+                logger.info(`[popup-msg] ${action} event sent`);
+                chrome.runtime.sendMessage({ action, from: 'bringweb3', source: 'portal' })
+                    .then(res => {
+                        if (!res?.userId) return
+                        window.postMessage({ to: 'bringweb3', action: 'USER_ID', userId: res.userId }, window.location.origin)
+                    })
+                    .catch(error => logger.warn(`[popup-msg] ${action} failed`, error))
+                return
+            }
 
             logger.info(`[popup-msg] ${action} event sent`);
             logger.debug(`[popup-msg] ${action} payload`, { domain, extensionId, time, platformName, source: 'portal', hasToken: !!token });

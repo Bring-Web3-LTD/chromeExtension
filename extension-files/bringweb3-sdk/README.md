@@ -108,6 +108,10 @@ is on the host, so the scheme and the path don't matter, but a port does: a port
 non-default port has to be listed with it (e.g. `http://localhost:5173`). Nothing to set in
 the extension.
 
+On a rewards platform (an extension with no wallet), the portal identifies the user by the
+id the kit created at install: it posts `GET_USER_ID` to its own window and the kit answers
+with `USER_ID`. Nothing to set in the extension either.
+
 ### contentScript.js
 ```js 
 import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";

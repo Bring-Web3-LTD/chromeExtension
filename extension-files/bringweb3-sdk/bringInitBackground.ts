@@ -83,8 +83,9 @@ const init = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitel
     // Initialize debug cache after API endpoint is set
     storage.initializeDebugCache()
 
-    // Settles once the environment and the migration are in place.
-    const ready = (async () => {
+    // Settles once the environment and the migration are in place (the module-level `ready` above
+    // covers the whole init, cache included).
+    const envReady = (async () => {
         // Dev environment segment. Later bringCache.set('envName', ...) calls sync the instance
         // through the storage helper; this read covers a restarted worker.
         apiEndpointInstance.setEnvName(await storage.get('envName') || '')
@@ -103,14 +104,14 @@ const init = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitel
     // A failed fetch must not take the navigation listeners down with it: without them the
     // popup never runs again for this worker's lifetime. The cache retries on the next
     // navigation anyway.
-    const cacheReady = ready.then(popupEnabled =>
+    const cacheReady = envReady.then(popupEnabled =>
         popupEnabled ? updateCache().catch(error => logger.error('initial cache update failed', { error })) : undefined)
 
     // Registered before the first await settles: Chrome hands the event that woke the worker
     // (a message, a navigation) only to listeners added synchronously at startup. A listener
     // added after an await misses it, so the first click after the worker idled did nothing.
     // Each handler waits for the init above before doing its work.
-    handleContentMessages(ready, cashbackPagePath, showNotifications)
+    handleContentMessages(envReady, cashbackPagePath, showNotifications)
     handleTabEvents(cacheReady, cashbackPagePath, showNotifications, notificationCallback)
 
     await cacheReady

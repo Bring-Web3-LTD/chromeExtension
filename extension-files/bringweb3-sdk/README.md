@@ -97,6 +97,8 @@ bringInitBackground({
        Use https: the requests carry your identifier and the user's wallet address.
        A value that isn't a valid URL throws at init. Omit it to use Bring's API directly. */
     baseUrl: 'https://api.partner.com/bring',
+    // open Bring's welcome page on first install (see "Onboarding" below)
+    onboarding: true,
 })
 ```
 
@@ -117,30 +119,31 @@ Opt-in. On first install the kit opens Bring's welcome page in a tab, and if the
 from a Bring campaign (they passed through our page on the way to the Chrome Web Store),
 the kit pairs the install with that campaign: its rewards are paid in the campaign's token,
 and every request carries `onboardingCampaignId`. Updates and reloads open nothing (unless
-the install-time attempt failed, in which case it is retried on the next start). If you
-don't call these functions, nothing changes.
+the install-time attempt failed, in which case it is retried on the next start). Without the
+`onboarding` options below, nothing changes.
 
 ```js
-// background.js - right after bringInitBackground, at the top level of the service worker
-import { bringInitBackground, bringInitOnboarding } from '@bringweb3/chrome-extension-kit';
-
-bringInitBackground({ ... });
-bringInitOnboarding();
-```
-```js
-// contentScript.js - next to bringInitContentScript
-import { bringInitOnboardingContentScript } from '@bringweb3/chrome-extension-kit';
-
-bringInitOnboardingContentScript({
-    // Called when the user clicks the wallet button on the welcome page; you decide what it opens.
-    onWalletClick: () => {...},
+// background.js
+bringInitBackground({
+    ...,
+    onboarding: true,
 });
 ```
-The welcome page's "Go to Portal" opens `cashbackPagePath`.
+```js
+// contentScript.js
+bringInitContentScript({
+    ...,
+    onboarding: {
+        // Called when the user clicks the wallet button on the welcome page; you decide what it opens.
+        onWalletClick: () => {...},
+    },
+});
+```
+The welcome page's "Go to Rewards" opens `cashbackPagePath`.
 
 To open the welcome page yourself, or embed the start-screen block in your own page, ask
 the kit for the URL instead of hardcoding it. Works from any part of the extension once
-`bringInitBackground` has run:
+`bringInitBackground` has run with `onboarding: true`:
 ```js
 import { getOnboardingUrl } from '@bringweb3/chrome-extension-kit';
 
@@ -181,6 +184,8 @@ bringInitContentScript({
       - Dark & light: https://media.bringweb3.io/examples/style/theme-dual.json
       If not provided (recommended), Bring will host the style. */
     styleUrl: 'https://<your-domain>',
+    // handle Bring's welcome page (see "Onboarding" above)
+    onboarding: { onWalletClick: () => {...} },
 });
 ```
 

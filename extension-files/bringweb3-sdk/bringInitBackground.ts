@@ -6,6 +6,7 @@ import handleContentMessages from './utils/background/handleContentMessages';
 import handleTabEvents from './utils/background/handleTabEvents';
 import { ENV_ENDPOINT } from "./utils/config.js";
 import { updateCache } from "./utils/background/updateCache.js";
+import { initOnboarding } from "./utils/background/onboarding.js";
 import { logger } from "./utils/logger.js";
 
 interface Configuration {
@@ -17,6 +18,7 @@ interface Configuration {
     isEnabledByDefault: boolean
     showNotifications?: boolean
     notificationCallback?: () => void
+    onboarding?: boolean
 }
 /**
  * Initializes the background script for the Bring extension.
@@ -31,6 +33,7 @@ interface Configuration {
  * @param {string} [configuration.cashbackPagePath] - Optional path to the cashback page.
  * @param {boolean} [configuration.isEnabledByDefault] - Determine if the user see the popup by default. defaults to true.
  * @param {boolean} [configuration.showNotifications] - Determine if the extension should show notifications about new rewards. defaults to true.
+ * @param {boolean} [configuration.onboarding] - Opt-in: open Bring's welcome page on first install and pair the install with the campaign the user came from. defaults to false.
  * @throws {Error} Throws an error if identifier or apiEndpoint is missing, or if apiEndpoint is invalid.
  * @returns {Promise<void>}
  *
@@ -60,14 +63,7 @@ interface Configuration {
 
 const ENDPOINT = ENV_ENDPOINT as EndpointName
 
-// Settles when the environment, the migration and the message listeners are in place, so
-// an opt-in started right after this init (bringInitOnboarding) sends nothing too early.
-let ready: Promise<void> | null = null
-export const backgroundReady = () => ready
-
-const bringInitBackground = (configuration: Configuration) => ready = init(configuration)
-
-const init = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback }: Configuration) => {
+const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback, onboarding = false }: Configuration) => {
     if (!identifier || !apiEndpoint) throw new Error('Missing configuration')
     validatePermissions()
     if (ENDPOINT) logger.debug('endpoint configured', { ENDPOINT });
@@ -83,9 +79,8 @@ const init = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitel
     // Initialize debug cache after API endpoint is set
     storage.initializeDebugCache()
 
-    // Settles once the environment and the migration are in place (the module-level `ready` above
-    // covers the whole init, cache included).
-    const envReady = (async () => {
+    // Settles once the environment and the migration are in place.
+    const ready = (async () => {
         // Dev environment segment. Later bringCache.set('envName', ...) calls sync the instance
         // through the storage helper; this read covers a restarted worker.
         apiEndpointInstance.setEnvName(await storage.get('envName') || '')
@@ -104,15 +99,18 @@ const init = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitel
     // A failed fetch must not take the navigation listeners down with it: without them the
     // popup never runs again for this worker's lifetime. The cache retries on the next
     // navigation anyway.
-    const cacheReady = envReady.then(popupEnabled =>
+    const cacheReady = ready.then(popupEnabled =>
         popupEnabled ? updateCache().catch(error => logger.error('initial cache update failed', { error })) : undefined)
 
     // Registered before the first await settles: Chrome hands the event that woke the worker
     // (a message, a navigation) only to listeners added synchronously at startup. A listener
     // added after an await misses it, so the first click after the worker idled did nothing.
     // Each handler waits for the init above before doing its work.
-    handleContentMessages(envReady, cashbackPagePath, showNotifications)
+    handleContentMessages(ready, cashbackPagePath, showNotifications)
     handleTabEvents(cacheReady, cashbackPagePath, showNotifications, notificationCallback)
+
+    // Onboarding (opt-in). Same rule: its install listener is registered here, synchronously.
+    if (onboarding) initOnboarding(ready)
 
     await cacheReady
 }

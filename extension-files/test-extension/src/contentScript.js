@@ -1,10 +1,5 @@
 'use strict';
-import { bringInitContentScript, bringInitOnboardingContentScript } from "@bringweb3/chrome-extension-kit";
-
-// Opt-in: handles the welcome page's buttons and the campaign it stored.
-bringInitOnboardingContentScript({
-    onWalletClick: () => { console.log('onWalletClick running from the extension') },
-});
+import { bringInitContentScript } from "@bringweb3/chrome-extension-kit";
 
 const promptLogin = async () => {
     chrome.runtime.sendMessage({
@@ -31,6 +26,10 @@ bringInitContentScript({
     text: 'lower',
     switchWallet: true,
     styleUrl: '',
+    // Opt-in: handles the welcome page's buttons and the campaign it stored.
+    onboarding: {
+        onWalletClick: () => { console.log('onWalletClick running from the extension') },
+    },
 });
 
 window.addEventListener('message', async event => {

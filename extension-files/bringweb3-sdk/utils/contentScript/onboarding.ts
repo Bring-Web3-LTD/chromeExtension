@@ -1,13 +1,13 @@
-import storage from "./utils/storage/storage.js";
-import { logger } from "./utils/logger.js";
-import { DAY_MS } from "./utils/constants.js";
+import storage from "../storage/storage.js";
+import { logger } from "../logger.js";
+import { DAY_MS } from "../constants.js";
 
 const ACTIONS = {
     OPEN_CASHBACK_PAGE: 'OPEN_CASHBACK_PAGE',
     OPEN_WALLET: 'OPEN_WALLET'
 }
 
-interface Configuration {
+export interface OnboardingConfiguration {
     onWalletClick: () => void
 }
 
@@ -41,23 +41,11 @@ const reportOnboardingClick = () => {
 }
 
 /**
- * Initializes the onboarding content script: handles the buttons on the welcome page.
- * Opt-in - call it next to bringInitContentScript only if you use the onboarding flow.
- *
- * @param {Object} configuration - The configuration object.
- * @param {Function} configuration.onWalletClick - Called when the user clicks "KDA Wallet" on the welcome page.
- * @throws {Error} Throws an error if onWalletClick is missing.
- * @returns {Promise<void>}
- *
- * @example
- * bringInitOnboardingContentScript({
- *   onWalletClick: () => { ... }
- * });
+ * Content-script side of the onboarding flow (bringInitContentScript with `onboarding`): on the
+ * welcome origin, reports the campaign the user came from and handles the welcome page's buttons.
+ * Runs in every frame (all_frames is on), so a welcome page in an iframe is handled too.
  */
-const bringInitOnboardingContentScript = async ({ onWalletClick }: Configuration) => {
-    if (typeof onWalletClick !== 'function') throw new Error('Missing configuration')
-
-    // Runs in every frame (all_frames is on), so a welcome page in an iframe is handled too.
+export const initOnboardingContentScript = async ({ onWalletClick }: OnboardingConfiguration) => {
     // Written by the background when it opens the welcome page. Unset means onboarding never ran.
     let origin: string | undefined
     try {
@@ -102,5 +90,3 @@ const bringInitOnboardingContentScript = async ({ onWalletClick }: Configuration
         }
     })
 }
-
-export default bringInitOnboardingContentScript;

@@ -20,7 +20,7 @@ const apiRequest = async (req: Request) => {
 
     const apiKey = apiEndpointInstance.getApiKey()
 
-    // Landing-page campaign captured at onboarding (bringInitOnboarding): rewards are paid in
+    // Landing-page campaign captured at onboarding (utils/background/onboarding): rewards are paid in
     // its token. Not `campaignId` - /activate already uses that key for the affiliate campaign.
     const onboardingCampaignId = await storage.get('onboardingCampaignId')
 

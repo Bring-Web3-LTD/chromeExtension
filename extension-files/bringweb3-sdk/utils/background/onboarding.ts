@@ -56,7 +56,7 @@ let opening: Promise<void> | null = null
  * The pending flag is set before the request, so an attempt that fails or is interrupted
  * is retried on the next worker start.
  */
-export const openWelcomePage = (): Promise<void> => {
+const openWelcomePage = (): Promise<void> => {
     if (opening) return opening
     return opening = (async () => {
         await storage.set('onboardingPending', true)
@@ -90,7 +90,7 @@ export const openWelcomePage = (): Promise<void> => {
  * the install (apiRequest puts it on every request). A rejection (4xx, or no status at all)
  * is final: the server won't take it later either. Anything else is kept for a retry.
  */
-export const sendOnboardingClick = async (): Promise<void> => {
+const sendOnboardingClick = async (): Promise<void> => {
     const click: OnboardingClick | undefined = await storage.get('onboardingClick')
     if (!click || click.sent) return
 
@@ -120,7 +120,7 @@ export const sendOnboardingClick = async (): Promise<void> => {
  * The content script found campaignId / clickId on the welcome origin. Only that origin is
  * believed: the sender's origin has to match the one the server returned.
  */
-export const captureOnboardingClick = async (senderOrigin: string | undefined, campaignId: unknown, clickId: unknown): Promise<void> => {
+const captureOnboardingClick = async (senderOrigin: string | undefined, campaignId: unknown, clickId: unknown): Promise<void> => {
     const origin = await storage.get('onboardingOrigin')
     if (!origin || senderOrigin !== origin) {
         logger.warn(`[onboarding] Capture ignored - not from the welcome origin`, { senderOrigin })
@@ -144,7 +144,7 @@ export const captureOnboardingClick = async (senderOrigin: string | undefined, c
  * The onboarding messages, on their own listener so none of this touches the shared one.
  * Registered synchronously; each handler waits for `ready` (bringInitBackground) before acting.
  */
-export const handleOnboardingMessages = (ready: Promise<void>) => {
+const handleOnboardingMessages = (ready: Promise<unknown>) => {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request?.from !== 'bringweb3') return
         const { action } = request
@@ -184,10 +184,31 @@ export const handleOnboardingMessages = (ready: Promise<void>) => {
 }
 
 /** Worker start: finish whatever an earlier run left behind. */
-export const retryPendingOnboarding = async (): Promise<void> => {
+const retryPendingOnboarding = async (): Promise<void> => {
     if (await storage.get('onboardingPending')) {
         logger.info(`[onboarding] Retrying the welcome page from an earlier failed attempt`)
         await openWelcomePage().catch(error => logger.error(`[onboarding] Welcome page retry failed`, { error }))
     }
     await sendOnboardingClick().catch(error => logger.error(`[onboarding] Click retry failed`, { error }))
+}
+
+/**
+ * Background side of the onboarding flow (bringInitBackground with `onboarding: true`): on first
+ * install, create the userId, ask Bring for the welcome page and open it; the welcome page then
+ * hands the kit the campaign the user came from. Listeners are registered synchronously, so this
+ * must run before the first await of the init; the work itself waits for `ready`.
+ */
+export const initOnboarding = (ready: Promise<unknown>) => {
+    // Updates, reloads and browser updates are not an install and open nothing.
+    chrome.runtime.onInstalled.addListener(({ reason }) => {
+        if (reason !== 'install') return
+        logger.info(`[onboarding] First install`)
+        ready.then(openWelcomePage)
+            .catch(error => logger.error(`[onboarding] Failed to open the welcome page, will retry on the next start`, { error }))
+    })
+
+    handleOnboardingMessages(ready)
+
+    ready.then(retryPendingOnboarding)
+        .catch(error => logger.error(`[onboarding] Not started`, { error }))
 }

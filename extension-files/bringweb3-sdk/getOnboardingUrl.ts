@@ -4,7 +4,7 @@ import type { OnboardingPage } from "./utils/background/onboarding.js";
 /**
  * The welcome page URL for this platform, fetched from Bring by the background script (which
  * holds the API key), so it can be called from any part of the extension: a popup, an
- * extension page or a content script. Requires bringInitBackground.
+ * extension page or a content script. Requires bringInitBackground with `onboarding: true`.
  *
  * @param page - 'start' for the welcome page to open in a tab, 'embed' for the block to embed in an iframe.
  * @returns A Promise resolving to the URL, or undefined when the platform has no welcome page.

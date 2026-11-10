@@ -20,7 +20,7 @@ bringInitBackground({
     showNotifications: true,
     notificationCallback: () => { console.log('notificationCallback running from the extension') },
     // Opt-in: opens Bring's welcome page on first install (platforms with one).
-    onboarding: true,
+    onboarding: { on: true },
 })
 
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {

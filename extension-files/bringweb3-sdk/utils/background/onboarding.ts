@@ -193,7 +193,7 @@ const retryPendingOnboarding = async (): Promise<void> => {
 }
 
 /**
- * Background side of the onboarding flow (bringInitBackground with `onboarding: true`): on first
+ * Background side of the onboarding flow (bringInitBackground with `onboarding: { on: true }`): on first
  * install, create the userId, ask Bring for the welcome page and open it; the welcome page then
  * hands the kit the campaign the user came from. Listeners are registered synchronously, so this
  * must run before the first await of the init; the work itself waits for `ready`.

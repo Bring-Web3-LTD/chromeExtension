@@ -98,7 +98,7 @@ bringInitBackground({
        A value that isn't a valid URL throws at init. Omit it to use Bring's API directly. */
     baseUrl: 'https://api.partner.com/bring',
     // open Bring's welcome page on first install (see "Onboarding" below)
-    onboarding: true,
+    onboarding: { on: true },
 })
 ```
 
@@ -126,7 +126,7 @@ the install-time attempt failed, in which case it is retried on the next start).
 // background.js
 bringInitBackground({
     ...,
-    onboarding: true,
+    onboarding: { on: true },
 });
 ```
 ```js
@@ -143,7 +143,7 @@ The welcome page's "Go to Rewards" opens `cashbackPagePath`.
 
 To open the welcome page yourself, or embed the start-screen block in your own page, ask
 the kit for the URL instead of hardcoding it. Works from any part of the extension once
-`bringInitBackground` has run with `onboarding: true`:
+`bringInitBackground` has run with `onboarding: { on: true }`:
 ```js
 import { getOnboardingUrl } from '@bringweb3/chrome-extension-kit';
 

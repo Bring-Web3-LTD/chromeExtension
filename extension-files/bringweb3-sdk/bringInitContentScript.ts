@@ -122,7 +122,7 @@ const removeElements = () => {
  * @param {string} [configuration.styleUrl] - Optional URL to a remote JSON theme file.
  * @param {string} configuration.theme - The chosen theme, light | dark.
  * @param {string} configuration.text - The chosen case for some of the texts, upper | lower.
- * @param {Object} [configuration.onboarding] - Opt-in: handle Bring's welcome page (requires `onboarding: true` in bringInitBackground).
+ * @param {Object} [configuration.onboarding] - Opt-in: handle Bring's welcome page (requires `onboarding: { on: true }` in bringInitBackground).
  * @param {Function} configuration.onboarding.onWalletClick - Called when the user clicks the wallet button on the welcome page.
  * @throws {Error} Throws an error if any required configuration is missing.
  * @returns {Promise<void>}

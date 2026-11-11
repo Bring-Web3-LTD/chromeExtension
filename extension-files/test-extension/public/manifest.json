@@ -37,5 +37,8 @@
   "host_permissions": [
     "http://*/*",
     "https://*/*"
-  ]
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://bringweb3.io https://*.bringweb3.io https://bring.network https://*.bring.network https://rewrds.xyz https://*.rewrds.xyz; frame-src https://bringweb3.io https://*.bringweb3.io https://bring.network https://*.bring.network https://rewrds.xyz https://*.rewrds.xyz"
+  }
 }

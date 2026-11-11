@@ -139,7 +139,9 @@ bringInitContentScript({
     },
 });
 ```
-The welcome page's "Go to Rewards" opens `cashbackPagePath`.
+The welcome page's "Go to Rewards" opens the rewards URL Bring configured for your platform
+(an https URL on Bring's origin allowlist), so it can change without a release on your side.
+Without one it opens `cashbackPagePath`.
 
 To open the welcome page yourself, or embed the start-screen block in your own page, ask
 the kit for the URL instead of hardcoding it. Works from any part of the extension once

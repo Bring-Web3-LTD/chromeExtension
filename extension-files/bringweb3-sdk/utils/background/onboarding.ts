@@ -1,6 +1,8 @@
 import apiRequest from "../api/apiRequest"
 import storage from "../storage/storage"
 import getUserId from "./getUserId"
+import getOriginAllowlist from "./getOriginAllowlist"
+import { isAllowedOrigin } from "../originAllowlist"
 import { logger } from "../logger"
 
 const REQUEST_TIMEOUT = 30000
@@ -45,6 +47,28 @@ export const getOnboardingUrl = async (page: OnboardingPage): Promise<string | u
     if (config.origin) await storage.set('onboardingOrigin', config.origin)
     const url = page === 'embed' ? config.embedUrl : config.startUrl
     return url ? withExtensionId(url) : undefined
+}
+
+/**
+ * Where the welcome page's "Go to Rewards" asked to go. The page takes it from its own URL
+ * (`rewardsUrl`, put there by our backend), so anyone can craft a /start link with their own:
+ * only an https url whose host is on the server's origin allowlist is opened. Undefined means
+ * the caller falls back to cashbackPagePath.
+ */
+export const allowedRewardsUrl = async (url: unknown): Promise<string | undefined> => {
+    if (typeof url !== 'string' || !url) return undefined
+    let parsed: URL
+    try {
+        parsed = new URL(url)
+    } catch {
+        logger.warn(`[onboarding] Rewards url ignored - not a url`)
+        return undefined
+    }
+    if (parsed.protocol !== 'https:' || !isAllowedOrigin(parsed.origin, await getOriginAllowlist())) {
+        logger.warn(`[onboarding] Rewards url ignored - not an https url on the origin allowlist`, { origin: parsed.origin })
+        return undefined
+    }
+    return parsed.toString()
 }
 
 // One attempt at a time: at install the onInstalled listener and the pending retry can both

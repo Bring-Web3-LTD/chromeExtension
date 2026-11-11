@@ -1,4 +1,4 @@
-import { ACTIONS, sendMessage } from '../../utils/sendMessage.ts'
+import { ACTIONS, sendMessage, openRewards } from '../../utils/sendMessage.ts'
 import { legalUrl } from '../../utils/legalUrl.ts'
 import BrandBadge, { Brand } from '../../components/BrandBadge/BrandBadge.tsx'
 import styles from './styles.module.css'
@@ -85,7 +85,7 @@ const Start = () => {
                 <ul className={styles.brands} aria-label="Brands">
                     {BRANDS.map(brand => <BrandBadge key={brand.name} brand={brand} size="lg" />)}
                 </ul>
-                <button type="button" className={styles.portal} onClick={() => sendMessage(ACTIONS.OPEN_CASHBACK_PAGE)}>Go to Rewards</button>
+                <button type="button" className={styles.portal} onClick={openRewards}>Go to Rewards</button>
                 {termsUrl &&
                     <p className={styles.terms}>
                         By continuing you agree to the <a href={termsUrl} target="_blank" rel="noopener noreferrer">Terms of Use<NewTab /></a>

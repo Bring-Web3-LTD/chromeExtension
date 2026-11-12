@@ -6,11 +6,22 @@ export const sendMessage = (action: ACTIONS, payload: { url?: string } = {}) => 
     window.postMessage({ from: 'bringweb3', action, extensionId, ...payload }, window.location.origin)
 }
 
-// "Go to Rewards". Where it leads comes from our backend as the `rewardsUrl` param on this page's
-// URL (TODO#764), passed through as is: the kit checks it against its origin allowlist before
-// opening anything. No param: no url, the kit opens the partner's cashbackPagePath.
+// Where "Go to Rewards" leads: the `rewardsUrl` param our backend put on this page's URL (TODO#764).
+// The kit opens whatever it gets, so the check is here: only an https url is sent. Anything else,
+// or no param, sends no url and the kit opens the partner's cashbackPagePath.
+export const rewardsUrl = (): string | null => {
+    const value = new URLSearchParams(window.location.search).get('rewardsUrl')
+    if (!value) return null
+    try {
+        const url = new URL(value)
+        return url.protocol === 'https:' ? url.toString() : null
+    } catch {
+        return null
+    }
+}
+
 export const openRewards = () => {
-    const url = new URLSearchParams(window.location.search).get('rewardsUrl')
+    const url = rewardsUrl()
     sendMessage(ACTIONS.OPEN_CASHBACK_PAGE, url ? { url } : {})
 }
 

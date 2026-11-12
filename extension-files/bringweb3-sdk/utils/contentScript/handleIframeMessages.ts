@@ -58,8 +58,8 @@ const handleIframeMessages = ({ event, iframeEl, promptLogin, originAllowlist, o
 
     // The popup posts from inside its iframe to the parent, so a message from this window
     // itself is never the popup's. The welcome page posts to its own window (onboarding.ts
-    // handles those); relaying them here too would skip the rewards url check and open twice
-    // if the welcome origin ever lands on the allowlist.
+    // handles those); relaying them here too would open the rewards page twice if the welcome
+    // origin ever lands on the allowlist.
     if (event.source === window) return
 
     // Without this any script on the page could post an ACTIVATE and drive a redirect -

@@ -1,6 +1,6 @@
 import { logger } from "../logger";
 
-export const openExtensionCashbackPage = (page: string | undefined) => {
+export const openExtensionCashbackPage = (page: string) => {
     if (!page) {
         logger.warn(`[cashback-page] Cashback page not opened — no URL in the request and no cashbackPagePath configured`)
         return

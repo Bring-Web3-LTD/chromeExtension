@@ -77,8 +77,8 @@ export const initOnboardingContentScript = async ({ onWalletClick }: OnboardingC
 
         switch (action) {
             case ACTIONS.OPEN_CASHBACK_PAGE:
-                // `url` is the rewardsUrl our backend put on the page's URL. Forwarded as is; the
-                // background opens it only if it passes the origin allowlist, else cashbackPagePath.
+                // `url` is the rewardsUrl our backend put on the page's URL (the page checks it is
+                // https before posting). Forwarded as is; without one the background opens cashbackPagePath.
                 chrome.runtime.sendMessage({ action, url, from: "bringweb3", source: 'onboarding' })
                     .catch(error => logger.warn(`[onboarding-msg] ${action} failed`, error))
                 break;

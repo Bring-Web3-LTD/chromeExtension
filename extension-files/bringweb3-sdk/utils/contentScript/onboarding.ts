@@ -65,7 +65,7 @@ export const initOnboardingContentScript = async ({ onWalletClick }: OnboardingC
         if (e.source !== window || e.origin !== origin) return
         if (!e.data || e.data.from !== 'bringweb3') return
 
-        const { action, extensionId } = e.data
+        const { action, extensionId, url } = e.data
 
         // Another extension with our kit may run on the same welcome page.
         if (extensionId !== chrome.runtime.id) {
@@ -77,8 +77,9 @@ export const initOnboardingContentScript = async ({ onWalletClick }: OnboardingC
 
         switch (action) {
             case ACTIONS.OPEN_CASHBACK_PAGE:
-                // No url: the page never chooses where we navigate, the background opens cashbackPagePath.
-                chrome.runtime.sendMessage({ action, from: "bringweb3", source: 'onboarding' })
+                // `url` is the rewardsUrl our backend put on the page's URL (the page checks it is
+                // https before posting). Forwarded as is; without one the background opens cashbackPagePath.
+                chrome.runtime.sendMessage({ action, url, from: "bringweb3", source: 'onboarding' })
                     .catch(error => logger.warn(`[onboarding-msg] ${action} failed`, error))
                 break;
             case ACTIONS.OPEN_WALLET:

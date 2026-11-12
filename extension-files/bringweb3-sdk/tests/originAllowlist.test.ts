@@ -51,8 +51,10 @@ describe('isAllowedOrigin', () => {
 describe('handleIframeMessages origin check', () => {
     const sendMessage = vi.fn()
 
-    const activate = (origin: string, originAllowlist: string[] = []) => handleIframeMessages({
-        event: { origin, data: { from: 'bringweb3', action: 'ACTIVATE', extensionId: 'other-extension', domain: 'a.com' } } as BringEvent,
+    // The popup posts from its iframe, so event.source is never the page window (a stand-in object here).
+    const pageWindow = {} as Window & typeof globalThis
+    const activate = (origin: string, originAllowlist: string[] = [], source: unknown = undefined) => handleIframeMessages({
+        event: { origin, source, data: { from: 'bringweb3', action: 'ACTIVATE', extensionId: 'other-extension', domain: 'a.com' } } as BringEvent,
         iframeEl: null,
         promptLogin: async () => { },
         originAllowlist
@@ -62,6 +64,7 @@ describe('handleIframeMessages origin check', () => {
         vi.clearAllMocks()
         vi.mocked(getInjectedIframeOrigin).mockReturnValue('https://popup.bringweb3.io')
             ; (globalThis as any).chrome = { runtime: { id: 'my-extension', sendMessage } }
+        vi.stubGlobal('window', pageWindow)
     })
 
     it('forwards an ACTIVATE from the injected iframe origin', () => {
@@ -82,6 +85,12 @@ describe('handleIframeMessages origin check', () => {
     it('drops an ACTIVATE from a page that self-hosts on a lookalike origin', () => {
         vi.mocked(getInjectedIframeOrigin).mockReturnValue(null)
         activate('https://evil-partner.com', [PARTNER])
+        expect(sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('drops a message the page posted to its own window, even from an allowed origin', () => {
+        activate('https://popup.bringweb3.io', [], pageWindow)
+        activate('https://rewards.partner.com', [PARTNER], pageWindow)
         expect(sendMessage).not.toHaveBeenCalled()
     })
 

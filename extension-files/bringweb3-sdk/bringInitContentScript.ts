@@ -6,6 +6,7 @@ import storage from "./utils/storage/storage.js";
 import { isAllowedOrigin } from "./utils/originAllowlist.js";
 import { contentScriptCleanup } from "./utils/contentScript/cleanupManager.js";
 import { IFRAME_ID_PREFIX } from "./utils/constants.js";
+import { initOnboardingContentScript, OnboardingConfiguration } from "./utils/contentScript/onboarding.js";
 import { logger } from "./utils/logger.js";
 
 let iframeEl: IFrame = null
@@ -98,6 +99,7 @@ interface Configuration {
     theme: string
     text: 'upper' | 'lower',
     switchWallet: boolean
+    onboarding?: OnboardingConfiguration
 }
 
 const removeElements = () => {
@@ -120,6 +122,8 @@ const removeElements = () => {
  * @param {string} [configuration.styleUrl] - Optional URL to a remote JSON theme file.
  * @param {string} configuration.theme - The chosen theme, light | dark.
  * @param {string} configuration.text - The chosen case for some of the texts, upper | lower.
+ * @param {Object} [configuration.onboarding] - Opt-in: handle Bring's welcome page (requires `onboarding: { on: true }` in bringInitBackground).
+ * @param {Function} configuration.onboarding.onWalletClick - Called when the user clicks the wallet button on the welcome page.
  * @throws {Error} Throws an error if any required configuration is missing.
  * @returns {Promise<void>}
  * 
@@ -146,8 +150,15 @@ const bringInitContentScript = async ({
     styleUrl,
     theme,
     text,
-    switchWallet = false
+    switchWallet = false,
+    onboarding
 }: Configuration) => {
+    // Onboarding (opt-in). Independent of the popup below, so it starts first and isn't awaited.
+    if (onboarding) {
+        if (typeof onboarding.onWalletClick !== 'function') throw new Error('Missing configuration')
+        initOnboardingContentScript(onboarding)
+    }
+
     // Loaded in the background, never awaited in the top frame: the INJECT listener below
     // must be registered before the background can send a popup, and a storage read (or a
     // worker round-trip) ahead of it delays or loses that message. The message handlers read

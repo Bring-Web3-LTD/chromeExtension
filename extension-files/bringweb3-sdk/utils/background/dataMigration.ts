@@ -1,5 +1,5 @@
 import storage from "../storage/storage"
-import isUuid from "./isUuid";
+import getUserId from "./getUserId";
 
 const CURRENT_MIGRATION_VERSION = 4;
 
@@ -54,11 +54,8 @@ const runMigrationTwo = async () => {
             await storage.set('quietDomains', quietDomains);
         }
 
-        let id = await storage.get('id');
-        if (!isUuid(id)) {
-            id = crypto.randomUUID();
-            await storage.set('id', id);
-        }
+        // Through getUserId, so an install-time caller (onboarding) and this share one id.
+        await getUserId();
 
         return true
     } catch (error) {

@@ -19,7 +19,8 @@ bringInitBackground({
     cashbackPagePath: '/main_window.html#/cashback',
     showNotifications: true,
     notificationCallback: () => { console.log('notificationCallback running from the extension') },
-
+    // Opt-in: opens Bring's welcome page on first install (platforms with one).
+    onboarding: { on: true },
 })
 
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {

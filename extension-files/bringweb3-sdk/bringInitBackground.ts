@@ -6,6 +6,7 @@ import handleContentMessages from './utils/background/handleContentMessages';
 import handleTabEvents from './utils/background/handleTabEvents';
 import { ENV_ENDPOINT } from "./utils/config.js";
 import { updateCache } from "./utils/background/updateCache.js";
+import { initOnboarding } from "./utils/background/onboarding.js";
 import { logger } from "./utils/logger.js";
 
 interface Configuration {
@@ -17,6 +18,7 @@ interface Configuration {
     isEnabledByDefault: boolean
     showNotifications?: boolean
     notificationCallback?: () => void
+    onboarding?: { on: boolean }
 }
 /**
  * Initializes the background script for the Bring extension.
@@ -31,6 +33,8 @@ interface Configuration {
  * @param {string} [configuration.cashbackPagePath] - Optional path to the cashback page.
  * @param {boolean} [configuration.isEnabledByDefault] - Determine if the user see the popup by default. defaults to true.
  * @param {boolean} [configuration.showNotifications] - Determine if the extension should show notifications about new rewards. defaults to true.
+ * @param {Object} [configuration.onboarding] - Opt-in: open Bring's welcome page on first install and pair the install with the campaign the user came from.
+ * @param {boolean} configuration.onboarding.on - Turns the onboarding flow on. defaults to false.
  * @throws {Error} Throws an error if identifier or apiEndpoint is missing, or if apiEndpoint is invalid.
  * @returns {Promise<void>}
  *
@@ -60,7 +64,7 @@ interface Configuration {
 
 const ENDPOINT = ENV_ENDPOINT as EndpointName
 
-const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback }: Configuration) => {
+const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackPagePath, whitelistEndpoint, isEnabledByDefault = true, showNotifications = true, notificationCallback, onboarding }: Configuration) => {
     if (!identifier || !apiEndpoint) throw new Error('Missing configuration')
     validatePermissions()
     if (ENDPOINT) logger.debug('endpoint configured', { ENDPOINT });
@@ -105,6 +109,9 @@ const bringInitBackground = async ({ identifier, apiEndpoint, baseUrl, cashbackP
     // Each handler waits for the init above before doing its work.
     handleContentMessages(ready, cashbackPagePath, showNotifications)
     handleTabEvents(cacheReady, cashbackPagePath, showNotifications, notificationCallback)
+
+    // Onboarding (opt-in). Same rule: its install listener is registered here, synchronously.
+    if (onboarding?.on) initOnboarding(ready)
 
     await cacheReady
 }

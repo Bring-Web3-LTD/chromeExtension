@@ -26,6 +26,10 @@ bringInitContentScript({
     text: 'lower',
     switchWallet: true,
     styleUrl: '',
+    // Opt-in: handles the welcome page's buttons and the campaign it stored.
+    onboarding: {
+        onWalletClick: () => { console.log('onWalletClick running from the extension') },
+    },
 });
 
 window.addEventListener('message', async event => {

@@ -1,5 +1,17 @@
 # @bringweb3/chrome-extension-kit
 
+## 1.10.0
+
+### Minor Changes
+
+- ae5e1c0: Optional onboarding flow: `bringInitBackground({ onboarding: { on: true } })` opens Bring's welcome page on first install, `bringInitContentScript({ onboarding: { onWalletClick } })` captures the landing campaign the user came from and pairs it with the install, every request then carries `onboardingCampaignId`, and `getOnboardingUrl()` gives partners the welcome page URLs. `getUserId()` now shares one write between concurrent first calls.
+- dfa31ed: Add the `GET_USER_ID` message: the portal, running inside a rewards extension (CAB) with no wallet, asks the kit for the userId created at install and gets a `USER_ID` reply posted to its own origin.
+
+### Patch Changes
+
+- 930aa62: Accessibility (WCAG 2.1 AA): name the injected iframe per surface and hand keyboard focus to it on open
+- 1839244: Onboarding: the welcome page's "Go to Rewards" opens the `rewardsUrl` Bring configures per platform, with `cashbackPagePath` as the fallback.
+
 ## 1.9.0
 
 ### Minor Changes

@@ -17,7 +17,6 @@ import samsung from '../../assets/samsung.png'
 import lg from '../../assets/lg.png'
 import dell from '../../assets/dell.png'
 import lenovo from '../../assets/lenovo.png'
-import tetherGold from '../../assets/tether-gold.png'
 import ambientGlow from '../../assets/ambient-glow.svg'
 import sparkle1 from '../../assets/sparkle-1.svg'
 import sparkle2 from '../../assets/sparkle-2.svg'
@@ -97,12 +96,6 @@ const Start = () => {
                 <div className={styles.links}>
                     <span>Powered by Bring</span>
                     {privacyUrl && <a href={privacyUrl} target="_blank" rel="noopener noreferrer">Privacy Policy<NewTab /></a>}
-                </div>
-                <div className={styles.claim}>
-                    <span>Claimed with</span>
-                    <span className={styles.plate}>
-                        <img src={tetherGold} alt="Tether Gold" />
-                    </span>
                 </div>
             </footer>
         </div>

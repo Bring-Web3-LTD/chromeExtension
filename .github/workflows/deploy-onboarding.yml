@@ -99,6 +99,8 @@ jobs:
           fi
         env:
           NODE_ENV: production
+          # x-api-key for /go/<campaignId>'s campaign resolve call (the EXTENSION-WELCOME key)
+          ONBOARDING_API_KEY: ${{ secrets.ONBOARDING_API_KEY }}
 
       - name: Upload to S3
         run: |

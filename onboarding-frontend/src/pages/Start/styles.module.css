@@ -206,27 +206,3 @@
     gap: 26px;
     color: rgba(255, 255, 255, 0.5);
 }
-
-.claim {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #d3b25b;
-    font-weight: 500;
-}
-
-.plate {
-    display: flex;
-    align-items: center;
-    height: 34px;
-    border: 1px solid #d3b25b;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    overflow: hidden;
-}
-
-.plate img {
-    width: 90px;
-    height: 22px;
-    object-fit: contain;
-}

@@ -88,6 +88,8 @@
     align-self: flex-start;
     justify-content: center;
     gap: 7px;
+    /* Keeps the bar's height when it has no wallet controls (CAB), so the layout below does not shift */
+    min-height: 24px;
 }
 
 .wallet_container {

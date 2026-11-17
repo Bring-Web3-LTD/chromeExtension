@@ -1,0 +1,25 @@
+# temp: delete after Node 24 action bump verified
+name: Node24 smoke
+on:
+  push:
+    branches: [ci-node24-test]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 'lts/*'
+          cache: 'yarn'
+          cache-dependency-path: 'iframe-frontend/yarn.lock'
+      - run: yarn --cwd iframe-frontend install --frozen-lockfile
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+          role-session-name: node24-smoke
+      - run: aws sts get-caller-identity

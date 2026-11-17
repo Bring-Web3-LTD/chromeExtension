@@ -160,6 +160,13 @@ if [ "$ONBOARDING_ONLY" = true ]; then
     MSYS_NO_PATHCONV=1 yarn build --base="$BASE_PATH"
     cd ..
     echo "✓ Onboarding frontend build complete"
+
+    # Copy to builds/<env>/v<version>/onboarding-frontend, next to the iframe build (the temp env deployer uploads from there)
+    BUILD_OUTPUT_DIR="builds/${ENV_PARAM:-prod}/v$VERSION"
+    mkdir -p "$BUILD_OUTPUT_DIR"
+    rm -rf "$BUILD_OUTPUT_DIR/onboarding-frontend"
+    cp -r onboarding-frontend/dist "$BUILD_OUTPUT_DIR/onboarding-frontend"
+    echo "✓ Onboarding frontend copied to: $BUILD_OUTPUT_DIR/onboarding-frontend"
     exit 0
 fi
 

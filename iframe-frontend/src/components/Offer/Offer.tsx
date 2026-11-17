@@ -55,8 +55,12 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
         followups,
         offerText,
         isOfferBar,
-        bringTou
+        bringTou,
+        platformType,
+        surface
     } = useRouteLoaderData('root') as LoaderData
+    // A rewards platform inside an extension (CAB) has no wallet to connect: no Connect / Switch wallet
+    const isRewardsExtension = platformType === 'rewards' && surface === 'extension'
 
     const [optOutOpen, setOptOutOpen] = useState(false)
     const [showTerms, setShowTerms] = useState(false)
@@ -208,7 +212,7 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                                         <span id="wallet-address" className={styles.wallet} aria-hidden="true">{splitWordMaxFive(walletAddress)}</span>
                                         <span className="sr-only">Wallet address {walletAddress}</span>
                                     </div>
-                                    :
+                                    : isRewardsExtension ? null :
                                     <button
                                         id="connect-wallet-btn"
                                         className={`${styles.wallet_container} ${styles.wallet} ${styles.connect_btn}`}
@@ -217,8 +221,10 @@ const Offer = ({ closeFn, onCollapse }: Props) => {
                                         Connect wallet
                                     </button>
                                 }
-                                <SwitchBtn
-                                />
+                                {isRewardsExtension ? null :
+                                    <SwitchBtn
+                                    />
+                                }
                                 {walletAddress && isTester ?
                                     <div id="demo-container" className={styles.demo_container}>
                                         <input

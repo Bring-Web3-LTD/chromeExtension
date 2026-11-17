@@ -81,6 +81,8 @@ declare global {
         networkUrl: string
         beamer: boolean
         iframeStyle?: Record<string, string>
+        platformType?: 'integrated' | 'rewards' | null
+        surface?: 'extension' | 'webpage' | null
     }
 
     interface ActivatedData extends Info {

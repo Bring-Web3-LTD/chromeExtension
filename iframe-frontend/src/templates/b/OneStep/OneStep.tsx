@@ -21,6 +21,7 @@ import { sendMessage, ACTIONS } from "../../../utils/sendMessage"
 import { ACTIVATE_QUIET_TIME, ENV } from "../../../config"
 import parseTime from '../../../utils/parseTime'
 import { useActivationPayload } from "../../../hooks/useActivationPayload"
+import tokenLabel from "../../../utils/tokenLabel"
 
 
 const slideVariants = {
@@ -43,12 +44,13 @@ const slideVariants = {
 
 
 const OneStep = () => {
-    const { cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar } = useRouteLoaderData('root') as LoaderData
+    const { cashbackSymbol, maxCashback, cashbackCurrency, cryptoSymbols, cryptoTokens, walletAddress, platformName, retailerId, name, url, flowId, domain, isTester, version, topGeneralTermsUrl, retailerTermsUrl, generalTermsUrl, userId, isOfferBar } = useRouteLoaderData('root') as LoaderData
     const activationPayload = useActivationPayload()
     const [[isShowingTerms, direction], setIsShowingTerms] = useState([false, 0])
     const [markdownContent, setMarkdownContent] = useState('')
     const [isShowingTurnoff, setIsShowingTurnoff] = useState(false)
     const tokenSymbol = cryptoSymbols[0]
+    const tokenName = tokenLabel({ cryptoSymbols, cryptoTokens })
     const [status, setStatus] = useState<'idle' | 'waiting' | 'activating' | 'done'>('idle')
     const [optoutPeriod, setOptoutPeriod] = useState<number | null>(null)
     const [isOptedOut, setIsOptedOut] = useState(false)
@@ -187,7 +189,7 @@ const OneStep = () => {
                         </div>
                         <Icon id="onestep-coins-icon" name="coins.svg" alt="coins" />
                         <h1 id="onestep-title" className={styles.title}>Activate Shop to Earn here</h1>
-                        <h2 id="onestep-subtitle" className={styles.subtitle}>Get up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} back in {tokenSymbol} when you shop at {name}.</h2>
+                        <h2 id="onestep-subtitle" className={styles.subtitle}>Get up to {formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} back in {tokenName} when you shop at {name}.</h2>
                         <button
                             id="onestep-terms-btn"
                             className={styles.termsBtn}
@@ -196,7 +198,7 @@ const OneStep = () => {
                             <Icon id="onestep-info-icon" name="info.svg" alt="info icon" />
                             Cashback terms
                         </button>
-                        <div id="onestep-clarify-text" className={styles.clarify}>You'll get a reward notification within 48 hours. {tokenSymbol} arrives after the return period ends.</div>
+                        <div id="onestep-clarify-text" className={styles.clarify}>You'll get a reward notification within 48 hours. {tokenName} arrives after the return period ends.</div>
                         <div id="onestep-btns" className={styles.btns}>
                             <button
                                 id="onestep-turnoff-btn"

@@ -15,6 +15,7 @@ import activate from '../../api/activate'
 import { OB_ACTIVATE_QUIET_TIME } from '../../config'
 import { useActivationPayload } from '../../hooks/useActivationPayload'
 import { useEscape } from '../../hooks/useEscape'
+import tokenLabel from '../../utils/tokenLabel'
 
 const THIRTY_MIN_MS = 30 * 60 * 1000
 
@@ -24,6 +25,7 @@ const Offerbar = () => {
     textMode,
     domain,
     cryptoSymbols,
+    cryptoTokens,
     maxCashback,
     cashbackSymbol,
     cashbackCurrency,
@@ -44,6 +46,7 @@ const Offerbar = () => {
     iframeStyle: themeIframeStyle,
     zIndex
   } = useRouteLoaderData('root') as LoaderData
+  const tokenName = tokenLabel({ cryptoSymbols, cryptoTokens })
   const [showOptout, setShowOptout] = useState(false)
   const [isOptedOut, setIsOptedOut] = useState(false)
   const [announcement, setAnnouncement] = useState('')
@@ -152,11 +155,11 @@ const Offerbar = () => {
             className={styles.offer_text_container}
             role="heading"
             aria-level={1}
-            aria-label={`Up to ${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} ${cryptoSymbols[0]} cashback`}
+            aria-label={`Up to ${formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)} ${tokenName} cashback`}
           >
             <div id="offerbar-offer-text-up-to" className={styles.offer_text} aria-hidden="true">Up to</div>
             <div id="offerbar-cashback-amount" className={styles.offer_amount} aria-hidden="true">{formatCashback(+maxCashback, cashbackSymbol, cashbackCurrency)}</div>
-            <div id="offerbar-crypto-symbol" className={styles.offer_amount} aria-hidden="true">{cryptoSymbols[0]}</div>
+            <div id="offerbar-crypto-symbol" className={styles.offer_amount} aria-hidden="true">{tokenName}</div>
             <div id="offerbar-offer-text-cashback" className={styles.offer_text} aria-hidden="true">Cashback</div>
           </div>
           <button id="offerbar-activate-btn" className={styles.activateButton} onClick={handleActivate} disabled={status !== 'idle'}>

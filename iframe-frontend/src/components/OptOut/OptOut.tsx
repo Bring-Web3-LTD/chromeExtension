@@ -7,6 +7,7 @@ import toCapital from '../../utils/toCapital';
 import toCaseString from '../../utils/toCaseString';
 import isLegacyCapSdk from '../../utils/isLegacyCapSdk';
 import { useFocusPanel } from '../../hooks/useFocusPanel';
+import tokenLabel from '../../utils/tokenLabel';
 
 interface Option {
     label: string
@@ -81,7 +82,8 @@ interface Props {
 }
 
 const OptOut = ({ onClose, onOpted }: Props) => {
-    const { cryptoSymbols, platformName, displayPlatformName, textMode, domain, verifiedMatch, name, version } = useRouteLoaderData('root') as LoaderData
+    const { cryptoSymbols, cryptoTokens, platformName, displayPlatformName, textMode, domain, verifiedMatch, name, version } = useRouteLoaderData('root') as LoaderData
+    const tokenName = tokenLabel({ cryptoSymbols, cryptoTokens })
     const { sendAnalyticsEvent } = useAnalytics()
     const [isOpted, setIsOpted] = useState(false)
 
@@ -139,7 +141,7 @@ const OptOut = ({ onClose, onOpted }: Props) => {
                     <div id="opt-out-card" className={styles.card}>
                         <div id="opt-out-title" className={styles.title}>Turn off cashback offers</div>
                         <div id="opt-out-description" className={styles.description}>
-                            With {cryptoSymbols[0]} cashback you earn {cryptoSymbols[0]}, right in<br />your wallet, on everyday purchases
+                            With {tokenName} cashback you earn {tokenName}, right in<br />your wallet, on everyday purchases
                         </div>
                                 <RadioGroup
                                     options={websiteOptions}

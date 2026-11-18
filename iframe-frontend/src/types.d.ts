@@ -41,6 +41,8 @@ declare global {
         topGeneralTermsUrl: string
         generalTermsUrl: string
         cryptoSymbols: string[]
+        /** Per-asset info, sent to SDK >= 1.8.0 only. `displayName` is null when unset. */
+        cryptoTokens?: { symbol: string, displayName: string | null }[]
         iconUrl: string
         url: string
         domain: string,
@@ -85,8 +87,10 @@ declare global {
         surface?: 'extension' | 'webpage' | null
     }
 
-    interface ActivatedData extends Info {
+    interface ActivatedData extends Omit<Info, 'displayName'> {
         tokenSymbol: string
+        /** The token's display name (not the retailer's), null when unset. */
+        displayName: string | null
         iconsPath: string
         version: string
     }

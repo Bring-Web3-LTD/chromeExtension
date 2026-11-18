@@ -10,7 +10,8 @@ const router = createBrowserRouter([
         errorElement: <NotFound />,
         children: [
             {
-                path: '/go',
+                // Extension (CAB) campaign links: /go/<campaignId>?cid=<click id>
+                path: '/go/:campaignId',
                 element: <Go />
             },
             {

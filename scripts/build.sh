@@ -17,7 +17,7 @@
 #   --iframe-api-key VALUE   - API key for iframe-frontend (VITE_API_KEY)
 #   --version VALUE          - SDK version (optional)
 #   --iframe-only            - Build only the iframe-frontend (skips SDK & extension)
-#   --onboarding-only        - Build only the onboarding-frontend (no API key needed)
+#   --onboarding-only        - Build only the onboarding-frontend (API key from ONBOARDING_API_KEY)
 
 set -e  # Exit on error
 
@@ -39,7 +39,7 @@ OPTIONS:
     --iframe-api-key VALUE  API key for iframe-frontend (required or use .env.local)
     --version VALUE         SDK version (optional, reads from package.json if omitted)
     --iframe-only           Build only the iframe-frontend (skip SDK, extension, zip)
-    --onboarding-only       Build only the onboarding-frontend (no API key needed)
+    --onboarding-only       Build only the onboarding-frontend (needs ONBOARDING_API_KEY in the environment)
     -h, --help             Show this help message
 
 EXAMPLES:
@@ -56,7 +56,7 @@ EXAMPLES:
     ./scripts/build.sh automation --iframe-only --iframe-api-key my-key --version 1.6.4
 
     # Onboarding-only build (CI mode)
-    ./scripts/build.sh --onboarding-only --version 1.6.4
+    ONBOARDING_API_KEY=my-key ./scripts/build.sh --onboarding-only --version 1.6.4
 
     # Using .env.local for iframe API key
     ./scripts/build.sh --identifier my-id --wallet addr1qy...
@@ -145,13 +145,25 @@ else
 fi
 export VITE_BASE_PATH="$BASE_PATH"
 
-# Onboarding-only: static pages with no API, so skip API URL/key setup entirely
+# Onboarding-only: static pages; only /go/<campaignId> calls the API (campaign resolve),
+# with its own key (the EXTENSION-WELCOME key), not the iframe one
 if [ "$ONBOARDING_ONLY" = true ]; then
+    if [ -z "$ONBOARDING_API_KEY" ]; then
+        echo "❌ ERROR: ONBOARDING_API_KEY is required for the onboarding build"
+        exit 1
+    fi
+    export VITE_API_KEY="$ONBOARDING_API_KEY"
+    if [ -z "$ENV_PARAM" ]; then
+        export VITE_API_ENDPOINT="https://$HOST/v1"
+    else
+        export VITE_API_ENDPOINT="https://$HOST/$ENV_PARAM/v1"
+    fi
     echo "========================================"
     echo "Building onboarding-frontend..."
     echo "Environment: ${ENV_PARAM:-prod}"
     echo "Version: $VERSION"
     echo "Base Path: $BASE_PATH"
+    echo "API Endpoint: $VITE_API_ENDPOINT"
     echo "========================================"
 
     NODE_ENV=development yarn install --cwd onboarding-frontend --frozen-lockfile

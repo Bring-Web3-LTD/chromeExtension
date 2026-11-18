@@ -1,12 +1,19 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import NotFound from '../NotFound.tsx'
-import { ONBOARDING_KEY, REDIRECT_HOSTS } from '../../config.ts'
+import { API_ENDPOINT, API_KEY, ONBOARDING_KEY, REDIRECT_HOSTS } from '../../config.ts'
 
-// The campaign page links here on "download". We remember which campaign and click the
-// visitor came from, then send them on to the Chrome Web Store. After install the extension
-// kit opens this origin again and reads the values back. No UI.
-const storeUrl = (value: string | null) => {
-    if (!value) return null
+// `/go/<campaignId>?cid=<click id>`: the link a publisher gets for an extension (CAB)
+// campaign. No UI. Bring's API checks the campaign is active, records the click and
+// returns the Chrome Web Store page of the campaign's extension. We remember which
+// campaign and click the visitor came from, then send them on to the store. After
+// install the extension kit opens this origin again and reads the values back.
+//
+// An unknown, paused or non-extension campaign, or any failure, shows the 404.
+const CAMPAIGN_ID_RE = /^[0-9A-Za-z]{5}$/
+
+const storeUrl = (value: unknown) => {
+    if (typeof value !== 'string') return null
     try {
         const url = new URL(value)
         return url.protocol === 'https:' && REDIRECT_HOSTS.includes(url.hostname) ? url.toString() : null
@@ -15,25 +22,53 @@ const storeUrl = (value: string | null) => {
     }
 }
 
+const resolveStoreUrl = async (campaignId: string, clickId: string | null, signal: AbortSignal) => {
+    const res = await fetch(`${API_ENDPOINT}/auth/campaign-link/resolve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+        body: JSON.stringify({ campaignId, ...(clickId && { clickId }) }),
+        signal,
+    })
+    if (!res.ok) throw new Error(`campaign resolve failed: ${res.status}`)
+    const body = await res.json()
+    const url = storeUrl(body?.storeUrl)
+    if (!url) throw new Error('campaign has no store page')
+    return url
+}
+
 const Go = () => {
-    const params = new URLSearchParams(window.location.search)
-    const redirect = storeUrl(params.get('redirect'))
-    const campaignId = params.get('campaignId')
-    const clickId = params.get('clickId')
+    const { campaignId = '' } = useParams()
+    const clickId = new URLSearchParams(window.location.search).get('cid')
+    const [failed, setFailed] = useState(!CAMPAIGN_ID_RE.test(campaignId))
 
     useEffect(() => {
-        if (!redirect) return
-        if (campaignId && clickId) {
-            try {
-                localStorage.setItem(ONBOARDING_KEY, JSON.stringify({ campaignId, clickId, ts: Date.now() }))
-            } catch {
-                // Storage blocked (private mode, site data off): the visitor still gets to the store.
-            }
-        }
-        window.location.replace(redirect)
-    }, [redirect, campaignId, clickId])
+        if (!CAMPAIGN_ID_RE.test(campaignId)) return
+        // Abort on unmount / StrictMode's dev-only double effect, so a stale
+        // response can't redirect after the fact
+        const controller = new AbortController()
+        resolveStoreUrl(campaignId, clickId, controller.signal)
+            .then((url) => {
+                // No click id, no attribution: the visitor still gets to the store
+                if (clickId) {
+                    try {
+                        localStorage.setItem(ONBOARDING_KEY, JSON.stringify({ campaignId, clickId, ts: Date.now() }))
+                    } catch {
+                        // Storage blocked (private mode, site data off): the visitor still gets to the store.
+                    }
+                }
+                window.location.replace(url)
+            })
+            .catch((err) => {
+                if (controller.signal.aborted) return
+                console.warn('campaign link failed', campaignId, err)
+                setFailed(true)
+            })
+        return () => controller.abort()
+    }, [campaignId, clickId])
 
-    return redirect ? null : <NotFound />
+    // The live region is there from the first render, so the 404 that replaces the
+    // empty page after a failed resolve is announced to screen readers
+    return <div aria-live="polite">{failed ? <NotFound /> : null}</div>
 }
 
 export default Go

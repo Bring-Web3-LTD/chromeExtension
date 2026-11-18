@@ -1,21 +1,33 @@
-/* Ecko's start screen gives us a 355x353 slot. Max/min instead of fixed, so a narrower slot
-   or enlarged text grows the frame instead of clipping the button. */
+/* Designed at 355x353 (Ecko's popup). Fills whatever width the host gives it, so the full-tab
+   wallet gets a full-width banner. Min-height instead of fixed, so enlarged text grows the
+   frame instead of clipping the button. */
 .frame {
     position: relative;
     width: 100%;
-    max-width: 355px;
     min-height: 353px;
-    margin: 0 auto;
     overflow: hidden;
 }
 
+/* Up to the image's 450px width: the design's crop, kept centred */
 .background {
     position: absolute;
-    left: -47.5px;
+    left: calc(50% - 225px);
     top: 70px;
     width: 450px;
     height: 300px;
     pointer-events: none;
+}
+
+/* Wider than the image: cover the frame, or its edges would show. Top-anchored as in the
+   design: the image's dark top sits behind the text, keeping "Offering:" at 4.5:1. */
+@media (min-width: 451px) {
+    .background {
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+    }
 }
 
 .scrim {

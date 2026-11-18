@@ -64,6 +64,18 @@ Include this configuration inside your `manifest.json` file:
   ]
 ```
 
+### Content Security Policy
+Required only if your `manifest.json` already has a `content_security_policy`. If it doesn't, you don't have to add one: Chrome's default extension CSP (`script-src 'self'; object-src 'self'`) doesn't restrict API calls or frames.
+
+If you do have one, the kit's background calls Bring's API and Bring pages (portal, onboarding) can be embedded in your extension pages, so your policy has to allow Bring's domains and their subdomains. Add these sources to the directives you already have instead of replacing them:
+```json
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://bringweb3.io https://*.bringweb3.io https://bring.network https://*.bring.network https://rewrds.xyz https://*.rewrds.xyz; frame-src https://bringweb3.io https://*.bringweb3.io https://bring.network https://*.bring.network https://rewrds.xyz https://*.rewrds.xyz"
+  }
+```
+- `*.domain` does not cover the bare domain, so each domain is listed twice.
+- If you set `baseUrl` or `whitelistEndpoint`, add their origins to `connect-src` too. If you embed a self-hosted portal, add its origin to `frame-src`.
+
 
 ## Importing
 Once the package is installed, you can import the library using `import` or `require` approach:

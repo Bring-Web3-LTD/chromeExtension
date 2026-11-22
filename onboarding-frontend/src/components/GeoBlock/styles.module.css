@@ -1,0 +1,69 @@
+/* Rewards Hub "Geo Block" frames (Figma 4027-12627 desktop, 4027-12667 mobile). */
+.overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    /* A card taller than the viewport (mobile landscape, large text) scrolls */
+    overflow-y: auto;
+    background: #090c11;
+}
+
+.card {
+    /* margin: auto centers it when it fits and starts it at the top when it does not */
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 30rem;
+    padding: 2.5rem;
+    box-sizing: border-box;
+    border: 1px solid rgba(245, 248, 255, 0.16);
+    border-radius: 1rem;
+    background: #1b1e24;
+    text-align: center;
+}
+
+.icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.title {
+    margin: 0;
+    color: #f5f8ff;
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.body {
+    margin: 0;
+    color: #b1b4bb;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+    .card {
+        max-width: 20.4375rem;
+        padding: 2rem 1.5rem;
+    }
+
+    .icon {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .body {
+        font-size: 0.9375rem;
+    }
+}

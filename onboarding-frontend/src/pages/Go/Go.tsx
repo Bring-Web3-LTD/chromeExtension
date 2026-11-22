@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import NotFound from '../NotFound.tsx'
+import GeoBlock from '../../components/GeoBlock/GeoBlock.tsx'
 import { API_ENDPOINT, API_KEY, ONBOARDING_KEY, REDIRECT_HOSTS } from '../../config.ts'
 
 // `/go/<campaignId>?cid=<click id>`: the link a publisher gets for an extension (CAB)
@@ -9,7 +10,8 @@ import { API_ENDPOINT, API_KEY, ONBOARDING_KEY, REDIRECT_HOSTS } from '../../con
 // campaign and click the visitor came from, then send them on to the store. After
 // install the extension kit opens this origin again and reads the values back.
 //
-// An unknown, paused or non-extension campaign, or any failure, shows the 404.
+// An unknown, paused or non-extension campaign, or any failure, shows the 404. A
+// campaign whose platform is not live in the visitor's country shows the not-live screen.
 const CAMPAIGN_ID_RE = /^[0-9A-Za-z]{5}$/
 
 const storeUrl = (value: unknown) => {
@@ -31,6 +33,8 @@ const resolveStoreUrl = async (campaignId: string, clickId: string | null, signa
     })
     if (!res.ok) throw new Error(`campaign resolve failed: ${res.status}`)
     const body = await res.json()
+    // Not live in the visitor's country (TODO#802): no store URL, the not-live screen instead
+    if (body?.isCountryAvailable === false) return null
     const url = storeUrl(body?.storeUrl)
     if (!url) throw new Error('campaign has no store page')
     return url
@@ -40,6 +44,7 @@ const Go = () => {
     const { campaignId = '' } = useParams()
     const clickId = new URLSearchParams(window.location.search).get('cid')
     const [failed, setFailed] = useState(!CAMPAIGN_ID_RE.test(campaignId))
+    const [geoBlocked, setGeoBlocked] = useState(false)
 
     useEffect(() => {
         if (!CAMPAIGN_ID_RE.test(campaignId)) return
@@ -48,6 +53,10 @@ const Go = () => {
         const controller = new AbortController()
         resolveStoreUrl(campaignId, clickId, controller.signal)
             .then((url) => {
+                if (!url) {
+                    setGeoBlocked(true)
+                    return
+                }
                 // No click id, no attribution: the visitor still gets to the store
                 if (clickId) {
                     try {
@@ -68,7 +77,7 @@ const Go = () => {
 
     // The live region is there from the first render, so the 404 that replaces the
     // empty page after a failed resolve is announced to screen readers
-    return <div aria-live="polite">{failed ? <NotFound /> : null}</div>
+    return <div aria-live="polite">{failed ? <NotFound /> : geoBlocked ? <GeoBlock /> : null}</div>
 }
 
 export default Go
